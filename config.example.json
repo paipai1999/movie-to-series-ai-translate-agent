@@ -1,0 +1,125 @@
+{
+  "gemini": {
+    "enabled": true,
+    "api_keys": [],
+    "model": "gemini-3.5-flash-lite",
+    "models": {
+      "heavy": "gemini-3.5-flash",
+      "workhorse": "gemini-3.5-flash-lite",
+      "polish": "gemini-3.1-flash-lite"
+    },
+    "daily_limit_per_key": 1500,
+    "model_limits": {
+      "gemini-3.5-flash-lite": 1000,
+      "gemini-3.1-flash-lite": 1000,
+      "gemini-flash-lite-latest": 1000,
+      "gemini-flash-latest": 500,
+      "gemini-3.5-flash": 500,
+      "gemini-3.6-flash": 500,
+      "gemini-3.7-flash": 500,
+      "gemini-3.8-flash": 500
+    }
+  },
+  "pipeline": {
+    "language": "burmese",
+    "script_engine": "recap",
+    "video_format": "both",
+    "whisper_model": "base",
+    "scene_threshold": 30.0,
+    "max_characters": 6,
+    "max_scenes_for_llm": 30,
+    "parallel_processing": true,
+    "use_demucs": false,
+    "scene_detection": false
+  },
+  "voice": {
+    "enabled": true,
+    "engine": "edge_tts",
+    "tts_voice_mm": "my-MM-ThihaNeural",
+    "tts_voice_en": "en-US-GuyNeural",
+    "tts_voice": "my-MM-ThihaNeural",
+    "tts_rate_mm": "+18%",
+    "tts_rate_en": "+15%",
+    "f5_tts": {
+      "model_type": "F5-TTS",
+      "auto_character_cloning": true,
+      "default_ref_audio": "assets/voices/default_ref.wav",
+      "default_ref_text": "",
+      "speed": 1.0,
+      "device": "auto"
+    }
+  },
+  "batch": {"movies_folder": "movies", "max_parallel_jobs": 1, "skip_completed": true},
+  "paths": {
+    "output_dir": "outputs",
+    "temp_dir": "temp",
+    "clean_temp_after_merge": true
+  },
+  "copyright_protection": {"enabled": true, "mirror_video": false, "resize_factor": 1.02},
+  "subtitle_blur": {"enabled": true, "region_height_pct": 0.18, "blur_strength": 18},
+  "color_grading": {"enabled": true, "brightness": 0.03, "contrast": 1.02, "saturation": 1.08},
+  "bgm": {
+    "enabled": false,
+    "folder": "assets/bgm",
+    "volume": 0.22,
+    "style": ""
+  },
+  "watermark": {
+    "enabled": true,
+    "text": "Pai Ai Movie Studio",
+    "opacity": 0.5,
+    "margin": 30,
+    "font_size": 40,
+    "position": "bottom_left",
+    "style": "badge",
+    "logo_path": ""
+  },
+  "subtitle_overlay": {
+    "enabled": true,
+    "style_preset": "box_black",
+    "font_name": "Myanmar Text",
+    "font_size": 40,
+    "bold": true,
+    "border_style": 3,
+    "outline_width": 3,
+    "margin_bottom": 50,
+    "max_chars_per_line": 28
+  },
+  "reels": {
+    "enabled": true,
+    "width": 1080,
+    "height": 1920,
+    "blur_background": true,
+    "blur_sigma": 25,
+    "hook_title_color": "&H00D7FF",
+    "font_size": 52,
+    "safe_zone_margin": 160
+  },
+  "action_narration": {
+    "enabled": true,
+    "min_gap_sec": 18.0,
+    "max_bridge_duration_sec": 6.0
+  },
+  "audio_ducking": {
+    "enabled": true,
+    "duck_volume": 0.12,
+    "ambient_volume": 0.35
+  },
+  "qa": {
+    "enabled": true,
+    "auto_rewrite_threshold": 6,
+    "review_output": true,
+    "skip_video_qa": false
+  },
+  "thumbnail_intro": {
+    "enabled": false,
+    "duration_sec": 3.0
+  },
+  "outro_protection": {
+    "auto_trim": true,
+    "anti_subscribe_zoom": true,
+    "outro_card": false,
+    "trim_end_seconds": 0.0
+  },
+  "logging": {"level": "INFO", "save_log_file": true}
+}

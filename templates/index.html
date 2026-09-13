@@ -1,0 +1,3734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Recap AI 🎬</title>
+    <meta name="description" content="AI-powered movie recap video generator with Hybrid Native Video Processing, Descriptive Storytelling, and Myanmar neural voice">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Padauk:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #fafafa;
+            --bg2: #ffffff;
+            --accent: #ff4757; /* Bright vibrant music app style red/pink */
+            --accent2: #ff6b81;
+            --accent-glow: rgba(255, 71, 87, 0.25);
+            --success: #2ed573;
+            --warn: #ffa502;
+            --error: #ff4757;
+            --card: rgba(255, 255, 255, 0.85);
+            --card-border: rgba(0, 0, 0, 0.04);
+            --text: #2f3542;
+            --muted: #747d8c;
+            --muted2: #a4b0be;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(22px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes floatGlow {
+            0%,100% { transform: translate3d(0,0,0) scale(1); opacity: 0.8; }
+            50% { transform: translate3d(0,-8px,0) scale(1.03); opacity: 1; }
+        }
+        @keyframes pulseSoft {
+            0%,100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(124,58,237,0.28); }
+            50% { transform: scale(1.01); box-shadow: 0 0 0 10px rgba(124,58,237,0); }
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes statusPulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(124,58,237,0.14); }
+            50% { transform: scale(1.05); box-shadow: 0 0 12px rgba(124,58,237,0.4); }
+        }
+        @keyframes connector-flow {
+            0% { left: -50%; }
+            100% { left: 120%; }
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', 'Padauk', 'Pyidaungsu', sans-serif;
+            background: linear-gradient(135deg, #f1f2f6 0%, #ffffff 100%);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            animation: fadeInUp 0.7s ease-out both;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at top left, rgba(255,107,129,0.08), transparent 40%),
+                        radial-gradient(circle at bottom right, rgba(112,161,255,0.08), transparent 40%);
+            pointer-events: none;
+            z-index: -1;
+        }
+        body::after {
+            display: none;
+        }
+
+        .bg-stars,
+        .bg-gradient,
+        .bg-grid,
+        .bg-particles {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .bg-stars {
+            background: radial-gradient(circle at 25% 10%, rgba(255,71,87,0.04), transparent 15%),
+                        radial-gradient(circle at 75% 85%, rgba(46,213,115,0.04), transparent 15%);
+        }
+        .bg-gradient {
+            background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.4), transparent 50%);
+            filter: blur(20px);
+        }
+        .bg-grid {
+            background-image: repeating-linear-gradient(180deg, rgba(0,0,0,0.02) 0 1px, transparent 1px 32px),
+                              repeating-linear-gradient(90deg, rgba(0,0,0,0.02) 0 1px, transparent 1px 32px);
+            opacity: 0.5;
+        }
+
+        .light-canvas {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 1;
+        }
+
+        .animate-in {
+            animation: fadeInUp 0.65s ease both;
+        }
+
+        .hero-card, .progress-card, .section-card, .key-card {
+            animation: fadeUp 0.5s ease-out backwards;
+        }
+
+        .hero-card::after {
+            animation: floatGlow 8s ease-in-out infinite;
+        }
+
+        .status-pill.running {
+            animation: statusPulse 2s ease-in-out infinite;
+        }
+
+        .prog-bar {
+            background-size: 200% 100%;
+            animation: shimmer 2.3s linear infinite;
+        }
+
+        .btn-primary, .btn-nav, .btn-success, .btn-delete, .btn-delete-all, .btn-use, .download-btn {
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.25s, box-shadow 0.25s, opacity 0.25s, border-color 0.25s;
+        }
+        .btn-primary::after, .btn-nav::after, .btn-success::after, .btn-delete::after, .btn-delete-all::after, .btn-use::after, .download-btn::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.16), transparent);
+            transform: translateX(-120%);
+            transition: transform 0.6s ease;
+        }
+        .btn-primary:hover::after, .btn-nav:hover::after, .btn-success:hover::after, .btn-delete:hover::after, .btn-use:hover::after, .download-btn:hover::after {
+            transform: translateX(120%);
+        }
+
+        .url-input, .batch-textarea, select.lang-select {
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+        }
+        .url-input:focus, .batch-textarea:focus, select.lang-select:focus {
+            transform: translateY(-1px);
+        }
+
+
+        /* ── Top Nav ── */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2.5rem;
+            border-bottom: 1px solid rgba(0,0,0,0.04);
+            backdrop-filter: blur(18px);
+            background: rgba(255, 255, 255, 0.76);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .nav-brand {
+            display: flex; align-items: center; gap: 0.75rem;
+        }
+        .nav-brand .logo {
+            width: 36px; height: 36px;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem;
+            box-shadow: 0 6px 16px var(--accent-glow);
+            color: white;
+        }
+        .nav-brand h1 {
+            font-size: 1.2rem; font-weight: 700;
+            color: var(--text);
+            letter-spacing: -0.5px;
+        }
+        .nav-actions { display: flex; gap: 0.75rem; align-items: center; }
+        .nav-model-pill {
+            display: flex; align-items: center; gap: 0.5rem;
+            padding: 0.45rem 1rem;
+            background: rgba(255, 71, 87, 0.1);
+            border: 1px solid rgba(255, 71, 87, 0.2);
+            border-radius: 22px;
+            font-size: 0.78rem; font-weight: 600; color: var(--accent);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px rgba(255, 71, 87, 0.05);
+        }
+        .pulse-dot {
+            width: 7px; height: 7px;
+            background: var(--success);
+            border-radius: 50%;
+        }
+        .btn-nav {
+            padding: 0.42rem 1rem;
+            border-radius: 12px;
+            border: 1px solid rgba(0,0,0,0.05);
+            background: rgba(0,0,0,0.03);
+            color: var(--muted);
+            font-size: 0.82rem; font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, border-color 0.2s, background 0.2s;
+        }
+        .btn-nav:hover {
+            background: rgba(0,0,0,0.06);
+            color: var(--text);
+            transform: translateY(-1px);
+        }
+
+        /* ── Main layout ── */
+        .page { max-width: 1100px; margin: 0 auto; padding: 2.5rem 2rem 4rem; position: relative; z-index: 2; }
+
+        /* ── Hero Input Card ── */
+        .hero-card {
+            background: var(--card);
+            backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--card-border);
+            border-radius: 26px;
+            padding: 2rem 2.5rem;
+            margin-bottom: 1.75rem;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .section-label {
+            font-size: 0.75rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.1em;
+            color: var(--muted); margin-bottom: 1.25rem;
+        }
+
+        /* ── Mode Tabs ── */
+        .tabs {
+            display: flex; gap: 0.5rem;
+            background: rgba(0,0,0,0.04);
+            padding: 0.3rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            width: fit-content;
+        }
+        .tab-btn {
+            padding: 0.45rem 1.2rem;
+            border-radius: 8px;
+            border: none;
+            background: transparent;
+            color: var(--muted);
+            font-size: 0.85rem; font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s;
+        }
+        .tab-btn.active {
+            background: white;
+            color: var(--text);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        /* ── Input row ── */
+        .input-row {
+            display: flex; gap: 0.75rem; margin-bottom: 1.25rem; align-items: center; flex-wrap: wrap;
+        }
+        .url-input {
+            flex: 1 1 260px;
+            min-width: 200px;
+            padding: 0.9rem 1.25rem;
+            border-radius: 12px;
+            border: 1px solid rgba(0,0,0,0.08);
+            background: white;
+            color: var(--text);
+            font-size: 0.95rem;
+            font-family: inherit;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.01);
+        }
+        .url-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px var(--accent-glow);
+        }
+        .url-input::placeholder { color: var(--muted2); }
+
+        select.lang-select {
+            padding: 0.9rem 1rem;
+            border-radius: 12px;
+            border: 1px solid rgba(0,0,0,0.08);
+            background: white;
+            color: var(--text);
+            font-family: inherit;
+            font-size: 0.88rem;
+            font-weight: 600;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .btn-primary {
+            display: inline-flex; align-items: center; gap: 0.6rem;
+            padding: 0.95rem 1.8rem;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            color: white;
+            font-size: 0.95rem; font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.25s, box-shadow 0.25s, opacity 0.25s;
+            box-shadow: 0 6px 18px var(--accent-glow);
+            white-space: nowrap;
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 24px var(--accent-glow); }
+        .btn-primary:active { transform: translateY(0) scale(0.98); }
+        .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; transform: none; box-shadow: none; }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), #20bf6b);
+            box-shadow: 0 4px 18px rgba(46,213,115,0.3);
+        }
+        .btn-success:hover { box-shadow: 0 8px 24px rgba(46,213,115,0.4); }
+
+        /* ── Anti-copyright strip ── */
+        .options-strip {
+            display: flex; align-items: center; gap: 1.5rem;
+            padding: 0.8rem 1.2rem;
+            background: rgba(255,255,255,0.5);
+            border-radius: 12px;
+            border: 1px solid var(--card-border);
+            flex-wrap: wrap;
+        }
+        .options-strip label {
+            display: flex; align-items: center; gap: 0.5rem;
+            font-size: 0.85rem; color: var(--muted2);
+            cursor: pointer; user-select: none;
+        }
+        .options-strip input[type=checkbox] {
+            accent-color: var(--accent);
+            width: 15px; height: 15px;
+        }
+        .strip-title { font-size: 0.82rem; font-weight: 700; color: #c4b5fd; }
+
+        /* ── Progress Card ── */
+        .progress-card {
+            display: none;
+            background: var(--card);
+            backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--card-border);
+            border-radius: 26px;
+            padding: 1.75rem 2.25rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.05);
+            position: relative;
+            z-index: 1;
+            overflow: visible;
+        }
+        .progress-card.visible { display: block; }
+
+        /* Phase steps */
+        .phase-steps {
+            display: flex; align-items: center; gap: 0;
+            margin-bottom: 1.5rem; flex-wrap: nowrap; overflow-x: auto;
+            scroll-behavior: smooth;
+        }
+        .phase-step {
+            display: flex; align-items: center; gap: 0;
+            flex-shrink: 0;
+        }
+        .phase-node {
+            display: flex; flex-direction: column; align-items: center; gap: 4px;
+            position: relative;
+        }
+        .phase-circle {
+            width: 34px; height: 34px;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.02);
+            border: 2px solid rgba(0,0,0,0.08);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.75rem; font-weight: 700; color: var(--muted);
+            transition: all 0.4s ease;
+        }
+        .phase-circle.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+            box-shadow: 0 4px 12px var(--accent-glow);
+        }
+        .phase-circle.done {
+            background: var(--success);
+            border-color: var(--success);
+            color: white;
+        }
+        .phase-label {
+            font-size: 0.72rem; font-weight: 600;
+            line-height: 1.3;
+            color: var(--muted); text-align: center; white-space: nowrap;
+            transition: color 0.3s;
+        }
+        .phase-label.active { color: var(--accent); font-weight: 700; }
+        .phase-label.done { color: var(--success); }
+        .phase-connector {
+            width: 48px; height: 2px;
+            background: rgba(0,0,0,0.06);
+            margin: 0 2px;
+            position: relative; bottom: 10px;
+            flex-shrink: 0;
+            overflow: hidden;
+            transition: background 0.5s;
+        }
+        .phase-connector::before {
+            content: '';
+            position: absolute; top: 0; left: -50%;
+            width: 40%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 71, 87, 0.9), transparent);
+            transform: skewX(-20deg);
+            animation: connector-flow 1.4s linear infinite;
+        }
+        .phase-connector.done::before { display: none; }
+        .phase-connector.done {
+            background: var(--success);
+        }
+
+        .prog-bar-wrap {
+            width: 100%;
+            height: 12px;
+            border-radius: 999px;
+            background: rgba(0,0,0,0.04);
+            overflow: hidden;
+            position: relative;
+            margin-bottom: 1.5rem;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.04);
+        }
+        .prog-bar {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--accent2));
+            border-radius: 999px;
+            position: relative;
+            overflow: hidden;
+            transition: width 0.45s ease;
+        }
+        .prog-bar::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -50%;
+            width: 50%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+            filter: blur(4px);
+        }
+
+
+        /* Log box */
+        .log-box {
+            background: white;
+            border-radius: 12px;
+            padding: 1rem 1.25rem;
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 0.8rem;
+            line-height: 1.65;
+            height: 180px;
+            overflow-y: auto;
+            color: var(--text);
+            border: 1px solid rgba(0,0,0,0.08);
+            scroll-behavior: smooth;
+            position: relative;
+            z-index: 1;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.02);
+        }
+
+        .log-box .log-ok { color: var(--success); }
+        .log-box .log-warn { color: var(--warn); }
+        .log-box .log-err { color: var(--error); }
+        .log-box .log-info { color: #3742fa; }
+
+        @property --beam-angle {
+            syntax: '<angle>';
+            initial-value: 0deg;
+            inherits: false;
+        }
+        .log-box-wrap {
+            position: relative;
+            border-radius: 11px;
+            margin-bottom: 1rem;
+        }
+        .log-box-wrap::after {
+            content: '';
+            position: absolute; inset: -1px; border-radius: 11px;
+            pointer-events: none; z-index: 2;
+            transition: border-color 0.4s ease;
+        }
+        .log-box-wrap::before {
+            content: '';
+            position: absolute; inset: -1px; border-radius: 11px;
+            background: conic-gradient(from var(--beam-angle), transparent 0deg, transparent 50deg, #3b1a6e 68deg, #7c3aed 82deg, #818cf8 90deg, #38bdf8 97deg, #818cf8 105deg, #7c3aed 118deg, #3b1a6e 132deg, transparent 150deg, transparent 360deg);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor; mask-composite: exclude;
+            padding: 1.5px; opacity: 0; pointer-events: none; z-index: 3; transition: opacity 0.35s ease;
+        }
+        .log-box-wrap.running::before {
+            opacity: 1;
+            animation: beam-travel 2.2s linear infinite;
+        }
+        .log-box-wrap.running::after {
+            border-color: rgba(124, 58, 237, 0.25);
+        }
+        @keyframes beam-travel {
+            to { --beam-angle: 360deg; }
+        }
+
+        .status-pill {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            padding: 0.3rem 0.9rem;
+            border-radius: 20px;
+            font-size: 0.8rem; font-weight: 700;
+            margin-top: 0.9rem;
+        }
+        .status-pill.running { background: rgba(255, 71, 87, 0.1); color: var(--accent); border: 1px solid rgba(255, 71, 87, 0.2); }
+        .status-pill.done { background: rgba(46, 213, 115, 0.1); color: var(--success); border: 1px solid rgba(46, 213, 115, 0.2); }
+        .status-pill.error { background: rgba(239, 68, 68, 0.1); color: var(--error); border: 1px solid rgba(239, 68, 68, 0.2); }
+
+        /* ── API Keys Card ── */
+        .section-card {
+            background: var(--card);
+            backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--card-border);
+            border-radius: 26px;
+            padding: 1.75rem 2.25rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.05);
+        }
+        .section-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 1.25rem;
+        }
+        .section-header h2 {
+            font-size: 1rem; font-weight: 700; color: var(--text);
+            display: flex; align-items: center; gap: 0.5rem;
+            letter-spacing: 0.01em;
+        }
+        .section-header h2::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            margin-left: 0.85rem;
+            background: linear-gradient(90deg, transparent, rgba(0,0,0,0.05), transparent);
+        }
+        .quota-badge {
+            font-size: 0.8rem; padding: 0.3rem 0.85rem;
+            background: rgba(46, 213, 115, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(46, 213, 115, 0.2);
+            border-radius: 20px; font-weight: 600;
+        }        .keys-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+            gap: 1rem;
+        }
+        .key-card {
+            background: white;
+            border-radius: 16px; padding: 1.1rem 1.25rem;
+            border: 1px solid rgba(0,0,0,0.08);
+            transition: border-color 0.3s, transform 0.25s, box-shadow 0.25s;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.02);
+        }
+        .key-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 18px 36px rgba(0,0,0,0.08); }
+
+        /* ── Outputs / Movies Grid ── */
+        .outputs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+            gap: 1.25rem;
+            margin-top: 1.25rem;
+        }
+        .output-card {
+            background: white;
+            border: 1px solid rgba(0,0,0,0.08);
+            border-radius: 20px; padding: 1.5rem;
+            transition: border-color 0.3s, transform 0.25s, box-shadow 0.25s;
+            box-shadow: 0 18px 40px rgba(0,0,0,0.03);
+            backdrop-filter: blur(8px);
+        }
+        .output-card:hover { border-color: var(--accent); transform: translateY(-4px); box-shadow: 0 24px 48px rgba(0,0,0,0.08); }
+        .output-card h3 {
+            color: var(--accent); font-size: 1.05rem; margin-bottom: 0.5rem;
+            word-break: break-word;
+        }
+        .file-link {
+            display: flex; align-items: center; gap: 0.4rem;
+            color: var(--muted); text-decoration: none;
+            padding: 0.45rem 0;
+            border-bottom: 1px solid rgba(0,0,0,0.04);
+            font-size: 0.85rem;
+            transition: color 0.2s;
+            word-break: break-all;
+        }
+        .file-link:hover { color: var(--accent); }
+        audio { width: 100%; margin-top: 0.4rem; height: 34px; }
+        video { border-radius: 10px; background: #000; width: 100%; height: auto; max-height: 480px; }
+
+        .video-wrap {
+            margin: 0.75rem 0;
+            background: white;
+            border: 1px solid rgba(0,0,0,0.08);
+            border-radius: 14px; padding: 1rem;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.02);
+        }
+        .video-title {
+            font-size: 0.88rem; font-weight: 700; color: var(--accent);
+            margin-bottom: 0.6rem;
+            word-break: break-word;
+        }
+        .download-btn {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            padding: 0.45rem 1rem;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            color: white; text-decoration: none;
+            border-radius: 7px; font-size: 0.82rem; font-weight: 600;
+            transition: all 0.2s;
+        }
+        .download-btn:hover { opacity: 0.85; transform: scale(1.02); }
+
+        .btn-delete {
+            padding: 0.35rem 0.75rem;
+            background: rgba(239,68,68,0.12);
+            color: var(--error);
+            border: 1px solid rgba(239,68,68,0.25);
+            border-radius: 7px; font-size: 0.8rem; font-weight: 600;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .btn-delete:hover { background: rgba(239,68,68,0.25); }
+        .btn-use {
+            padding: 0.35rem 0.75rem;
+            background: rgba(16,185,129,0.12);
+            color: var(--success);
+            border: 1px solid rgba(16,185,129,0.25);
+            border-radius: 7px; font-size: 0.8rem; font-weight: 600;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .btn-use:hover { background: rgba(16,185,129,0.25); }
+
+        .empty-state {
+            color: var(--muted); font-style: italic;
+            font-size: 0.9rem; grid-column: 1/-1;
+            text-align: center; padding: 2rem;
+        }
+
+        /* Batch textarea */
+        .batch-textarea {
+            width: 100%; padding: 1rem;
+            border-radius: 12px;
+            border: 1px solid rgba(0,0,0,0.08);
+            background: white;
+            color: var(--text);
+            font-family: monospace; font-size: 0.85rem;
+            resize: vertical; min-height: 100px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.01);
+        }
+        .batch-textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-glow); }
+
+        select.lang-select option { background: white; color: var(--text); }
+        .log-box::-webkit-scrollbar, .phase-steps::-webkit-scrollbar { height: 6px; width: 6px; }
+        .log-box::-webkit-scrollbar-thumb, .phase-steps::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 3px; }
+
+        /* ── Branding Strip ── */
+        .branding-strip {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+            gap: 1rem;
+            margin-top: 1.25rem;
+            padding-top: 1rem;
+            border-top: 1px dashed rgba(0,0,0,0.08);
+        }
+
+        /* ── Modal Dialog Styles ── */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 99999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+        .modal-backdrop.active {
+            display: flex !important;
+        }
+        .modal-dialog {
+            background: var(--bg2);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.25);
+            width: 100%;
+            max-width: 640px;
+            max-height: 86vh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 1.75rem 2rem;
+            position: relative;
+            animation: fadeUp 0.3s ease-out;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+            padding-bottom: 0.75rem;
+            gap: 0.75rem;
+        }
+        .modal-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .modal-close {
+            background: rgba(0, 0, 0, 0.05);
+            border: none;
+            border-radius: 50%;
+            width: 34px;
+            height: 34px;
+            min-width: 34px;
+            font-size: 1.05rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--muted);
+            transition: background 0.2s, color 0.2s, transform 0.2s;
+        }
+        .modal-close:hover {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--error);
+            transform: scale(1.05);
+        }
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+            margin-top: 1.25rem;
+            border-top: 1px solid rgba(0, 0, 0, 0.06);
+            padding-top: 1rem;
+            flex-wrap: wrap;
+        }
+        .health-card-item {
+            background: rgba(0, 0, 0, 0.02);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            border-radius: 12px;
+            padding: 1rem 1.25rem;
+            margin-bottom: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            transition: background 0.2s;
+        }
+        .health-card-item:hover {
+            background: rgba(0, 0, 0, 0.035);
+        }
+        .health-badge {
+            padding: 0.35rem 0.85rem;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+        .health-badge.ok {
+            background: rgba(46, 213, 115, 0.15);
+            color: var(--success);
+            border: 1px solid rgba(46, 213, 115, 0.3);
+        }
+        .health-badge.warn {
+            background: rgba(255, 165, 2, 0.15);
+            color: var(--warn);
+            border: 1px solid rgba(255, 165, 2, 0.3);
+        }
+        .health-badge.err {
+            background: rgba(255, 71, 87, 0.15);
+            color: var(--error);
+            border: 1px solid rgba(255, 71, 87, 0.3);
+        }
+        .queue-item-card {
+            background: rgba(0, 0, 0, 0.02);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            border-radius: 12px;
+            padding: 0.85rem 1.1rem;
+            margin-bottom: 0.6rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.8rem;
+        }
+        .cookies-status-card {
+            background: rgba(0, 0, 0, 0.03);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1.25rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        /* ── Toast Notifications ── */
+        .toast-container {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 999999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 420px;
+            pointer-events: none;
+        }
+        .toast-item {
+            color: #ffffff;
+            padding: 12px 18px;
+            border-radius: 12px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.28);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.25);
+            transform: translateY(-12px);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: auto;
+            word-break: break-word;
+        }
+        .toast-item.visible {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* ══════════════════════════════════════════════════
+           COMPREHENSIVE RESPONSIVE LAYOUT SYSTEM
+           ══════════════════════════════════════════════════ */
+
+        /* ── Tablet & Small Laptops (768px to 1024px) ── */
+        @media (max-width: 1024px) {
+            nav {
+                padding: 0.85rem 1.5rem;
+                flex-wrap: wrap;
+                gap: 0.75rem;
+            }
+            .nav-brand {
+                flex: 0 0 auto;
+            }
+            .nav-actions {
+                flex: 1 1 auto;
+                justify-content: flex-end;
+                flex-wrap: wrap;
+                gap: 0.45rem;
+            }
+            .page {
+                padding: 2rem 1.25rem 3.5rem;
+            }
+            .hero-card {
+                padding: 1.75rem 1.75rem;
+            }
+            .input-row {
+                flex-wrap: wrap;
+                gap: 0.65rem;
+            }
+            .url-input {
+                flex: 1 1 300px;
+            }
+            .options-strip {
+                gap: 1rem;
+            }
+            .branding-strip {
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            }
+            .outputs-grid {
+                grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+            }
+        }
+
+        /* ── Phablets & Mobile Landscape (641px to 767px) ── */
+        @media (max-width: 767px) {
+            nav {
+                padding: 0.75rem 1rem;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.65rem;
+            }
+            .nav-brand {
+                width: 100%;
+                justify-content: flex-start;
+            }
+            .nav-brand h1 {
+                font-size: 1.12rem;
+            }
+            .nav-actions {
+                width: 100%;
+                justify-content: flex-start;
+                flex-wrap: wrap;
+                gap: 0.4rem;
+            }
+            .nav-actions .btn-nav, .nav-actions .nav-model-pill {
+                font-size: 0.76rem;
+                padding: 0.38rem 0.75rem;
+            }
+            .page {
+                padding: 1.25rem 0.85rem 3rem;
+            }
+            .hero-card {
+                padding: 1.25rem 1rem;
+                border-radius: 20px;
+            }
+            .section-card {
+                padding: 1.25rem 1rem;
+                border-radius: 20px;
+            }
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.65rem;
+            }
+            .section-header > div {
+                width: 100%;
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
+            .section-header h2 {
+                font-size: 1.1rem;
+            }
+            .options-strip {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+                gap: 0.65rem;
+                padding: 0.85rem 1rem;
+            }
+            .branding-strip {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ── Mobile Phones (<= 640px) ── */
+        @media (max-width: 640px) {
+            body {
+                font-size: 14px;
+            }
+            nav {
+                padding: 0.65rem 0.85rem;
+                gap: 0.5rem;
+            }
+            .nav-brand .logo {
+                width: 32px;
+                height: 32px;
+                font-size: 0.95rem;
+            }
+            .nav-brand h1 {
+                font-size: 1.05rem;
+            }
+            .nav-brand span {
+                font-size: 0.66rem;
+            }
+            .nav-actions {
+                gap: 0.35rem;
+            }
+            .nav-actions .btn-nav, .nav-actions .nav-model-pill {
+                font-size: 0.72rem;
+                padding: 0.32rem 0.6rem;
+                border-radius: 10px;
+            }
+
+            /* Main Page & Hero Card */
+            .page {
+                padding: 1rem 0.75rem 2.5rem;
+            }
+            .hero-card {
+                padding: 1.25rem 0.85rem;
+                border-radius: 18px;
+                margin-bottom: 1.25rem;
+            }
+            .section-label {
+                font-size: 0.7rem;
+                margin-bottom: 0.85rem;
+            }
+            .tabs {
+                width: 100%;
+                display: flex;
+            }
+            .tab-btn {
+                flex: 1;
+                text-align: center;
+                padding: 0.5rem 0.5rem;
+                font-size: 0.82rem;
+            }
+
+            /* Single input stack */
+            .input-row {
+                display: flex;
+                flex-direction: column;
+                gap: 0.65rem;
+            }
+            .input-row > * {
+                width: 100% !important;
+                box-sizing: border-box;
+            }
+            .url-input {
+                font-size: 15px;
+                padding: 0.85rem 1rem;
+            }
+            select.lang-select {
+                font-size: 15px;
+                padding: 0.8rem 0.85rem;
+                width: 100%;
+            }
+            .btn-primary {
+                width: 100%;
+                justify-content: center;
+                padding: 0.85rem 1.2rem;
+                font-size: 0.92rem;
+            }
+            #btn-start {
+                padding: 0.95rem 1.5rem;
+                font-size: 1rem;
+                font-weight: 800;
+                box-shadow: 0 8px 24px var(--accent-glow);
+            }
+
+            /* Options Strip Mobile Grid */
+            .options-strip {
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 0.55rem;
+                padding: 0.75rem;
+                border-radius: 14px;
+            }
+            .options-strip > div {
+                display: flex !important;
+                justify-content: space-between;
+                align-items: center;
+                width: 100%;
+                padding: 0.45rem 0.6rem;
+                background: rgba(0, 0, 0, 0.02);
+                border: 1px solid rgba(0, 0, 0, 0.04);
+                border-radius: 8px;
+                box-sizing: border-box;
+            }
+            .options-strip label {
+                font-size: 0.8rem;
+                width: 100%;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+            /* Branding & Watermark Strip */
+            .branding-strip {
+                grid-template-columns: 1fr;
+                gap: 0.75rem;
+            }
+            #watermark-inputs-wrap {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.5rem;
+            }
+            #watermark-inputs-wrap input,
+            #watermark-inputs-wrap select {
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+            /* Progress Card & Phase Steps */
+            .progress-card {
+                padding: 1.25rem 0.85rem;
+                border-radius: 18px;
+            }
+            .phase-steps {
+                padding-bottom: 0.65rem;
+                margin-bottom: 1rem;
+            }
+            .phase-circle {
+                width: 28px;
+                height: 28px;
+                font-size: 0.68rem;
+            }
+            .phase-connector {
+                width: 18px;
+                bottom: 8px;
+            }
+            .phase-label {
+                font-size: 0.64rem;
+            }
+            .log-box {
+                height: 150px;
+                font-size: 0.75rem;
+                padding: 0.75rem 0.85rem;
+            }
+
+            /* Outputs Grid & Cards */
+            .outputs-grid {
+                grid-template-columns: 1fr;
+                gap: 0.85rem;
+            }
+            .output-card {
+                padding: 0.85rem;
+                border-radius: 16px;
+            }
+            .video-wrap {
+                padding: 0.65rem;
+                border-radius: 12px;
+            }
+            .keys-grid {
+                grid-template-columns: 1fr;
+            }
+
+            /* Modals Mobile Adaptation */
+            .modal-backdrop {
+                padding: 0.5rem;
+                align-items: center;
+            }
+            .modal-dialog {
+                padding: 1.25rem 1rem;
+                border-radius: 18px;
+                max-height: 90vh;
+                max-width: 100%;
+            }
+            .modal-header {
+                margin-bottom: 0.85rem;
+                padding-bottom: 0.6rem;
+            }
+            .modal-title {
+                font-size: 1rem;
+                gap: 0.35rem;
+            }
+            .modal-footer {
+                flex-direction: column-reverse;
+                gap: 0.5rem;
+            }
+            .modal-footer > * {
+                width: 100%;
+                text-align: center;
+                justify-content: center;
+            }
+            .health-card-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+                padding: 0.75rem 0.85rem;
+            }
+            .health-card-item .health-badge {
+                align-self: flex-start;
+            }
+            .queue-item-card {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+            .queue-item-card button {
+                align-self: flex-end;
+            }
+            .cookies-status-card {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .cookies-status-card #btn-delete-cookies {
+                align-self: flex-start;
+                margin-top: 0.5rem;
+            }
+
+            /* Toast Mobile */
+            .toast-container {
+                top: 12px;
+                left: 12px;
+                right: 12px;
+                max-width: none;
+            }
+            .toast-item {
+                font-size: 0.82rem;
+                padding: 10px 14px;
+                text-align: center;
+            }
+        }
+
+        /* ── Extra Small Screens (<= 380px) ── */
+        @media (max-width: 380px) {
+            .page {
+                padding: 0.75rem 0.5rem 2rem;
+            }
+            .hero-card, .section-card, .progress-card {
+                padding: 1rem 0.65rem;
+                border-radius: 14px;
+            }
+            .nav-actions .btn-nav {
+                font-size: 0.68rem;
+                padding: 0.3rem 0.5rem;
+            }
+            .modal-dialog {
+                padding: 1rem 0.75rem;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <canvas id="lightCanvas" class="light-canvas"></canvas>
+    <div class="bg-stars"></div>
+    <div class="bg-gradient"></div>
+    <div class="bg-grid"></div>
+    <div id="toast-container" style="position:fixed; top:24px; right:24px; z-index:999999; display:flex; flex-direction:column; gap:10px; max-width:420px; pointer-events:none;"></div>
+
+<!-- ══ TOP NAV ══ -->
+<nav>
+    <div class="nav-brand">
+        <div class="logo">🎬</div>
+        <div style="display: flex; flex-direction: column;">
+            <h1>Movie Recap AI</h1>
+            <span style="font-size: 0.75rem; color: var(--success); letter-spacing: 0.5px; font-weight: 600; text-transform: uppercase; margin-top: -2px;">✨ Hybrid Native Video & Descriptive AI</span>
+        </div>
+    </div>
+    <div class="nav-actions">
+        <div id="encoder-badge" class="nav-model-pill" style="background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.25); color: var(--success);" title="Video Rendering Hardware Acceleration">
+            <span>⚡ GPU: Detecting...</span>
+        </div>
+        <div class="nav-model-pill">
+            <div class="pulse-dot"></div>
+            <span id="model-display">gemini-3.5-flash-lite</span>
+        </div>
+        <button class="btn-nav" id="btn-queue-badge" onclick="openQueueModal()" style="display:none; background:rgba(255,107,129,0.12); border-color:rgba(255,107,129,0.3); color:var(--accent); font-weight:600;" title="View background queued jobs">
+            📥 Queue (<span id="queue-badge-count">0</span>)
+        </button>
+        <button class="btn-nav" id="btn-cookies-badge" onclick="openCookiesModal()" style="background:rgba(255,165,2,0.12); border-color:rgba(255,165,2,0.3); color:var(--warn); font-weight:600;" title="YouTube Anti-Bot Cookies Manager">
+            🍪 Cookies: <span id="cookies-nav-status">Checking...</span>
+        </button>
+        <button class="btn-nav" style="background:rgba(46,213,115,0.12); border-color:rgba(46,213,115,0.3); color:var(--success); font-weight:600;" onclick="openHealthModal()" title="System and service readiness diagnostic">
+            🩺 Health Check
+        </button>
+        <button class="btn-nav" onclick="loadKeyStatus()">🔄 Refresh Keys</button>
+        <button class="btn-nav" onclick="clearCache()">🧹 Clear Cache</button>
+        <button class="btn-nav" style="background:var(--danger);" onclick="deleteAll('all')">🚨 Delete All (Sources + Outputs)</button>
+    </div>
+</nav>
+
+<!-- ══ PAGE CONTENT ══ -->
+<div class="page">
+
+    <!-- ── Hero Input Card ── -->
+    <div class="hero-card animate-in">
+        <div class="section-label">🚀 Pipeline Control</div>
+
+        <!-- Mode Tabs -->
+        <div class="tabs">
+            <button id="tab-single" class="tab-btn active" onclick="switchMode('single')">🎥 Single Video</button>
+            <button id="tab-batch" class="tab-btn" onclick="switchMode('batch')">📋 Batch Queue</button>
+        </div>
+
+        <!-- Single mode -->
+        <div id="single-group">
+            <div class="input-row" style="position: relative;">
+                <input class="url-input" type="text" id="input-source"
+                    placeholder="Paste YouTube / DramaBox URL or local video path...">
+                
+                <input type="file" id="file-upload" accept="video/*,.txt" style="display: none;" onchange="handleVideoUpload(this)">
+                <button class="btn-primary" id="btn-upload" style="background: white; border: 1px solid rgba(0,0,0,0.1); color: var(--text); box-shadow: 0 4px 10px rgba(0,0,0,0.03); flex-shrink: 0; white-space: nowrap;" onclick="document.getElementById('file-upload').click()" title="Upload a video file from your computer">
+                    <span id="btn-upload-text">📁 Upload</span>
+                </button>
+                <button class="btn-primary" id="btn-cookies-quick" type="button" style="background: rgba(255,165,2,0.14); border: 1px solid rgba(255,165,2,0.35); color: #d97706; font-weight:700; padding:0.5rem 0.9rem; flex-shrink: 0; white-space: nowrap;" onclick="openCookiesModal()" title="Manage YouTube Anti-Bot Cookies">
+                    🍪 Cookies
+                </button>
+                <select class="lang-select" id="select-lang" style="flex-shrink: 0; white-space: nowrap;">
+                    <option value="burmese" selected>🇲🇲 မြန်မာ (Auto Multi-Voice 👫)</option>
+                    <option value="burmese_thiha">🇲🇲 မြန်မာ (Thiha - Male 👨)</option>
+                    <option value="burmese_nilar">🇲🇲 မြန်မာ (Nilar - Female 👩)</option>
+                    <option value="english">🇺🇸 English (Auto Multi-Voice 👫)</option>
+                    <option value="english_guy">🇺🇸 English (Guy - Male 👨)</option>
+                    <option value="english_jenny">🇺🇸 English (Jenny - Female 👩)</option>
+                </select>
+                <select class="lang-select" id="select-tts-engine" onchange="updateEngineSetting(this.value)" title="Choose TTS Engine" style="flex-shrink: 0; white-space: nowrap;">
+                    <option value="edge_tts" selected>⚡ Edge TTS ($0 Fast)</option>
+                    <option value="f5_tts">🧬 F5-TTS (Voice Cloning)</option>
+                </select>
+                <button class="btn-primary" id="btn-start" onclick="startJob()" style="flex-shrink: 0; white-space: nowrap;">
+                    <span id="btn-start-text">▶ Start Pipeline</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Batch mode -->
+        <div id="batch-group" style="display:none;">
+            <textarea class="batch-textarea" id="batch-inputs"
+                placeholder="Paste multiple URLs or video paths — one per line:&#10;https://www.youtube.com/watch?v=...&#10;https://www.dramaboxdb.com/ep/...&#10;movies/my_local_file.mp4"></textarea>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.75rem; flex-wrap:wrap; gap:0.5rem;">
+                <span style="font-size:0.82rem; color:var(--muted);">🌙 Runs sequentially overnight with auto API key rotation</span>
+                <button class="btn-primary btn-success" id="btn-batch" onclick="startBatchJob()">
+                    🚀 Start Overnight Batch
+                </button>
+            </div>
+        </div>
+
+        <!-- Anti-copyright, Subtitle & Voice strip -->
+        <div class="options-strip" style="margin-top:1.25rem; flex-wrap:wrap; gap:1.25rem; align-items:center;">
+            <div style="display:inline-flex; align-items:center; gap:0.5rem;">
+                <span class="strip-title" style="color:var(--muted); font-weight:700;">🎙️ Voice Engine:</span>
+                <select class="lang-select" id="select-tts-engine-strip" onchange="updateEngineSetting(this.value)" style="padding:0.35rem 0.75rem; font-size:0.82rem; border-radius:8px;">
+                    <option value="edge_tts" selected>⚡ Edge TTS (Neural Myanmar & English - Recommended)</option>
+                    <option value="f5_tts">🧬 F5-TTS (English/Chinese Voice Cloning)</option>
+                </select>
+            </div>
+            <div style="display:inline-flex; align-items:center; gap:0.5rem;">
+                <span class="strip-title" style="color:var(--muted); font-weight:700;">🎙️ Script Engine:</span>
+                <select class="lang-select" id="select-script-engine" onchange="updateScriptEngineSetting(this.value)" style="padding:0.35rem 0.75rem; font-size:0.82rem; border-radius:8px; font-weight:600; color:#00ffcc; border-color:rgba(0,255,204,0.3);">
+                    <option value="recap" selected>🎬 Recap Engine (ဇာတ်လမ်းပြောပြသူ စတိုင်)</option>
+                    <option value="translate">🗣️ Translate Engine (၁:၁ တိုက်ရိုက် စကားပြန်စတိုင်)</option>
+                </select>
+            </div>
+            <div style="display:inline-flex; align-items:center; gap:0.5rem;">
+                <span class="strip-title" style="color:var(--muted); font-weight:700;">📝 Subtitle Mode:</span>
+                <select class="lang-select" id="select-hardsub-mode" onchange="toggleSubStyleVisibility(this.value)" style="padding:0.35rem 0.75rem; font-size:0.82rem; border-radius:8px;">
+                    <option value="burn" selected>🔥 Burn Subtitles (Hardsub - စာတန်းထိုး ထည့်မည်)</option>
+                    <option value="none">🎙️ Voiceover Only (No Subtitles - စာတန်းထိုး မထည့်ပါ)</option>
+                </select>
+            </div>
+            <div id="sub-style-strip-wrap" style="display:inline-flex; align-items:center; gap:0.5rem; transition:opacity 0.2s ease;">
+                <span class="strip-title" style="color:var(--muted); font-weight:700;">🎨 Subtitle Style:</span>
+                <select class="lang-select" id="select-subtitle-style" onchange="selectSubPreset(this.value)" style="padding:0.35rem 0.75rem; font-size:0.82rem; border-radius:8px; font-weight:600;">
+                    <option value="box_black" selected>⬛ Cinema Box (Netflix Style)</option>
+                    <option value="yellow_pop">🟡 TikTok / Reels Pop (Yellow & Black)</option>
+                    <option value="white_stroke">⚪ Classic Movie White (Drop Shadow)</option>
+                    <option value="cyan_cyber">🔷 Cyber Cyan (Sci-Fi / Modern Blue)</option>
+                    <option value="crimson_box">🟥 Thriller Crimson (Dark Red Box)</option>
+                </select>
+            </div>
+            <div style="display:inline-flex; align-items:center; gap:0.5rem;">
+                <span class="strip-title" style="color:var(--muted); font-weight:700;">🌐 Source Audio:</span>
+                <select class="lang-select" id="select-source-lang" style="padding:0.35rem 0.75rem; font-size:0.82rem; border-radius:8px; font-weight:600;">
+                    <option value="auto" selected>🤖 Auto Detect (အလိုအလျောက်)</option>
+                    <option value="zh">🇨🇳 Chinese (中文 / တရုတ်)</option>
+                    <option value="en">🇺🇸 English (အင်္ဂလိပ်)</option>
+                    <option value="th">🇹🇭 Thai (ภาษาไทย / ထိုင်း)</option>
+                    <option value="ko">🇰🇷 Korean (한국어 / ကိုရီးယား)</option>
+                    <option value="ja">🇯🇵 Japanese (日本語 / ဂျပန်)</option>
+                </select>
+            </div>
+            <div style="display:inline-flex; align-items:center; gap:0.5rem;">
+                <span class="strip-title" style="color:var(--muted); font-weight:700;">⚙️ Resolution:</span>
+                <select class="lang-select" id="select-resolution" style="padding:0.35rem 0.75rem; font-size:0.82rem; border-radius:8px;">
+                    <option value="1080p" selected>🌟 1080p Full HD (Crisp / အကြည်လင်ဆုံး)</option>
+                    <option value="720p">⚡ 720p HD (Faster Render / အမြန်ဆုံး)</option>
+                </select>
+            </div>
+            <div style="display:inline-flex; align-items:center; gap:0.5rem;">
+                <span class="strip-title" style="color:var(--muted); font-weight:700;">🔍 Subtitle Blur:</span>
+                <select class="lang-select" id="select-subtitle-mode" style="padding:0.35rem 0.75rem; font-size:0.82rem; border-radius:8px;">
+                    <option value="auto" selected>🤖 Auto-Detect (Native/Vision AI)</option>
+                    <option value="yes">📝 Force Blur</option>
+                    <option value="no">🚫 Disable Blur</option>
+                </select>
+            </div>
+            <div style="display:inline-flex; align-items:center; gap:0.5rem;">
+                <span class="strip-title">🛡️ Anti-Copyright:</span>
+                <label style="font-size:0.82rem; cursor:pointer;">
+                    <input type="checkbox" id="chk-mirror" onchange="updateMirrorSetting(this.checked)">
+                    🪞 Mirror Video (ဘယ်ညာလှည့် — Maximum Protection)
+                </label>
+            </div>
+            <div style="display:inline-flex; align-items:center; gap:0.5rem;">
+                <span class="strip-title" style="color:var(--muted); font-weight:700;">🎵 Audio Demucs:</span>
+                <label style="font-size:0.82rem; cursor:pointer;" title="Skip Demucs vocal separation to speed up processing significantly on CPU">
+                    <input type="checkbox" id="chk-skip-demucs" onchange="updateDemucsSetting(this.checked)">
+                    ⚡ Skip Demucs (အသံခွဲထုတ်မှုကျော်ရန် — CPU ပိုမြန်မည်)
+                </label>
+            </div>
+            <div style="display:inline-flex; align-items:center; gap:0.5rem;">
+                <span class="strip-title" style="color:var(--muted); font-weight:700;">🔊 Audio Ducking:</span>
+                <label style="font-size:0.82rem; cursor:pointer;" title="Automatically lower original video/BGM audio when voiceover is speaking">
+                    <input type="checkbox" id="chk-audio-ducking" checked onchange="updateAudioDuckingSetting(this.checked)">
+                    📉 Dynamic Ducking (ဇာတ်ကြောင်းပြောချိန် နောက်ခံအသံတိုးမည်)
+                </label>
+            </div>
+            <div style="display:inline-flex; align-items:center; gap:0.5rem;">
+                <span class="strip-title" style="color:var(--muted); font-weight:700;">🎬 Scene Detection:</span>
+                <label style="font-size:0.82rem; cursor:pointer;" title="Enable PySceneDetect frame analysis (slower, scans all frames)">
+                    <input type="checkbox" id="chk-scene-detect" onchange="updateSceneDetectSetting(this.checked)">
+                    🔍 Detect Scenes (PySceneDetect ဖွင့်မည်)
+                </label>
+            </div>
+        </div>
+
+        <!-- ── Thumbnail Title & Watermark Branding Strip ── -->
+        <div class="branding-strip">
+            <!-- Thumbnail Title Section -->
+            <div style="background:white; padding:0.85rem 1.1rem; border-radius:12px; border:1px solid rgba(0,0,0,0.07); box-shadow:0 4px 12px rgba(0,0,0,0.02);">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
+                    <span style="font-size:0.85rem; font-weight:700; color:var(--text);">🖼️ Thumbnail မြန်မာ Title:</span>
+                    <span id="thumb-mode-badge" style="font-size:0.72rem; padding:2px 8px; border-radius:4px; background:rgba(46,213,115,0.14); color:var(--success); font-weight:700; border:1px solid rgba(46,213,115,0.3);">🤖 Auto (AI Generated)</span>
+                </div>
+                <input type="text" id="input-thumb-title" placeholder="အလွတ်ထားပါက AI က Auto ရေးပေးမည် (သို့) မိမိစိတ်ကြိုက် Title ရိုက်ထည့်ပါ..." 
+                       oninput="updateThumbBadge(this.value)"
+                       style="width:100%; box-sizing:border-box; padding:0.6rem 0.85rem; font-size:0.85rem; background:#f8fafc; border:1px solid rgba(0,0,0,0.12); border-radius:8px; color:var(--text); transition:border-color 0.2s;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px; padding-top:6px; border-top:1px solid rgba(0,0,0,0.06);">
+                    <label style="font-size:0.82rem; font-weight:600; color:var(--text); cursor:pointer; display:flex; align-items:center; gap:0.4rem;">
+                        <input type="checkbox" id="chk-thumb-intro" onchange="updateThumbnailIntroSetting(this.checked)">
+                        ⏱️ 3s Thumbnail Intro ထည့်မည် (ဗီဒီယိုအစတွင် ၃ စက္ကန့်ပြသရန်)
+                    </label>
+                </div>
+                <div style="font-size:0.75rem; color:var(--muted); margin-top:4px;">
+                    💡 အလွတ်ထားပါက AI က SEO High-CTR မြန်မာခေါင်းစဉ်ကို Auto ထုတ်ယူပေးမည်။ Intro ကို အမှန်ခြစ်ထားမှသာ ဗီဒီယိုအစ၌ Thumbnail ပုံ ၃ စက္ကန့် ပါဝင်မည်။
+                </div>
+            </div>
+
+            <!-- Watermark Branding Section -->
+            <div style="background:white; padding:0.85rem 1.1rem; border-radius:12px; border:1px solid rgba(0,0,0,0.07); box-shadow:0 4px 12px rgba(0,0,0,0.02);">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
+                    <label style="font-size:0.85rem; font-weight:700; color:var(--text); cursor:pointer; display:flex; align-items:center; gap:0.4rem;">
+                        <input type="checkbox" id="chk-watermark" checked onchange="toggleWatermarkControls(this.checked)">
+                        🛡️ Watermark (ရေစာထိုးမည်)
+                    </label>
+                    <button type="button" onclick="saveWatermarkDefault()" style="background:transparent; border:none; color:var(--accent); font-size:0.75rem; font-weight:600; cursor:pointer; padding:0; text-decoration:underline;">💾 Save Default</button>
+                </div>
+                <div id="watermark-inputs-wrap" style="display:flex; gap:0.5rem; align-items:center;">
+                    <input type="text" id="input-watermark-text" value="Pai Ai Movie Studio" placeholder="Channel Name or Branding..."
+                           style="flex:1; box-sizing:border-box; padding:0.6rem 0.85rem; font-size:0.85rem; background:#f8fafc; border:1px solid rgba(0,0,0,0.12); border-radius:8px; color:var(--text);">
+                    <select id="select-watermark-opacity" style="padding:0.6rem 0.6rem; font-size:0.82rem; background:#f8fafc; border:1px solid rgba(0,0,0,0.12); border-radius:8px; color:var(--text);">
+                        <option value="0.2">20% အလွန်ပါး</option>
+                        <option value="0.4" selected>40% သင့်တင့် (Recommended)</option>
+                        <option value="0.6">60% ထင်ရှား</option>
+                        <option value="0.8">80% အလွန်ထင်ရှား</option>
+                        <option value="1.0">100% Solid</option>
+                    </select>
+                </div>
+                <div style="font-size:0.75rem; color:var(--muted); margin-top:4px;">
+                    📌 ဗီဒီယို၏ ညာဘက်အပေါ်ထောင့် (Top-Right) တွင် Transparent ရေစာအဖြစ် ထိုးပေးမည်။
+                </div>
+            </div>
+
+            <!-- Video Size & Aspect Ratio Selector Section -->
+            <div style="background:white; padding:0.85rem 1.1rem; border-radius:12px; border:1px solid rgba(0,0,0,0.07); box-shadow:0 4px 12px rgba(0,0,0,0.02); margin-top:0.6rem;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
+                    <span style="font-size:0.85rem; font-weight:700; color:var(--text); display:flex; align-items:center; gap:0.4rem;">
+                        📐 Video Size / Aspect Ratio (ဗီဒီယို အရွယ်အစား):
+                    </span>
+                    <span id="video-format-badge" style="font-size:0.72rem; padding:2px 8px; border-radius:4px; background:rgba(46,213,115,0.14); color:var(--success); font-weight:700; border:1px solid rgba(46,213,115,0.3);">✨ Dual Export (16:9 + 9:16)</span>
+                </div>
+                <select id="select-video-format" onchange="updateVideoFormatBadge(this.value)"
+                        style="width:100%; box-sizing:border-box; padding:0.6rem 0.85rem; font-size:0.85rem; background:#f8fafc; border:1px solid rgba(0,0,0,0.12); border-radius:8px; color:var(--text); font-weight:600;">
+                    <option value="both" selected>🎬 Both (16:9 Landscape + 9:16 Vertical Reels) — နှစ်မျိုးစလုံး (Recommended)</option>
+                    <option value="16:9">📺 16:9 Only (Standard Landscape — YouTube / Facebook Video)</option>
+                    <option value="9:16">📱 9:16 Only (Vertical Canvas — Facebook Reels / TikTok / Shorts)</option>
+                </select>
+                <div id="video-format-desc" style="font-size:0.75rem; color:var(--muted); margin-top:4px;">
+                    📌 16:9 YouTube မူရင်းဗီဒီယိုနှင့် Facebook Reels / Shorts အတွက် 9:16 ဒေါင်လိုက် Canvas ဗီဒီယို (၂) မျိုးစလုံးကို တစ်ပြိုင်နက် ထုတ်ပေးမည်။
+                </div>
+            </div>
+
+            <!-- Subtitle Style Presets Section -->
+            <div id="sub-style-card" style="background:white; padding:0.85rem 1.1rem; border-radius:12px; border:1px solid rgba(0,0,0,0.07); box-shadow:0 4px 12px rgba(0,0,0,0.02); margin-top:0.6rem; transition:opacity 0.2s ease;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem; flex-wrap:wrap; gap:0.4rem;">
+                    <span style="font-size:0.85rem; font-weight:700; color:var(--text); display:flex; align-items:center; gap:0.4rem;">
+                        🎨 Subtitle Style Presets (စာတန်းထိုး ဒီဇိုင်းပုံစံများ):
+                    </span>
+                    <div style="display:flex; align-items:center; gap:0.4rem;">
+                        <span id="sub-style-badge" style="font-size:0.72rem; padding:2px 8px; border-radius:4px; background:rgba(0,0,0,0.7); color:#ffffff; font-weight:600; border:1px solid rgba(255,255,255,0.2);">⬛ Cinema Box (Netflix Style)</span>
+                        <button type="button" onclick="saveSubStyleDefault()" style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); color:var(--text); font-size:0.72rem; padding:2px 8px; border-radius:4px; cursor:pointer; font-weight:600;" title="Save as default in config.json">💾 Save Default</button>
+                    </div>
+                </div>
+                <!-- Interactive Preset Buttons -->
+                <div style="display:flex; gap:0.45rem; flex-wrap:wrap; margin-bottom:0.6rem;">
+                    <button type="button" class="sub-preset-btn" onclick="selectSubPreset('box_black')" id="btn-preset-box_black" style="padding:0.35rem 0.75rem; font-size:0.78rem; font-weight:700; border-radius:6px; cursor:pointer; background:#18181f; color:#fff; border:1.5px solid #00ff88;">⬛ Cinema Box</button>
+                    <button type="button" class="sub-preset-btn" onclick="selectSubPreset('yellow_pop')" id="btn-preset-yellow_pop" style="padding:0.35rem 0.75rem; font-size:0.78rem; font-weight:700; border-radius:6px; cursor:pointer; background:rgba(255,215,0,0.1); color:#ffd700; border:1px solid rgba(255,215,0,0.3);">🟡 TikTok Yellow</button>
+                    <button type="button" class="sub-preset-btn" onclick="selectSubPreset('white_stroke')" id="btn-preset-white_stroke" style="padding:0.35rem 0.75rem; font-size:0.78rem; font-weight:700; border-radius:6px; cursor:pointer; background:rgba(255,255,255,0.08); color:#ffffff; border:1px solid rgba(255,255,255,0.2);">⚪ Classic White</button>
+                    <button type="button" class="sub-preset-btn" onclick="selectSubPreset('cyan_cyber')" id="btn-preset-cyan_cyber" style="padding:0.35rem 0.75rem; font-size:0.78rem; font-weight:700; border-radius:6px; cursor:pointer; background:rgba(0,255,255,0.1); color:#00ffff; border:1px solid rgba(0,255,255,0.3);">🔷 Cyber Cyan</button>
+                    <button type="button" class="sub-preset-btn" onclick="selectSubPreset('crimson_box')" id="btn-preset-crimson_box" style="padding:0.35rem 0.75rem; font-size:0.78rem; font-weight:700; border-radius:6px; cursor:pointer; background:rgba(255,77,77,0.15); color:#ff6b6b; border:1px solid rgba(255,77,77,0.3);">🟥 Thriller Red</button>
+                </div>
+                <!-- Live Preview Display Canvas -->
+                <div style="background:#141419; padding:0.75rem 1rem; border-radius:8px; border:1px solid rgba(255,255,255,0.1); text-align:center; min-height:48px; display:flex; align-items:center; justify-content:center;">
+                    <span id="sub-live-preview" style="font-family:'Padauk', 'Pyidaungsu', 'Inter', sans-serif; font-size:1.02rem; font-weight:700; display:inline-block; padding:4px 12px; border-radius:4px; background:rgba(0,0,0,0.75); color:#ffffff; letter-spacing:0.3px;">
+                        ဒီဇာတ်ကားကတော့ အကောင်းဆုံး သည်းထိတ်ရင်ဖို ရုပ်ရှင်ဖြစ်ပါတယ် (Sample Subtitle)
+                    </span>
+                </div>
+                <div id="sub-style-desc" style="font-size:0.73rem; color:var(--muted); margin-top:5px;">
+                    📌 အမည်းရောင် Background Box ပါသော ရုပ်ရှင်ရုံသုံး စာတန်း (Contrast အကောင်းဆုံး ဖြစ်၍ မည်သည့်ဗီဒီယိုနောက်ခံတွင်မဆို စာလုံးဖတ်ရ အကြည်လင်ဆုံးဖြစ်သည်)။
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Progress Card ── -->
+    <div class="progress-card animate-in" id="progress-card">
+        <div class="section-label">📡 Pipeline Progress</div>
+
+        <!-- Phase steps -->
+        <div class="phase-steps" id="phase-steps">
+            <!-- Steps injected by JS -->
+        </div>
+
+        <!-- Progress bar -->
+        <div class="prog-bar-wrap">
+            <div class="prog-bar" id="prog-bar"></div>
+        </div>
+
+        <!-- Live log -->
+        <div class="log-box-wrap" id="log-box-wrap">
+            <div class="log-box" id="log-box">Waiting for pipeline to start...</div>
+        </div>
+
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem; margin-top: 0.75rem;">
+            <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+                <div id="status-pill" class="status-pill running">
+                    <span class="pulse-dot" id="status-dot"></span>
+                    <span id="status-text">Starting...</span>
+                </div>
+                <div id="elapsed-timer-pill" class="status-pill" style="display:none; background:rgba(16,185,129,0.15); color:#34d399; border:1px solid rgba(16,185,129,0.35); font-weight:700;">
+                    ⏱️ <span id="elapsed-timer-val">00:00</span>
+                </div>
+                <div id="batch-progress-pill" class="status-pill" style="display:none; background:rgba(59,130,246,0.2); color:#93c5fd; border:1px solid rgba(59,130,246,0.4);">
+                    <span id="batch-status-text"></span>
+                </div>
+            </div>
+            
+            <button id="btn-force-stop" class="btn-danger" style="background: linear-gradient(135deg, #ef4444, #b91c1c); color: white; border: none; padding: 0.5rem 1.2rem; border-radius: 8px; font-weight: 700; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.35); transition: all 0.2s ease;" onclick="forceStopPipeline()" title="Immediately halt and cancel video generation">
+                🛑 Force Stop Pipeline
+            </button>
+        </div>
+
+        <!-- Live Phase Timing Records Strip -->
+        <div id="live-phase-durations-strip" style="display:none; width:100%; margin-top:0.75rem; background:rgba(0,0,0,0.35); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:0.6rem 0.8rem; font-size:0.78rem;">
+            <div style="font-weight:700; color:#cbd5e1; margin-bottom:0.4rem; display:flex; align-items:center; gap:0.4rem;">
+                <span>📊 Phase Timing Records:</span>
+            </div>
+            <div id="live-phase-durations-badges" style="display:flex; flex-wrap:wrap; gap:0.4rem;"></div>
+        </div>
+    </div>
+
+    <!-- ── API Keys Card ── -->
+    <div class="section-card">
+        <div class="section-header">
+            <h2>🔑 Gemini API Keys</h2>
+            <div style="display:flex; align-items:center; gap:0.75rem;">
+                <button class="btn-nav" id="btn-toggle-key-editor" onclick="toggleKeyEditor()">✏️ Edit / Add Keys</button>
+                <span class="quota-badge" id="api-total-badge">Loading quota...</span>
+            </div>
+        </div>
+
+        <!-- Key Edit Box (collapsible) -->
+        <div id="key-editor-box" style="display:none; background:rgba(0,0,0,0.4); border:1px solid var(--accent); border-radius:12px; padding:1.25rem; margin-bottom:1.25rem;">
+            <div style="font-size:0.88rem; font-weight:700; color:#c4b5fd; margin-bottom:0.5rem;">
+                ✏️ Edit Gemini API Keys (Paste one key per line or comma-separated):
+            </div>
+            <textarea id="key-editor-textarea" style="width:100%; height:130px; background:rgba(0,0,0,0.5); border:1px solid var(--card-border); border-radius:8px; padding:0.75rem; color:var(--text); font-family:monospace; font-size:0.85rem; outline:none; margin-bottom:0.75rem; resize:vertical;" placeholder="Paste API Keys here, one per line..."></textarea>
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+                <span style="font-size:0.78rem; color:var(--muted);">💡 Keys are stored securely in config.json</span>
+                <div style="display:flex; gap:0.6rem;">
+                    <button class="btn-nav" type="button" onclick="toggleKeyEditor()">Cancel</button>
+                    <button class="btn-primary" id="btn-save-keys" type="button" style="padding:0.45rem 1.2rem; font-size:0.85rem;" onclick="saveKeysFromUI()">💾 Save API Keys</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="keys-grid" id="keys-grid">
+            <div style="color:var(--muted); font-size:0.85rem;">Fetching key status...</div>
+        </div>
+    </div>
+
+    <!-- ── Source Movies ── -->
+    <div class="section-card animate-in">
+        <div class="section-header">
+            <h2>🎞️ Source Movies (movies/ folder)</h2>
+            <div style="display:flex; gap:0.75rem;">
+                <button class="btn-delete-all" onclick="deleteAll('movies')">🚨 Delete All Sources</button>
+                <button class="btn-nav" onclick="loadMovies()">🔄 Refresh</button>
+            </div>
+        </div>
+        <div class="outputs-grid" id="movies-grid">
+            <div class="empty-state">Loading...</div>
+        </div>
+    </div>
+
+    <!-- ── Generated Outputs ── -->
+    <div class="section-card animate-in">
+        <div class="section-header">
+            <h2>📁 Generated Outputs</h2>
+            <div style="display:flex; gap:0.75rem;">
+                <button class="btn-delete-all" onclick="deleteAll('outputs')">🚨 Delete All Outputs</button>
+                <button class="btn-nav" onclick="loadOutputs(); loadMovies();">🔄 Refresh</button>
+            </div>
+        </div>
+        <div class="outputs-grid" id="outputs-grid">
+            <div class="empty-state">Loading...</div>
+        </div>
+    </div>
+
+</div><!-- /page -->
+
+<!-- ══ MODAL: HEALTH CHECK ══ -->
+<div id="health-modal-backdrop" class="modal-backdrop" onclick="if(event.target===this) closeHealthModal()">
+    <div class="modal-dialog">
+        <div class="modal-header">
+            <div class="modal-title">
+                <span>🩺 System Health & Readiness</span>
+                <span id="health-overall-badge" class="health-badge ok">Checking...</span>
+            </div>
+            <button class="modal-close" onclick="closeHealthModal()" title="Close">✕</button>
+        </div>
+        <div id="health-modal-body">
+            <div class="health-card-item">
+                <div>
+                    <div style="font-weight:700; font-size:0.92rem;">🎥 FFmpeg Hardware Acceleration</div>
+                    <div id="health-ffmpeg-desc" style="font-size:0.8rem; color:var(--muted); margin-top:0.2rem;">Detecting encoder...</div>
+                </div>
+                <span id="health-ffmpeg-badge" class="health-badge ok">Checking</span>
+            </div>
+            <div class="health-card-item">
+                <div>
+                    <div style="font-weight:700; font-size:0.92rem;">🔑 Gemini API Connectivity & Quota</div>
+                    <div id="health-gemini-desc" style="font-size:0.8rem; color:var(--muted); margin-top:0.2rem;">Pinging AI Studio API keys...</div>
+                    <div id="health-gemini-details" style="font-size:0.75rem; color:var(--muted); margin-top:0.35rem; display:none;"></div>
+                </div>
+                <span id="health-gemini-badge" class="health-badge ok">Checking</span>
+            </div>
+            <div class="health-card-item">
+                <div>
+                    <div style="font-weight:700; font-size:0.92rem;">🔊 Edge-TTS Neural Voice</div>
+                    <div id="health-tts-desc" style="font-size:0.8rem; color:var(--muted); margin-top:0.2rem;">Checking network connection to Edge TTS...</div>
+                </div>
+                <span id="health-tts-badge" class="health-badge ok">Checking</span>
+            </div>
+            <div class="health-card-item">
+                <div>
+                    <div style="font-weight:700; font-size:0.92rem;">💾 Storage Space</div>
+                    <div id="health-disk-desc" style="font-size:0.8rem; color:var(--muted); margin-top:0.2rem;">Checking disk capacity...</div>
+                </div>
+                <span id="health-disk-badge" class="health-badge ok">Checking</span>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-nav" onclick="runHealthCheck()">🔄 Re-run Diagnostic</button>
+            <button class="btn-primary" style="padding:0.45rem 1.2rem; font-size:0.85rem;" onclick="closeHealthModal()">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- ══ MODAL: BACKGROUND QUEUE ══ -->
+<div id="queue-modal-backdrop" class="modal-backdrop" onclick="if(event.target===this) closeQueueModal()">
+    <div class="modal-dialog">
+        <div class="modal-header">
+            <div class="modal-title">
+                <span>📥 Background Pipeline Queue</span>
+                <span id="queue-modal-count-badge" class="health-badge ok">0 queued</span>
+            </div>
+            <button class="modal-close" onclick="closeQueueModal()" title="Close">✕</button>
+        </div>
+        <div id="queue-modal-body">
+            <div id="queue-active-section" style="margin-bottom:1rem; display:none;">
+                <div style="font-size:0.85rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;">⚡ Currently Processing:</div>
+                <div id="queue-active-card" class="queue-item-card" style="background:rgba(255,71,87,0.05); border-color:rgba(255,71,87,0.2);">
+                    <div style="flex:1; overflow:hidden;">
+                        <div id="queue-active-title" style="font-weight:600; font-size:0.88rem; text-overflow:ellipsis; overflow:hidden; white-space:nowrap;">Job</div>
+                        <div id="queue-active-sub" style="font-size:0.78rem; color:var(--muted); margin-top:0.2rem;">Phase: Running</div>
+                    </div>
+                    <button class="btn-delete" style="padding:0.35rem 0.75rem; font-size:0.75rem;" onclick="forceStopPipeline()">🛑 Stop</button>
+                </div>
+            </div>
+            <div style="font-size:0.85rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;">⏳ Pending in Line:</div>
+            <div id="queue-list-container">
+                <div class="empty-state" style="padding:1.5rem 0;">No queued videos waiting.</div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-nav" onclick="checkQueueStatus(true)">🔄 Refresh</button>
+            <button class="btn-primary" style="padding:0.45rem 1.2rem; font-size:0.85rem;" onclick="closeQueueModal()">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- ══ MODAL: YOUTUBE COOKIES MANAGER ══ -->
+<div id="cookies-modal-backdrop" class="modal-backdrop" onclick="if(event.target===this) closeCookiesModal()">
+    <div class="modal-dialog" style="max-width: 580px;">
+        <div class="modal-header">
+            <div class="modal-title">
+                <span>🍪 YouTube Anti-Bot Cookies Manager</span>
+            </div>
+            <button class="modal-close" onclick="closeCookiesModal()" title="Close">✕</button>
+        </div>
+        <div id="cookies-modal-body" style="padding: 1.25rem 0;">
+            <!-- Status Card -->
+            <div id="cookies-status-card" class="cookies-status-card">
+                <div>
+                    <div style="font-weight: 700; font-size: 0.95rem; display: flex; align-items: center; gap: 0.5rem;">
+                        <span>Status:</span>
+                        <span id="cookies-status-badge" class="health-badge warn">Checking...</span>
+                    </div>
+                    <div id="cookies-status-details" style="font-size: 0.8rem; color: var(--muted); margin-top: 0.35rem;">
+                        Scanning cookie paths...
+                    </div>
+                </div>
+                <button id="btn-delete-cookies" class="btn-delete" style="display:none; padding: 0.4rem 0.8rem; font-size: 0.8rem;" onclick="deleteCookies()">
+                    🗑️ Delete Cookies
+                </button>
+            </div>
+
+            <!-- Upload / Paste Tabs -->
+            <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+                <button id="tab-cookies-upload" class="tab-btn active" style="flex:1; padding: 0.5rem; font-size: 0.85rem;" onclick="switchCookiesTab('upload')">📁 1-Click File Upload</button>
+                <button id="tab-cookies-paste" class="tab-btn" style="flex:1; padding: 0.5rem; font-size: 0.85rem;" onclick="switchCookiesTab('paste')">📝 Direct Paste Text</button>
+            </div>
+
+            <!-- Tab 1: Upload File -->
+            <div id="cookies-tab-upload-content">
+                <div style="border: 2px dashed rgba(255,165,2,0.4); border-radius: 12px; padding: 2rem; text-align: center; background: rgba(255,165,2,0.04); cursor: pointer;" onclick="document.getElementById('cookies-file-input').click()">
+                    <div style="font-size: 2.2rem; margin-bottom: 0.5rem;">🍪</div>
+                    <div style="font-weight: 700; font-size: 0.95rem; color: var(--text);">Click here to select <code>cookies.txt</code></div>
+                    <div style="font-size: 0.8rem; color: var(--muted); margin-top: 0.25rem;">Supports Netscape HTTP cookie format exported from Chrome / Firefox</div>
+                    <input type="file" id="cookies-file-input" accept=".txt" style="display:none;" onchange="handleCookiesFileUpload(this)">
+                </div>
+            </div>
+
+            <!-- Tab 2: Paste Text -->
+            <div id="cookies-tab-paste-content" style="display: none;">
+                <textarea id="cookies-paste-textarea" style="width: 100%; height: 160px; background: white; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 0.75rem; font-family: monospace; font-size: 0.8rem; resize: vertical;" placeholder="# Netscape HTTP Cookie File&#10;.youtube.com TRUE / TRUE ...&#10;Paste exported cookies here..."></textarea>
+                <button class="btn-primary" style="margin-top: 0.75rem; width: 100%; padding: 0.6rem; font-weight: 700;" onclick="saveCookiesFromText()">
+                    💾 Save Cookies
+                </button>
+            </div>
+
+            <!-- Help / Instructions -->
+            <div style="margin-top: 1.25rem; background: rgba(0,0,0,0.02); border-radius: 8px; padding: 0.85rem; font-size: 0.78rem; color: var(--muted); line-height: 1.5;">
+                💡 <b>Cookies ရယူနည်း:</b><br>
+                ၁။ Chrome Browser တွင် Extension <code>Get cookies.txt LOCALLY</code> ကို Install ပြုလုပ်ပါ။<br>
+                ၂။ <a href="https://www.youtube.com" target="_blank" style="color:var(--accent);">youtube.com</a> သို့သွား၍ Login ဝင်ထားကြောင်း သေချာပါစေ။<br>
+                ၃။ Extension Icon ကိုနှိပ်ပြီး <b>Export</b> လုပ်ထားသော <code>cookies.txt</code> ဖိုင်ကို ဤနေရာတွင် တင်ပေးပါ သို့မဟုတ် စာသားများကို ကူးယူ၍ Paste ထည့်ပါ ခင်ဗျာ။
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-nav" onclick="checkCookiesStatus()">🔄 Refresh Status</button>
+            <button class="btn-primary" style="padding:0.45rem 1.2rem; font-size:0.85rem;" onclick="closeCookiesModal()">Close</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openCookiesModal() {
+        const modal = document.getElementById('cookies-modal-backdrop');
+        if (modal) {
+            modal.classList.add('active');
+            modal.style.display = 'flex';
+        }
+        checkCookiesStatus();
+    }
+
+    function closeCookiesModal() {
+        const modal = document.getElementById('cookies-modal-backdrop');
+        if (modal) {
+            modal.classList.remove('active');
+            modal.style.display = 'none';
+        }
+    }
+
+    function switchCookiesTab(tab) {
+        const upTab = document.getElementById('tab-cookies-upload');
+        const psTab = document.getElementById('tab-cookies-paste');
+        const upContent = document.getElementById('cookies-tab-upload-content');
+        const psContent = document.getElementById('cookies-tab-paste-content');
+        if (tab === 'upload') {
+            upTab.classList.add('active'); psTab.classList.remove('active');
+            upContent.style.display = 'block'; psContent.style.display = 'none';
+        } else {
+            psTab.classList.add('active'); upTab.classList.remove('active');
+            psContent.style.display = 'none'; psContent.style.display = 'block';
+        }
+    }
+
+    async function checkCookiesStatus() {
+        try {
+            const res = await fetch('/api/cookies/status');
+            if (!res.ok) return;
+            const data = await res.json();
+            
+            // Nav badge
+            const navStatus = document.getElementById('cookies-nav-status');
+            const navBtn = document.getElementById('btn-cookies-badge');
+            if (navStatus && navBtn) {
+                if (data.installed && data.has_youtube) {
+                    navStatus.textContent = 'Active ✅';
+                    navBtn.style.background = 'rgba(46,213,115,0.12)';
+                    navBtn.style.borderColor = 'rgba(46,213,115,0.3)';
+                    navBtn.style.color = 'var(--success)';
+                } else if (data.installed) {
+                    navStatus.textContent = 'Installed ⚠️';
+                    navBtn.style.background = 'rgba(255,165,2,0.12)';
+                    navBtn.style.borderColor = 'rgba(255,165,2,0.3)';
+                    navBtn.style.color = 'var(--warn)';
+                } else {
+                    navStatus.textContent = 'Not Set ❌';
+                    navBtn.style.background = 'rgba(255,71,87,0.12)';
+                    navBtn.style.borderColor = 'rgba(255,71,87,0.3)';
+                    navBtn.style.color = 'var(--error)';
+                }
+            }
+
+            // Modal elements
+            const badge = document.getElementById('cookies-status-badge');
+            const details = document.getElementById('cookies-status-details');
+            const delBtn = document.getElementById('btn-delete-cookies');
+            if (badge && details) {
+                if (data.installed) {
+                    badge.className = data.has_youtube ? 'health-badge ok' : 'health-badge warn';
+                    badge.textContent = data.has_youtube ? 'YouTube Authenticated ✅' : 'Installed (No YouTube) ⚠️';
+                    details.innerHTML = `📁 <b>File:</b> <code>${data.path}</code> (${data.size_kb} KB, ${data.cookie_count} cookies)<br>⏱️ Last modified: ${data.last_modified || 'Unknown'}`;
+                    if (delBtn) delBtn.style.display = 'inline-block';
+                } else {
+                    badge.className = 'health-badge err';
+                    badge.textContent = 'No Cookies Installed ❌';
+                    details.textContent = 'YouTube cookies.txt is missing. Upload or paste below to bypass datacenter IP bot detection!';
+                    if (delBtn) delBtn.style.display = 'none';
+                }
+            }
+        } catch (e) {
+            console.error('Cookies status check error:', e);
+        }
+    }
+
+    async function handleCookiesFileUpload(input) {
+        if (!input.files || !input.files[0]) return;
+        const file = input.files[0];
+        const formData = new FormData();
+        formData.append('video', file);
+
+        showToast('⏳ Uploading cookies.txt...', 'info');
+        try {
+            const res = await fetch('/api/upload', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await res.json();
+            if (res.ok && data.success) {
+                showToast('🍪 YouTube Cookies uploaded and installed successfully! ✅', 'success');
+                checkCookiesStatus();
+            } else {
+                showToast(`❌ Cookie upload failed: ${data.detail || data.error || 'Unknown error'}`, 'error');
+            }
+        } catch (e) {
+            showToast(`❌ Cookie upload error: ${e.message}`, 'error');
+        } finally {
+            input.value = '';
+        }
+    }
+
+    async function saveCookiesFromText() {
+        const text = document.getElementById('cookies-paste-textarea').value.trim();
+        if (!text) {
+            showToast('❌ Please paste cookies text first!', 'error');
+            return;
+        }
+        showToast('⏳ Saving cookies...', 'info');
+        try {
+            const res = await fetch('/api/cookies/save', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ content: text })
+            });
+            const data = await res.json();
+            if (res.ok && data.success) {
+                showToast(`🍪 ${data.message} ✅`, 'success');
+                document.getElementById('cookies-paste-textarea').value = '';
+                checkCookiesStatus();
+            } else {
+                showToast(`❌ Save failed: ${data.detail || data.error}`, 'error');
+            }
+        } catch (e) {
+            showToast(`❌ Save error: ${e.message}`, 'error');
+        }
+    }
+
+    async function deleteCookies() {
+        if (!confirm('Are you sure you want to delete the active cookies.txt?')) return;
+        try {
+            const res = await fetch('/api/cookies', { method: 'DELETE' });
+            const data = await res.json();
+            if (res.ok && data.success) {
+                showToast('🗑️ Cookies removed successfully!', 'info');
+                checkCookiesStatus();
+            } else {
+                showToast('❌ Failed to delete cookies', 'error');
+            }
+        } catch (e) {
+            showToast(`❌ Error: ${e.message}`, 'error');
+        }
+    }
+
+    async function handleVideoUpload(inputElement) {
+        if (!inputElement.files || inputElement.files.length === 0) return;
+        const file = inputElement.files[0];
+        
+        // Auto-detect if user picked cookies.txt in video upload
+        if (file.name.toLowerCase().endsWith('.txt') || file.name.toLowerCase().includes('cookie')) {
+            handleCookiesFileUpload(inputElement);
+            return;
+        }
+
+        if (!file.type.startsWith('video/') && !file.name.match(/\.(mp4|mkv|avi|mov|webm|flv|m4v)$/i)) {
+            alert("Please select a valid video file or cookies.txt.");
+            inputElement.value = '';
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('video', file);
+        
+        const uploadBtnText = document.getElementById('btn-upload-text');
+        const origText = uploadBtnText ? uploadBtnText.innerText : "📁 Upload";
+        if (uploadBtnText) uploadBtnText.innerText = "⏳ Uploading Video...";
+        document.getElementById('btn-upload').disabled = true;
+        
+        try {
+            const res = await fetch('/api/upload', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await res.json();
+            if (res.ok && data.success) {
+                showToast(`🎬 Video uploaded: ${data.filename} ✅`, 'success');
+                document.getElementById('input-source').value = 'movies/' + data.filename;
+                loadMovies();
+            } else {
+                alert("Upload failed: " + (data.error || "Unknown error"));
+            }
+        } catch (err) {
+            alert("Upload error: " + err);
+        } finally {
+            if (uploadBtnText) uploadBtnText.innerText = origText;
+            document.getElementById('btn-upload').disabled = false;
+            inputElement.value = '';
+        }
+    }
+
+    function applyEntranceAnimation(element, delay = 0) {
+        if (!element) return;
+        element.classList.add('animate-in');
+        element.style.animationDelay = `${delay}ms`;
+    }
+
+    // ── State ──
+    let currentJobId = null;
+    let pollTimer = null;
+    let pollErrors = 0;
+    const PHASES = [
+        { num: 1, label: 'Metadata' },
+        { num: 2, label: 'STT + Scenes' },
+        { num: 3, label: 'Story AI' },
+        { num: 4, label: 'Script + SEO' },
+        { num: 5, label: 'Voice TTS' },
+        { num: 6, label: 'Merge & Subtitle Blur' },
+    ];
+
+    // ── Build phase steps on load ──
+    (function buildPhaseSteps() {
+        const container = document.getElementById('phase-steps');
+        PHASES.forEach((p, i) => {
+            const step = document.createElement('div');
+            step.className = 'phase-step';
+            step.innerHTML = `
+                <div class="phase-node">
+                    <div class="phase-circle" id="pc-${p.num}">${p.num}</div>
+                    <div class="phase-label" id="pl-${p.num}">${p.label}</div>
+                </div>
+            `;
+            container.appendChild(step);
+            if (i < PHASES.length - 1) {
+                const conn = document.createElement('div');
+                conn.className = 'phase-connector';
+                conn.id = `pcon-${p.num}`;
+                container.appendChild(conn);
+            }
+        });
+    })();
+
+    // ── Mode switch ──
+    function switchMode(mode) {
+        const sg = document.getElementById('single-group');
+        const bg = document.getElementById('batch-group');
+        const ts = document.getElementById('tab-single');
+        const tb = document.getElementById('tab-batch');
+        if (mode === 'single') {
+            sg.style.display = 'block'; bg.style.display = 'none';
+            ts.classList.add('active'); tb.classList.remove('active');
+        } else {
+            sg.style.display = 'none'; bg.style.display = 'block';
+            ts.classList.remove('active'); tb.classList.add('active');
+        }
+    }
+
+    // ── Video Format Helper ──
+    function updateVideoFormatBadge(val) {
+        const badge = document.getElementById('video-format-badge');
+        const desc = document.getElementById('video-format-desc');
+        if (!badge || !desc) return;
+        if (val === '16:9') {
+            badge.textContent = '📺 16:9 YouTube Landscape';
+            badge.style.background = 'rgba(56,189,248,0.2)';
+            badge.style.color = '#38bdf8';
+            desc.textContent = '📌 16:9 အလျားလိုက် Standard YouTube / Facebook Video သီးသန့် ထုတ်ပေးမည် (Reels ထုတ်လုပ်ချိန် သက်သာစေသည်)။';
+        } else if (val === '9:16') {
+            badge.textContent = '📱 9:16 Reels / TikTok';
+            badge.style.background = 'rgba(236,72,153,0.2)';
+            badge.style.color = '#ec4899';
+            desc.textContent = '📌 Facebook Reels, TikTok နှင့် Shorts အတွက် ဒေါင်လိုက် 1080x1920 Canvas + Blurred Background + Header Badge ပါသော 9:16 ဗီဒီယို သီးသန့် ထုတ်ပေးမည်။';
+        } else {
+            badge.textContent = '✨ Dual Export (16:9 + 9:16)';
+            badge.style.background = 'rgba(0,255,136,0.15)';
+            badge.style.color = '#00ff88';
+            desc.textContent = '📌 16:9 YouTube မူရင်းဗီဒီယိုနှင့် Facebook Reels / Shorts အတွက် 9:16 ဒေါင်လိုက် Canvas ဗီဒီယို (၂) မျိုးစလုံးကို တစ်ပြိုင်နက် ထုတ်ပေးမည်။';
+        }
+    }
+
+    // ── Subtitle Style Presets Helper ──
+    const SUBTITLE_PRESETS_UI = {
+        box_black: {
+            name: "⬛ Cinema Box (Netflix Style)",
+            badgeBg: "rgba(0,0,0,0.8)",
+            badgeColor: "#ffffff",
+            badgeBorder: "rgba(255,255,255,0.25)",
+            desc: "📌 အမည်းရောင် Background Box ပါသော ရုပ်ရှင်ရုံသုံး စာတန်း (Contrast အကောင်းဆုံး ဖြစ်၍ မည်သည့်ဗီဒီယိုနောက်ခံတွင်မဆို စာလုံးဖတ်ရ အကြည်လင်ဆုံးဖြစ်သည်)။",
+            previewStyle: {
+                color: "#ffffff",
+                background: "rgba(0,0,0,0.8)",
+                textShadow: "none",
+                borderRadius: "4px",
+                padding: "4px 12px"
+            }
+        },
+        yellow_pop: {
+            name: "🟡 TikTok / Reels Pop (Yellow & Black)",
+            badgeBg: "rgba(255,215,0,0.15)",
+            badgeColor: "#ffd700",
+            badgeBorder: "rgba(255,215,0,0.4)",
+            desc: "📌 ရွှေဝါရောင်စာလုံးနှင့် အမည်းရောင်အနားသတ် ထူထူ (TikTok / Facebook Reels / Shorts များတွင် မျက်စိဆွဲဆောင်မှု အလွန်ကောင်းသော ခေတ်စားသည့်စတိုင်)။",
+            previewStyle: {
+                color: "#ffd700",
+                background: "transparent",
+                textShadow: "-2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000, 0 3px 6px rgba(0,0,0,0.9)",
+                borderRadius: "0",
+                padding: "2px 6px"
+            }
+        },
+        white_stroke: {
+            name: "⚪ Classic Movie White (Drop Shadow)",
+            badgeBg: "rgba(255,255,255,0.15)",
+            badgeColor: "#ffffff",
+            badgeBorder: "rgba(255,255,255,0.3)",
+            desc: "📌 အဖြူရောင်သန့်သန့်နှင့် အမည်းရောင် အနားသတ်ရိပ် (ရိုးရှင်းသန့်ပြန့်ပြီး သဘာဝကျသော ရုပ်ရှင်ဇာတ်ကားကြီးများသုံး Standard စာတန်းထိုးစတိုင်)။",
+            previewStyle: {
+                color: "#ffffff",
+                background: "transparent",
+                textShadow: "-1.8px -1.8px 0 #000, 1.8px -1.8px 0 #000, -1.8px 1.8px 0 #000, 1.8px 1.8px 0 #000, 0 2px 5px rgba(0,0,0,0.9)",
+                borderRadius: "0",
+                padding: "2px 6px"
+            }
+        },
+        cyan_cyber: {
+            name: "🔷 Cyber Cyan (Sci-Fi & Modern)",
+            badgeBg: "rgba(0,255,255,0.15)",
+            badgeColor: "#00ffff",
+            badgeBorder: "rgba(0,255,255,0.4)",
+            desc: "📌 စိမ်းပြာရောင် ခေတ်မီဆန်းသစ်သော စာတန်းပုံစံ (Anime / Sci-Fi / Cyberpunk Recap များတွင် အထူးလိုက်ဖက်သည်)။",
+            previewStyle: {
+                color: "#00ffff",
+                background: "transparent",
+                textShadow: "-2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000, 0 0 10px rgba(0,255,255,0.5)",
+                borderRadius: "0",
+                padding: "2px 6px"
+            }
+        },
+        crimson_box: {
+            name: "🟥 Thriller Crimson (Dark Red Box)",
+            badgeBg: "rgba(255,77,77,0.2)",
+            badgeColor: "#ff6b6b",
+            badgeBorder: "rgba(255,77,77,0.4)",
+            desc: "📌 အနီရင့်ရောင် Background Box ပါသော စိတ်လှုပ်ရှားဖွယ် စာတန်း (Horror, Thriller နှင့် Action ရုပ်ရှင်ဇာတ်ကားများအတွက် ဇာတ်ဝင်ခန်းနှင့် လိုက်ဖက်သည်)။",
+            previewStyle: {
+                color: "#ffffff",
+                background: "rgba(112,21,21,0.85)",
+                textShadow: "none",
+                borderRadius: "4px",
+                padding: "4px 12px"
+            }
+        }
+    };
+
+    function selectSubPreset(val) {
+        if (!val || !SUBTITLE_PRESETS_UI[val]) val = 'box_black';
+        const p = SUBTITLE_PRESETS_UI[val];
+        
+        // Sync select dropdown in options strip
+        const sel = document.getElementById('select-subtitle-style');
+        if (sel && sel.value !== val) sel.value = val;
+
+        // Sync buttons state
+        document.querySelectorAll('.sub-preset-btn').forEach(b => {
+            b.style.borderColor = 'rgba(255,255,255,0.2)';
+            b.style.boxShadow = 'none';
+        });
+        const activeBtn = document.getElementById('btn-preset-' + val);
+        if (activeBtn) {
+            activeBtn.style.borderColor = '#00ff88';
+            activeBtn.style.boxShadow = '0 0 8px rgba(0,255,136,0.3)';
+        }
+
+        // Update badge
+        const badge = document.getElementById('sub-style-badge');
+        if (badge) {
+            badge.textContent = p.name;
+            badge.style.background = p.badgeBg;
+            badge.style.color = p.badgeColor;
+            badge.style.borderColor = p.badgeBorder;
+        }
+
+        // Update description
+        const desc = document.getElementById('sub-style-desc');
+        if (desc) desc.textContent = p.desc;
+
+        // Update live preview span
+        const preview = document.getElementById('sub-live-preview');
+        if (preview && p.previewStyle) {
+            preview.style.color = p.previewStyle.color;
+            preview.style.background = p.previewStyle.background;
+            preview.style.textShadow = p.previewStyle.textShadow;
+            preview.style.borderRadius = p.previewStyle.borderRadius;
+            preview.style.padding = p.previewStyle.padding;
+        }
+    }
+
+    function toggleSubStyleVisibility(mode) {
+        const wrap = document.getElementById('sub-style-strip-wrap');
+        const card = document.getElementById('sub-style-card');
+        const isEnabled = (mode !== 'none');
+        if (wrap) {
+            wrap.style.opacity = isEnabled ? '1' : '0.35';
+            wrap.style.pointerEvents = isEnabled ? 'auto' : 'none';
+        }
+        if (card) {
+            card.style.opacity = isEnabled ? '1' : '0.35';
+            card.style.pointerEvents = isEnabled ? 'auto' : 'none';
+        }
+    }
+
+    async function loadSubStyleSettings() {
+        try {
+            const res = await fetch('/api/config/subtitles');
+            if (res.ok) {
+                const data = await res.json();
+                if (data && data.current_preset) {
+                    selectSubPreset(data.current_preset);
+                }
+            }
+        } catch (e) {
+            console.warn('Could not load subtitle presets:', e);
+        }
+    }
+
+    async function saveSubStyleDefault() {
+        const sel = document.getElementById('select-subtitle-style');
+        const preset = sel ? sel.value : 'box_black';
+        try {
+            const res = await fetch('/api/config/subtitles', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ preset: preset })
+            });
+            if (res.ok) {
+                showAlert(`Subtitle preset '${preset}' saved as default in config.json! ✅`);
+            } else {
+                showAlert('Failed to save subtitle preset default.');
+            }
+        } catch (e) {
+            showAlert('Failed to save subtitle preset: ' + e.message);
+        }
+    }
+
+    // ── Branding Helpers ──
+    function updateThumbBadge(val) {
+        const badge = document.getElementById('thumb-mode-badge');
+        if (!badge) return;
+        if (val && val.trim().length > 0) {
+            badge.textContent = '✏️ Custom Mode';
+            badge.style.background = 'rgba(56,189,248,0.2)';
+            badge.style.color = '#38bdf8';
+        } else {
+            badge.textContent = '🤖 Auto (AI Generated)';
+            badge.style.background = 'rgba(0,255,136,0.15)';
+            badge.style.color = '#00ff88';
+        }
+    }
+
+    function toggleWatermarkControls(enabled) {
+        const wrap = document.getElementById('watermark-inputs-wrap');
+        if (wrap) {
+            wrap.style.opacity = enabled ? '1' : '0.4';
+            wrap.style.pointerEvents = enabled ? 'auto' : 'none';
+        }
+    }
+
+    async function loadBrandingSettings() {
+        try {
+            const res = await fetch('/api/config/branding');
+            if (res.ok) {
+                const data = await res.json();
+                if (data && data.watermark) {
+                    const wm = data.watermark;
+                    if (document.getElementById('chk-watermark') && wm.enabled !== undefined) {
+                        document.getElementById('chk-watermark').checked = wm.enabled;
+                        toggleWatermarkControls(wm.enabled);
+                    }
+                    if (document.getElementById('input-watermark-text') && wm.text) {
+                        document.getElementById('input-watermark-text').value = wm.text;
+                    }
+                    if (document.getElementById('select-watermark-opacity') && wm.opacity !== undefined) {
+                        document.getElementById('select-watermark-opacity').value = String(wm.opacity);
+                    }
+                }
+            }
+        } catch (e) {
+            console.warn('Could not load branding config:', e);
+        }
+    }
+
+    async function saveWatermarkDefault() {
+        const enabled = document.getElementById('chk-watermark') ? document.getElementById('chk-watermark').checked : true;
+        const text = (document.getElementById('input-watermark-text') && document.getElementById('input-watermark-text').value.trim()) || "PAI AI Movie Translate";
+        const opacity = document.getElementById('select-watermark-opacity') ? parseFloat(document.getElementById('select-watermark-opacity').value) : 0.4;
+
+        try {
+            const res = await fetch('/api/config/branding', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    watermark_enabled: enabled,
+                    watermark_text: text,
+                    watermark_opacity: opacity,
+                    watermark_margin: 30,
+                    watermark_font_size: 40
+                })
+            });
+            if (res.ok) {
+                showAlert('Watermark settings saved as default in config.json! ✅');
+            } else {
+                showAlert('Failed to save watermark settings.');
+            }
+        } catch (e) {
+            showAlert('Failed to save watermark default: ' + e.message);
+        }
+    }
+
+    // ── Start single job ──
+    async function startJob() {
+        const input = document.getElementById('input-source').value.trim();
+        if (!input) { showAlert('Please enter a video URL or local path.'); return; }
+        const lang = document.getElementById('select-lang').value;
+        const hardsubMode = document.getElementById('select-hardsub-mode') ? document.getElementById('select-hardsub-mode').value : 'burn';
+        const resolution = document.getElementById('select-resolution') ? document.getElementById('select-resolution').value : '1080p';
+        const subtitleBlur = document.getElementById('select-subtitle-mode').value;
+        const ttsEngine = document.getElementById('select-tts-engine').value;
+        const customThumbTitle = (document.getElementById('input-thumb-title') && document.getElementById('input-thumb-title').value.trim()) || null;
+        const watermarkEnabled = document.getElementById('chk-watermark') ? document.getElementById('chk-watermark').checked : true;
+        const watermarkText = (document.getElementById('input-watermark-text') && document.getElementById('input-watermark-text').value.trim()) || "PAI AI Movie Translate";
+        const watermarkOpacity = document.getElementById('select-watermark-opacity') ? parseFloat(document.getElementById('select-watermark-opacity').value) : 0.4;
+        const videoFormat = document.getElementById('select-video-format') ? document.getElementById('select-video-format').value : 'both';
+        const reelsEnabled = (videoFormat === 'both' || videoFormat === '9:16');
+        const subtitleStyle = document.getElementById('select-subtitle-style') ? document.getElementById('select-subtitle-style').value : 'box_black';
+        const scriptEngine = document.getElementById('select-script-engine') ? document.getElementById('select-script-engine').value : 'recap';
+        const thumbnailIntro = document.getElementById('chk-thumb-intro') ? document.getElementById('chk-thumb-intro').checked : false;
+        const sourceLanguage = document.getElementById('select-source-lang') ? document.getElementById('select-source-lang').value : 'auto';
+        const skipDemucs = document.getElementById('chk-skip-demucs') ? document.getElementById('chk-skip-demucs').checked : false;
+        const detectScenes = document.getElementById('chk-scene-detect') ? document.getElementById('chk-scene-detect').checked : false;
+
+        const btn = document.getElementById('btn-start');
+        const btnText = document.getElementById('btn-start-text');
+
+        btn.disabled = true;
+        btnText.textContent = 'Running...';
+
+        showProgress('Initializing pipeline...');
+
+        try {
+            const res = await fetch('/api/start', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    input,
+                    language: lang,
+                    subtitle_mode: hardsubMode,
+                    subtitle_style: subtitleStyle,
+                    script_engine: scriptEngine,
+                    resolution: resolution,
+                    tts_engine: ttsEngine,
+                    custom_thumb_title: customThumbTitle,
+                    watermark_enabled: watermarkEnabled,
+                    watermark_text: watermarkText,
+                    watermark_opacity: watermarkOpacity,
+                    reels_enabled: reelsEnabled,
+                    video_format: videoFormat,
+                    thumbnail_intro: thumbnailIntro,
+                    source_language: sourceLanguage,
+                    skip_demucs: skipDemucs,
+                    detect_scenes: detectScenes
+                })
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                if (res.status === 409) {
+                    await checkActiveJob();
+                    return;
+                }
+                throw new Error(data.detail || data.error || `HTTP ${res.status}`);
+            }
+            if (data.error) throw new Error(data.error);
+            if (data.queued) {
+                showToast(`📥 Added to queue! Position #${data.queue_position}. Will process sequentially.`);
+                btn.disabled = false;
+                btnText.textContent = '▶ Start Pipeline';
+                checkQueueStatus(true);
+                return;
+            }
+            startStreamingLogs(data.job_id);
+            checkQueueStatus();
+        } catch (e) {
+            showAlert('Error starting pipeline: ' + e.message);
+            btn.disabled = false;
+            btnText.textContent = '▶ Start Pipeline';
+        }
+    }
+
+    // ── Start batch job ──
+    async function startBatchJob() {
+        const raw = document.getElementById('batch-inputs').value.trim();
+        if (!raw) { showAlert('Please paste at least one URL or path.'); return; }
+        const inputs = raw.split('\n').map(s => s.trim()).filter(s => s.length > 0);
+        const lang = document.getElementById('select-lang').value;
+        const hardsubMode = document.getElementById('select-hardsub-mode') ? document.getElementById('select-hardsub-mode').value : 'burn';
+        const resolution = document.getElementById('select-resolution') ? document.getElementById('select-resolution').value : '1080p';
+        const subtitleBlur = document.getElementById('select-subtitle-mode').value;
+        const ttsEngine = document.getElementById('select-tts-engine').value;
+        const customThumbTitle = (document.getElementById('input-thumb-title') && document.getElementById('input-thumb-title').value.trim()) || null;
+        const watermarkEnabled = document.getElementById('chk-watermark') ? document.getElementById('chk-watermark').checked : true;
+        const watermarkText = (document.getElementById('input-watermark-text') && document.getElementById('input-watermark-text').value.trim()) || "PAI AI Movie Translate";
+        const watermarkOpacity = document.getElementById('select-watermark-opacity') ? parseFloat(document.getElementById('select-watermark-opacity').value) : 0.4;
+        const videoFormat = document.getElementById('select-video-format') ? document.getElementById('select-video-format').value : 'both';
+        const reelsEnabled = (videoFormat === 'both' || videoFormat === '9:16');
+        const subtitleStyle = document.getElementById('select-subtitle-style') ? document.getElementById('select-subtitle-style').value : 'box_black';
+        const scriptEngine = document.getElementById('select-script-engine') ? document.getElementById('select-script-engine').value : 'recap';
+        const thumbnailIntro = document.getElementById('chk-thumb-intro') ? document.getElementById('chk-thumb-intro').checked : false;
+        const sourceLanguage = document.getElementById('select-source-lang') ? document.getElementById('select-source-lang').value : 'auto';
+        const skipDemucs = document.getElementById('chk-skip-demucs') ? document.getElementById('chk-skip-demucs').checked : false;
+        const detectScenes = document.getElementById('chk-scene-detect') ? document.getElementById('chk-scene-detect').checked : false;
+
+        const btn = document.getElementById('btn-batch');
+        btn.disabled = true;
+
+        showProgress(`Initializing Batch Queue (${inputs.length} items)...`);
+
+        try {
+            const res = await fetch('/api/batch/start', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    inputs,
+                    language: lang,
+                    subtitle_mode: hardsubMode,
+                    subtitle_style: subtitleStyle,
+                    script_engine: scriptEngine,
+                    resolution: resolution,
+                    tts_engine: ttsEngine,
+                    custom_thumb_title: customThumbTitle,
+                    watermark_enabled: watermarkEnabled,
+                    watermark_text: watermarkText,
+                    watermark_opacity: watermarkOpacity,
+                    reels_enabled: reelsEnabled,
+                    video_format: videoFormat,
+                    thumbnail_intro: thumbnailIntro,
+                    source_language: sourceLanguage,
+                    skip_demucs: skipDemucs,
+                    detect_scenes: detectScenes
+                })
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.detail || data.error || `HTTP ${res.status}`);
+            if (data.error) throw new Error(data.error);
+            if (data.queued) {
+                showToast(`📥 Batch added to queue! (${inputs.length} items queued).`);
+                btn.disabled = false;
+                checkQueueStatus(true);
+                return;
+            }
+            startStreamingLogs(data.job_id);
+            checkQueueStatus();
+        } catch (e) {
+            showAlert('Error starting batch: ' + e.message);
+            btn.disabled = false;
+        }
+    }
+
+    // ── Show progress card ──
+    function showProgress(initMsg) {
+        const card = document.getElementById('progress-card');
+        card.classList.add('visible');
+        applyEntranceAnimation(card);
+        setLog(initMsg);
+        resetPhases();
+        setProgressBar(0);
+        setStatus('running', 'Starting...');
+        document.getElementById('log-box-wrap').classList.add('running');
+    }
+
+    let eventSource = null;
+    let sseLogs = [];
+
+    // ── Zero-Latency SSE Log Streamer with Polling Fallback ──
+    function startStreamingLogs(jobId) {
+        if (eventSource) {
+            eventSource.close();
+            eventSource = null;
+        }
+        if (pollTimer) {
+            clearInterval(pollTimer);
+            pollTimer = null;
+        }
+
+        currentJobId = jobId;
+        sseLogs = [];
+
+        // Always run companion polling (every 1.5s) to guarantee zero-freeze on Cloudflare proxies
+        pollTimer = setInterval(checkStatus, 1500);
+
+        if (window.EventSource) {
+            try {
+                eventSource = new EventSource('/api/stream/' + jobId);
+
+                eventSource.addEventListener('log', function(e) {
+                    try {
+                        const data = JSON.parse(e.data);
+                        if (data.line) {
+                            sseLogs.push(data.line);
+                            if (sseLogs.length > 50) sseLogs.shift();
+                            setLog(sseLogs);
+                        }
+                        if (data.phase) {
+                            updatePhases(data.phase);
+                            updateProgressFromPhase(data.phase);
+                            setStatus('running', '⏳ ' + data.phase);
+                        }
+                        if (data.batch_status) {
+                            document.getElementById('batch-progress-pill').style.display = 'inline-flex';
+                            document.getElementById('batch-status-text').textContent = data.batch_status;
+                        }
+                    } catch(err) {
+                        console.error('SSE log parse error:', err);
+                    }
+                });
+
+                eventSource.addEventListener('done', function(e) {
+                    try {
+                        const data = JSON.parse(e.data);
+                        if (eventSource) {
+                            eventSource.close();
+                            eventSource = null;
+                        }
+                        if (pollTimer) {
+                            clearInterval(pollTimer);
+                            pollTimer = null;
+                        }
+                        if (data.status === 'done') {
+                            setStatus('done', '✅ Pipeline Complete!');
+                            document.getElementById('log-box-wrap').classList.remove('running');
+                            setProgressBar(100);
+                            markAllDone();
+                            document.getElementById('btn-start').disabled = false;
+                            document.getElementById('btn-start-text').textContent = '▶ Start Pipeline';
+                            document.getElementById('btn-batch').disabled = false;
+                            loadOutputs(); loadMovies();
+                        } else if (data.status === 'cancelled') {
+                            setStatus('cancelled', '🛑 Stopped by user');
+                            document.getElementById('log-box-wrap').classList.remove('running');
+                            document.getElementById('btn-start').disabled = false;
+                            document.getElementById('btn-start-text').textContent = '▶ Start Pipeline';
+                            document.getElementById('btn-batch').disabled = false;
+                        } else {
+                            const errText = data.error ? `❌ Error: ${data.error}` : '❌ Pipeline Error';
+                            setStatus('error', errText);
+                            document.getElementById('log-box-wrap').classList.remove('running');
+                            document.getElementById('btn-start').disabled = false;
+                            document.getElementById('btn-start-text').textContent = '▶ Start Pipeline';
+                            document.getElementById('btn-batch').disabled = false;
+                        }
+                        checkQueueStatus();
+                        setTimeout(checkActiveJob, 2500);
+                    } catch(err) {
+                        console.error('SSE done parse error:', err);
+                    }
+                });
+
+                eventSource.onerror = function() {
+                    console.warn('SSE stream notice, continuing with polling channel...');
+                    if (eventSource) {
+                        eventSource.close();
+                        eventSource = null;
+                    }
+                };
+            } catch (err) {
+                console.warn('EventSource init error:', err);
+            }
+        }
+    }
+
+    // ── Force Stop Pipeline Function ──
+    async function forceStopPipeline() {
+        if (!confirm("Are you sure you want to force-stop the running video pipeline?")) return;
+        const btn = document.getElementById('btn-force-stop');
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = '⏳ Stopping...';
+        }
+        try {
+            const res = await fetch('/api/stop', { method: 'POST' });
+            const data = await res.json();
+            showAlert('🛑 ' + (data.message || 'Pipeline force-stopped successfully.'));
+            setStatus('cancelled', '🛑 Stopped by user');
+            if (eventSource) {
+                eventSource.close();
+                eventSource = null;
+            }
+            if (pollTimer) {
+                clearInterval(pollTimer);
+                pollTimer = null;
+            }
+            document.getElementById('log-box-wrap').classList.remove('running');
+            const startBtn = document.getElementById('btn-start');
+            const startBtnText = document.getElementById('btn-start-text');
+            if (startBtn) {
+                startBtn.disabled = false;
+                if (startBtnText) startBtnText.textContent = '▶ Start Pipeline';
+            }
+            const batchBtn = document.getElementById('btn-batch');
+            if (batchBtn) batchBtn.disabled = false;
+        } catch (e) {
+            showAlert('Failed to stop pipeline: ' + e.message);
+        } finally {
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = '🛑 Force Stop Pipeline';
+            }
+        }
+    }
+
+    // ── Fallback Polling status ──
+    async function checkStatus() {
+        if (!currentJobId) return;
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 6000);
+        try {
+            const res = await fetch(`/api/status/${currentJobId}`, { signal: controller.signal });
+            clearTimeout(timeoutId);
+            pollErrors = 0;
+            const data = await res.json();
+
+            if (data.log && data.log.length > 0) {
+                setLog(data.log);
+            }
+
+            if (data.phase) {
+                updatePhases(data.phase);
+                updateProgressFromPhase(data.phase);
+                if (data.status === 'running') {
+                    setStatus('running', '⏳ ' + data.phase);
+                }
+            }
+
+            if (data.batch_status) {
+                document.getElementById('batch-progress-pill').style.display = 'inline-flex';
+                document.getElementById('batch-status-text').textContent = data.batch_status;
+            } else {
+                document.getElementById('batch-progress-pill').style.display = 'none';
+            }
+
+            // Live Elapsed Timer
+            if (data.elapsed_sec !== undefined && data.elapsed_sec !== null) {
+                document.getElementById('elapsed-timer-pill').style.display = 'inline-flex';
+                const mins = Math.floor(data.elapsed_sec / 60);
+                const secs = Math.floor(data.elapsed_sec % 60);
+                document.getElementById('elapsed-timer-val').textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            }
+
+            // Live Phase Timing Records
+            if (data.phase_timings && Object.keys(data.phase_timings).length > 0) {
+                const strip = document.getElementById('live-phase-durations-strip');
+                const badges = document.getElementById('live-phase-durations-badges');
+                if (strip && badges) {
+                    strip.style.display = 'block';
+                    let html = '';
+                    for (const [pname, pdur] of Object.entries(data.phase_timings)) {
+                        const shortName = pname.replace(/Phase \d+:\s*/, '').replace(/Phase \d+ & \d+:\s*/, '');
+                        html += `<span style="background:rgba(255,255,255,0.06); color:#cbd5e1; padding:0.25rem 0.55rem; border-radius:6px; font-size:0.75rem; border:1px solid rgba(255,255,255,0.12); display:inline-flex; align-items:center; gap:0.3rem;"><span>⏱️ ${shortName}:</span> <b style="color:#38bdf8;">${pdur}s</b></span>`;
+                    }
+                    badges.innerHTML = html;
+                }
+            }
+
+            if (data.status === 'done') {
+                clearInterval(pollTimer);
+                setStatus('done', '✅ Pipeline Complete!');
+                document.getElementById('log-box-wrap').classList.remove('running');
+                setProgressBar(100);
+                markAllDone();
+
+                document.getElementById('btn-start').disabled = false;
+                document.getElementById('btn-start-text').textContent = '▶ Start Pipeline';
+                document.getElementById('btn-batch').disabled = false;
+                loadOutputs(); loadMovies();
+            } else if (data.status === 'cancelled') {
+                clearInterval(pollTimer);
+                setStatus('cancelled', '🛑 Stopped by user');
+                document.getElementById('log-box-wrap').classList.remove('running');
+
+                document.getElementById('btn-start').disabled = false;
+                document.getElementById('btn-start-text').textContent = '▶ Start Pipeline';
+                document.getElementById('btn-batch').disabled = false;
+            } else if (data.status === 'error') {
+                clearInterval(pollTimer);
+                const errText = data.error ? `❌ Error: ${data.error}` : '❌ Pipeline Error';
+                setStatus('error', errText);
+                document.getElementById('log-box-wrap').classList.remove('running');
+
+                document.getElementById('btn-start').disabled = false;
+                document.getElementById('btn-start-text').textContent = '▶ Start Pipeline';
+                document.getElementById('btn-batch').disabled = false;
+            }
+            if (data.status === 'done' || data.status === 'cancelled' || data.status === 'error') {
+                checkQueueStatus();
+                setTimeout(checkActiveJob, 2500);
+            }
+        } catch (e) {
+            clearTimeout(timeoutId);
+            console.error('Polling error:', e);
+            pollErrors++;
+            if (pollErrors >= 5) {
+                clearInterval(pollTimer);
+                setStatus('error', '❌ Network Error: Could not reach server.');
+                document.getElementById('log-box-wrap').classList.remove('running');
+                document.getElementById('btn-start').disabled = false;
+                if (document.getElementById('spinner')) document.getElementById('spinner').style.display = 'none';
+                document.getElementById('btn-start-text').textContent = '▶ Start Pipeline';
+                document.getElementById('btn-batch').disabled = false;
+            }
+        }
+    }
+
+    // ── Log display with colored lines ──
+    function setLog(lines) {
+        const box = document.getElementById('log-box');
+        if (typeof lines === 'string') lines = [lines];
+        const html = lines.map(l => {
+            const escaped = l.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+            if (/\[OK\]|\[DONE\]|successfully|Complete/i.test(l)) return `<div class="log-ok">${escaped}</div>`;
+            if (/\[WARN\]|\[!\]/i.test(l)) return `<div class="log-warn">${escaped}</div>`;
+            if (/\[ERROR\]/i.test(l)) return `<div class="log-err">${escaped}</div>`;
+            if (/\[\*\]|Phase|SAVED/i.test(l)) return `<div class="log-info">${escaped}</div>`;
+            return `<div>${escaped}</div>`;
+        }).join('');
+        box.innerHTML = html;
+        const isNearBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 50;
+        if (isNearBottom) { box.scrollTop = box.scrollHeight; }
+    }
+
+    // ── Phase UI ──
+    function resetPhases() {
+        PHASES.forEach(p => {
+            document.getElementById('pc-' + p.num).className = 'phase-circle';
+            document.getElementById('pl-' + p.num).className = 'phase-label';
+            const conn = document.getElementById('pcon-' + p.num);
+            if (conn) conn.className = 'phase-connector';
+        });
+    }
+    function updatePhases(phaseText) {
+        const m = phaseText.match(/Phase\s*(\d)/i);
+        if (!m) return;
+        const cur = parseInt(m[1]);
+        PHASES.forEach(p => {
+            const circle = document.getElementById('pc-' + p.num);
+            const label = document.getElementById('pl-' + p.num);
+            const conn = document.getElementById('pcon-' + p.num);
+            if (p.num < cur) {
+                circle.className = 'phase-circle done';
+                label.className = 'phase-label done';
+                if (conn) conn.className = 'phase-connector done';
+            } else if (p.num === cur) {
+                circle.className = 'phase-circle active';
+                label.className = 'phase-label active';
+            } else {
+                circle.className = 'phase-circle';
+                label.className = 'phase-label';
+            }
+        });
+    }
+    function markAllDone() {
+        PHASES.forEach(p => {
+            document.getElementById('pc-' + p.num).className = 'phase-circle done';
+            document.getElementById('pl-' + p.num).className = 'phase-label done';
+            const conn = document.getElementById('pcon-' + p.num);
+            if (conn) conn.className = 'phase-connector done';
+        });
+    }
+
+    function updateProgressFromPhase(phaseText) {
+        const map = { 1: 12, 2: 28, 3: 50, 4: 67, 5: 82, 6: 94 };
+        const m = phaseText.match(/Phase\s*(\d)/i);
+        if (m) setProgressBar(map[parseInt(m[1])] || 0);
+    }
+    function setProgressBar(pct) {
+        document.getElementById('prog-bar').style.width = pct + '%';
+    }
+    function setStatus(state, text) {
+        const pill = document.getElementById('status-pill');
+        const dot = document.getElementById('status-dot');
+        const txt = document.getElementById('status-text');
+        pill.className = 'status-pill ' + state;
+        txt.textContent = text;
+        dot.style.background = state === 'done' ? 'var(--success)' : state === 'error' ? 'var(--error)' : '#a78bfa';
+    }
+
+    // ── API Key Management ──
+    let _isLoadingKeys = false;
+    async function loadRawKeysIntoEditor() {
+        if (_isLoadingKeys) return;
+        _isLoadingKeys = true;
+        const textarea = document.getElementById('key-editor-textarea');
+        if (textarea && !textarea.value.trim()) {
+            textarea.placeholder = 'Fetching existing keys from server...';
+        }
+        try {
+            const res = await fetch('/api/keys/list');
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const data = await res.json();
+            const keys = data.keys || [];
+            if (textarea) {
+                if (keys.length > 0) {
+                    textarea.value = keys.join('\n');
+                } else {
+                    textarea.placeholder = 'Paste Gemini API Keys here, one per line...';
+                }
+            }
+        } catch (e) {
+            console.error('Failed to load raw keys:', e);
+            if (textarea && !textarea.value.trim()) {
+                textarea.placeholder = 'Paste Gemini API Keys here, one per line...';
+            }
+        } finally {
+            _isLoadingKeys = false;
+        }
+    }
+
+    function toggleKeyEditor() {
+        const box = document.getElementById('key-editor-box');
+        const isClosed = (box.style.display === 'none' || !box.style.display);
+        if (isClosed) {
+            box.style.display = 'block';
+            loadRawKeysIntoEditor();
+            const textarea = document.getElementById('key-editor-textarea');
+            if (textarea) textarea.focus();
+        } else {
+            box.style.display = 'none';
+        }
+    }
+
+    async function saveKeysFromUI() {
+        const saveBtn = document.getElementById('btn-save-keys');
+        const textarea = document.getElementById('key-editor-textarea');
+        const rawText = (textarea ? textarea.value : '');
+        
+        const rawItems = rawText.split('\n');
+        let keysArr = [];
+        for (const item of rawItems) {
+            const parts = item.split(',').map(s => s.trim()).filter(s => s.length > 0);
+            keysArr.push(...parts);
+        }
+        keysArr = [...new Set(keysArr)];
+
+        if (!keysArr.length) {
+            if (!confirm('Warning: All API keys will be removed. Proceed?')) return;
+        }
+
+        const origBtnText = '💾 Save API Keys';
+        if (saveBtn) {
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '⏳ Saving...';
+        }
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 12000);
+
+        try {
+            const res = await fetch('/api/keys/save', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ keys: keysArr }),
+                signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.detail || data.error || `HTTP ${res.status}`);
+            if (data.error) throw new Error(data.error);
+
+            // 1. Immediately close editor box
+            const box = document.getElementById('key-editor-box');
+            if (box) box.style.display = 'none';
+
+            // 2. Non-blocking Toast notification
+            showToast(`✅ Saved ${data.keys_count} Gemini API Key(s) to config.json!`, 'success');
+
+            // 3. Refresh live status
+            loadKeyStatus();
+        } catch (e) {
+            clearTimeout(timeoutId);
+            console.error('Save keys error:', e);
+            const isTimeout = (e.name === 'AbortError');
+            showToast('❌ ' + (isTimeout ? 'Server save timed out. Please retry.' : e.message), 'error');
+        } finally {
+            if (saveBtn) {
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = origBtnText;
+            }
+        }
+    }
+
+    // ── API Keys ──
+    async function loadKeyStatus() {
+        const badge = document.getElementById('api-total-badge');
+        const grid = document.getElementById('keys-grid');
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000);
+        try {
+            const res = await fetch('/api/keys/status', { signal: controller.signal });
+            clearTimeout(timeoutId);
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const data = await res.json();
+
+            if (badge) {
+                badge.textContent = `⚡ ${data.total_remaining_requests} API Requests Left Today`;
+            }
+
+            if (data.hardware_encoder) {
+                const encBadge = document.getElementById('encoder-badge');
+                if (encBadge) {
+                    const isGpu = data.hardware_encoder.type === 'gpu';
+                    encBadge.innerHTML = `<span>⚡ ${data.hardware_encoder.label}</span>`;
+                    encBadge.style.color = isGpu ? 'var(--success)' : 'var(--muted)';
+                    encBadge.style.background = isGpu ? 'rgba(16, 185, 129, 0.1)' : 'rgba(100, 116, 139, 0.1)';
+                    encBadge.style.borderColor = isGpu ? 'rgba(16, 185, 129, 0.25)' : 'rgba(100, 116, 139, 0.2)';
+                }
+            }
+
+            // Also show current model
+            if (data.keys && data.keys.length > 0 && data.keys[0].model) {
+                const mDisp = document.getElementById('model-display');
+                if (mDisp) mDisp.textContent = data.keys[0].model;
+            }
+
+            if (!grid) return;
+            if (!data.keys || data.keys.length === 0) {
+                grid.innerHTML = '<div class="empty-state">No API keys configured. Click "✏️ Edit / Add Keys" above to add your keys.</div>';
+                return;
+            }
+            grid.innerHTML = '';
+            data.keys.forEach((k, i) => {
+                const isOnline = k.live_status === 'ONLINE';
+                const isRateLimited = k.live_status && k.live_status.includes('RATE');
+                const statusColor = isOnline ? 'var(--success)' : isRateLimited ? 'var(--warn)' : 'var(--error)';
+                
+                const card = document.createElement('div');
+                card.className = 'key-card';
+                applyEntranceAnimation(card, i * 70);
+                
+                let modelsHtml = '';
+                if (k.models && k.models.length > 0) {
+                    k.models.forEach(m => {
+                        const pct = Math.max(0, Math.min(100, Math.round((m.remaining / m.limit) * 100)));
+                        modelsHtml += `
+                        <div style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid rgba(255,255,255,0.05);">
+                            <div style="font-size:0.78rem; color:var(--muted); display:flex; justify-content:space-between; margin-bottom:0.4rem;">
+                                <span><b style="color:#a78bfa;">${m.name}</b></span>
+                                <span style="color:#c4b5fd;"><b>${m.remaining}</b> Left</span>
+                            </div>
+                            <div style="font-size:0.72rem; color:var(--muted); display:flex; justify-content:space-between; margin-bottom:0.4rem;">
+                                <span>Used: <b style="color:var(--text);">${m.used_today}</b> / ${m.limit}</span>
+                            </div>
+                            <div style="width:100%; height:4px; background:rgba(255,255,255,0.07); border-radius:2px; overflow:hidden;">
+                                <div style="width:${pct}%; height:100%; background:${statusColor}; border-radius:2px; transition:width 0.5s;"></div>
+                            </div>
+                        </div>
+                        `;
+                    });
+                }
+                
+                card.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-weight:700; font-size:0.88rem;">🔑 Key ${i+1}: <code style="color:#c4b5fd; background:rgba(124,58,237,0.15); padding:0.1rem 0.4rem; border-radius:4px; font-size:0.8rem;">${k.key}</code></span>
+                        <span style="font-size:0.72rem; font-weight:700; color:${statusColor}; border:1px solid ${statusColor}; opacity:0.85; padding:0.15rem 0.55rem; border-radius:4px;">● ${k.live_status}</span>
+                    </div>
+                    ${modelsHtml}
+                `;
+                grid.appendChild(card);
+            });
+        } catch (e) {
+            clearTimeout(timeoutId);
+            console.error('Key status error:', e);
+            if (badge) badge.textContent = '⚡ Status check unavailable';
+            if (grid) {
+                grid.innerHTML = '<div class="empty-state" style="color:var(--warn); padding:1rem;">⚠️ Unable to reach key status server. Your keys may still work. Click "✏️ Edit / Add Keys" to manage them.</div>';
+            }
+        }
+    }
+
+    // ── Movies ──
+    async function loadMovies() {
+        const grid = document.getElementById('movies-grid');
+        try {
+            const res = await fetch('/api/movies');
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const movies = await res.json();
+            if (!grid) return;
+            if (!movies || !movies.length) {
+                grid.innerHTML = '<div class="empty-state">No videos in movies/ folder yet.</div>';
+                return;
+            }
+            grid.innerHTML = '';
+            movies.forEach((f, index) => {
+                const card = document.createElement('div');
+                card.className = 'output-card';
+                applyEntranceAnimation(card, index * 60);
+                const name = f.replace(/'/g, "\\'");
+                card.innerHTML = `
+                    <h3>🎞️ ${f}</h3>
+                    <div style="display:flex; gap:0.6rem; margin-top:1rem;">
+                        <button class="btn-use" onclick="useMovie('${name}')">⚡ Use This</button>
+                        <button class="btn-rename" onclick="renameMovie('${name}')">✏️ Rename</button>
+                        <button class="btn-delete" onclick="deleteItem('movies','${name}')">🗑️ Delete</button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        } catch (e) {
+            console.error('Movies load error:', e);
+            if (grid) grid.innerHTML = '<div class="empty-state" style="color:var(--muted);">No videos loaded. Click 🔄 Refresh to retry.</div>';
+        }
+    }
+
+    function useMovie(fn) {
+        document.getElementById('input-source').value = fn;
+        switchMode('single');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ── Outputs ──
+    async function loadOutputs() {
+        const grid = document.getElementById('outputs-grid');
+        try {
+            const res = await fetch('/api/outputs');
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const data = await res.json();
+            if (!grid) return;
+            const metadata = Array.isArray(data.metadata) ? data.metadata : [];
+            const outputs = data.outputs || {};
+            const metadataMap = Object.fromEntries(metadata.map(item => [item.project_dir, item]));
+
+            if (!Object.keys(outputs).length && !metadata.length) {
+                grid.innerHTML = '<div class="empty-state">No recap outputs generated yet. Run a pipeline first!</div>';
+                return;
+            }
+            grid.innerHTML = '';
+            for (const [movie, mdata] of Object.entries(outputs)) {
+                const files = mdata.files || [];
+                const progress = mdata.progress || 0;
+                const phase = mdata.phase || 'Done';
+                const meta = metadataMap[movie] || {};
+                const safeMovie = movie.replace(/'/g, "\\'");
+
+                const card = document.createElement('div');
+                card.className = 'output-card';
+
+                let durHtml = '';
+                if (mdata.total_duration) {
+                    durHtml = `<span style="background:rgba(59,130,246,0.15); color:#60a5fa; border:1px solid rgba(59,130,246,0.3); padding:0.2rem 0.5rem; border-radius:6px; font-size:0.75rem; font-weight:600;">⏱️ Duration: ${mdata.total_duration}</span>`;
+                }
+
+                let progHtml = progress < 100
+                    ? `<div style="margin-bottom:0.75rem; background:rgba(0,0,0,0.4); padding:0.6rem 0.75rem; border-radius:8px; border:1px solid rgba(255,255,255,0.07);">
+                           <div style="display:flex; justify-content:space-between; font-size:0.8rem; color:var(--muted); margin-bottom:0.4rem;"><span>⏳ ${phase}</span><span style="color:var(--accent); font-weight:700;">${progress}%</span></div>
+                           <div style="width:100%; height:5px; background:#3f3f46; border-radius:3px; overflow:hidden;"><div style="width:${progress}%; height:100%; background:var(--accent); transition:width 0.5s;"></div></div>
+                       </div>`
+                    : `<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.75rem; font-size:0.8rem;">
+                           <span style="color:var(--success); font-weight:700;">✅ Completed</span>
+                           ${durHtml}
+                       </div>`;
+
+                let metaHtml = '';
+                if (meta.language || meta.whisper_model || meta.updated_at) {
+                    const lang = meta.language ? `Language: ${meta.language}` : '';
+                    const whisper = meta.whisper_model ? `Whisper: ${meta.whisper_model}` : '';
+                    const updated = meta.updated_at ? `Updated: ${new Date(meta.updated_at).toLocaleString()}` : '';
+                    metaHtml = `<div style="display:flex; flex-wrap:wrap; gap:0.75rem; font-size:0.78rem; color:var(--muted); margin-bottom:0.75rem;">
+                        ${lang ? `<span>${lang}</span>` : ''}
+                        ${whisper ? `<span>${whisper}</span>` : ''}
+                        ${updated ? `<span>${updated}</span>` : ''}
+                    </div>`;
+                }
+
+                let phaseDursHtml = '';
+                if (mdata.phase_durations && Object.keys(mdata.phase_durations).length > 0) {
+                    phaseDursHtml = `<div style="display:flex; flex-wrap:wrap; gap:0.35rem; margin-bottom:0.75rem; background:rgba(0,0,0,0.3); padding:0.4rem 0.6rem; border-radius:8px; border:1px solid rgba(255,255,255,0.06);">`;
+                    for (const [pname, pdur] of Object.entries(mdata.phase_durations)) {
+                        const shortName = pname.replace(/Phase \d+:\s*/, '').replace(/Phase \d+ & \d+:\s*/, '');
+                        phaseDursHtml += `<span style="background:rgba(255,255,255,0.05); color:#94a3b8; padding:0.15rem 0.4rem; border-radius:4px; font-size:0.72rem;">⏱️ ${shortName}: <b style="color:#38bdf8;">${pdur}s</b></span>`;
+                    }
+                    phaseDursHtml += `</div>`;
+                }
+
+                let bodyHtml = `
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem; padding-bottom:0.6rem; border-bottom:1px solid rgba(255,255,255,0.07); flex-wrap:wrap; gap:0.5rem;">
+                        <h3 style="margin:0;">🎬 ${movie}</h3>
+                        <div style="display:flex; gap:0.4rem; align-items:center; flex-wrap:wrap;">
+                            <a href="/api/download/zip?movie=${safeMovie}" class="btn-success" style="padding:0.32rem 0.75rem; font-size:0.78rem; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:0.3rem; border-radius:8px; background:linear-gradient(135deg, #10b981 0%, #059669 100%); color:#fff; box-shadow:0 3px 10px rgba(16,185,129,0.3);" download title="Download all video, thumbnail, subtitles & script in one ZIP">📦 Download All (ZIP)</a>
+                            <button type="button" class="btn-nav" style="padding:0.32rem 0.75rem; font-size:0.78rem; font-weight:700; background:linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); color:#fff; border-radius:8px; border:none; cursor:pointer; display:inline-flex; align-items:center; gap:0.3rem; box-shadow:0 3px 10px rgba(99,102,241,0.3);" onclick="saveToDirectory('${safeMovie}')" title="Choose a folder on your PC to save all files directly">📁 Save to Folder</button>
+                            <a href="/api/logs/${safeMovie}" target="_blank" class="download-btn" style="padding:0.3rem 0.6rem; font-size:0.75rem; text-decoration:none;">📄 View Log</a>
+                            <button class="btn-delete" onclick="deleteItem('outputs','${safeMovie}')">🗑️ Delete</button>
+                        </div>
+                    </div>
+                    ${metaHtml}
+                    ${progHtml}
+                    ${phaseDursHtml}
+                `;
+
+                files.forEach(f => {
+                    const fname = f.split('/').pop();
+                    if (['voiceover','temp','state.json'].includes(fname) || f.endsWith('state.json')) return;
+                    const safePath = f.split('/').map(encodeURIComponent).join('/');
+                    const url = `/api/outputs/file?path=${safePath}`;
+                    if (f.endsWith('.mp4')) {
+                        const isReels = fname.includes('reels');
+                        const vBadge = isReels ? '📱 9:16 Facebook Reels Canvas' : '🎥 16:9 YouTube Standard';
+                        const vStyle = isReels
+                            ? 'max-height:500px; width:auto; max-width:280px; margin:0 auto; display:block; border-radius:12px; box-shadow:0 8px 25px rgba(0,0,0,0.5);'
+                            : 'width:100%; max-height:400px; border-radius:8px;';
+                        bodyHtml += `<div class="video-wrap" style="${isReels ? 'background:rgba(255,255,255,0.02); padding:0.8rem; border-radius:12px; border:1px solid rgba(255,255,255,0.08);' : ''}">
+                            <div class="video-title" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
+                                <span style="font-weight:700; color:${isReels ? '#38bdf8' : '#e4e4e7'};">${vBadge}</span>
+                                <span style="font-size:0.75rem; color:var(--muted);">${fname}</span>
+                            </div>
+                            <video controls preload="metadata" style="${vStyle}" src="${url}"></video>
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.6rem; flex-wrap:wrap; gap:0.5rem;">
+                                <span style="font-size:0.78rem; color:var(--muted);">${isReels ? '📱 Safe Zone + Top Hook Title' : '🔥 16:9 Anti-Copyright Video'}</span>
+                                <a class="download-btn" href="${url}" target="_blank" download>⬇️ Download ${isReels ? 'Reels MP4' : 'Recap MP4'}</a>
+                            </div>
+                        </div>`;
+                    } else if (f.endsWith('.mp3')) {
+                        bodyHtml += `<div style="margin:0.4rem 0;"><div style="font-size:0.8rem; color:var(--muted); margin-bottom:0.2rem;">🔊 ${f}</div><audio controls preload="none" src="${url}"></audio></div>`;
+                    } else {
+                        bodyHtml += `<a href="${url}" class="file-link" target="_blank" download>📄 ${f}</a>`;
+                    }
+                });
+
+                card.innerHTML = bodyHtml;
+                grid.appendChild(card);
+            }
+        } catch (e) {
+            console.error('Outputs load error:', e);
+            if (grid) grid.innerHTML = '<div class="empty-state" style="color:var(--muted);">No outputs loaded. Click 🔄 Refresh to retry.</div>';
+        }
+    }
+
+    // ── Config ──
+    async function loadConfig() {
+        try {
+            const res = await fetch('/api/config');
+            const cfg = await res.json();
+            if (cfg.copyright_protection) {
+                document.getElementById('chk-mirror').checked = !!cfg.copyright_protection.mirror_video;
+            }
+            if (cfg.thumbnail_intro && cfg.thumbnail_intro.enabled !== undefined) {
+                const chkIntro = document.getElementById('chk-thumb-intro');
+                if (chkIntro) chkIntro.checked = !!cfg.thumbnail_intro.enabled;
+            }
+            if (cfg.voice && cfg.voice.engine) {
+                const eng = cfg.voice.engine;
+                const sel = document.getElementById('select-tts-engine');
+                if (sel) sel.value = eng;
+                const selStrip = document.getElementById('select-tts-engine-strip');
+                if (selStrip) selStrip.value = eng;
+            }
+            if (cfg.gemini && cfg.gemini.model) {
+                document.getElementById('model-display').textContent = cfg.gemini.model;
+            }
+            if (cfg.pipeline && cfg.pipeline.use_demucs !== undefined) {
+                const chkDemucs = document.getElementById('chk-skip-demucs');
+                if (chkDemucs) chkDemucs.checked = !cfg.pipeline.use_demucs;
+            }
+            if (cfg.audio_ducking && cfg.audio_ducking.enabled !== undefined) {
+                const chkDuck = document.getElementById('chk-audio-ducking');
+                if (chkDuck) chkDuck.checked = !!cfg.audio_ducking.enabled;
+            }
+            if (cfg.pipeline && cfg.pipeline.scene_detection !== undefined) {
+                const chkScene = document.getElementById('chk-scene-detect');
+                if (chkScene) chkScene.checked = !!cfg.pipeline.scene_detection;
+            }
+            if (cfg.pipeline && cfg.pipeline.script_engine) {
+                const selEngine = document.getElementById('select-script-engine');
+                if (selEngine) selEngine.value = cfg.pipeline.script_engine;
+            }
+        } catch (e) { console.error(e); }
+    }
+
+    async function updateScriptEngineSetting(engine) {
+        try {
+            await fetch('/api/config', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ script_engine: engine })
+            });
+        } catch (e) { console.error(e); }
+    }
+
+    async function updateSceneDetectSetting(enabled) {
+        try {
+            await fetch('/api/config', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ scene_detection: enabled })
+            });
+        } catch (e) { console.error(e); }
+    }
+
+    async function updateDemucsSetting(skip) {
+        try {
+            await fetch('/api/config', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ use_demucs: !skip })
+            });
+        } catch (e) { console.error(e); }
+    }
+
+    async function updateAudioDuckingSetting(enabled) {
+        try {
+            await fetch('/api/config', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ audio_ducking: { enabled: enabled } })
+            });
+        } catch (e) { console.error(e); }
+    }
+
+    async function updateThumbnailIntroSetting(enabled) {
+        try {
+            await fetch('/api/config', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ thumbnail_intro: { enabled: enabled } })
+            });
+        } catch (e) { console.error(e); }
+    }
+
+    async function updateMirrorSetting(enabled) {
+        try {
+            await fetch('/api/config', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ mirror_video: enabled })
+            });
+        } catch (e) { console.error(e); }
+    }
+
+    async function updateEngineSetting(engine) {
+        const sel = document.getElementById('select-tts-engine');
+        if (sel) sel.value = engine;
+        const selStrip = document.getElementById('select-tts-engine-strip');
+        if (selStrip) selStrip.value = engine;
+        try {
+            await fetch('/api/config', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ tts_engine: engine })
+            });
+        } catch (e) { console.error(e); }
+    }
+
+    // ── Delete ──
+    async function renameMovie(oldName) {
+        const newName = prompt(`Enter new filename (must end with video extension):`, oldName);
+        if (!newName || newName === oldName) return;
+        
+        try {
+            const res = await fetch('/api/rename/movie', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ old_name: oldName, new_name: newName })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                showToast(`✅ Renamed successfully to ${data.name}`, 'success');
+                loadMovies();
+            } else {
+                showToast(`❌ Rename failed: ${data.detail || data.error}`, 'error');
+            }
+        } catch (e) {
+            showToast(`❌ Rename request failed: ${e.message}`, 'error');
+        }
+    }
+
+    async function handleFileUpload(input) {
+        if (!input.files || !input.files[0]) return;
+        const file = input.files[0];
+        const formData = new FormData();
+        formData.append('video', file);
+
+        const btnText = document.getElementById('btn-upload-text');
+        const origText = btnText ? btnText.textContent : '📁 Upload Video / Cookies';
+        if (btnText) btnText.textContent = '⏳ Uploading...';
+
+        try {
+            const res = await fetch('/api/upload', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await res.json();
+            if (res.ok && data.success) {
+                if (data.filename === 'cookies.txt') {
+                    showToast('🍪 YouTube Cookies.txt uploaded and installed successfully! ✅', 'success');
+                } else {
+                    showToast(`🎬 Video uploaded: ${data.filename} ✅`, 'success');
+                    document.getElementById('input-source').value = 'movies/' + data.filename;
+                    loadMovies();
+                }
+            } else {
+                showToast(`❌ Upload failed: ${data.detail || data.error || 'Unknown error'}`, 'error');
+            }
+        } catch (e) {
+            showToast(`❌ Upload error: ${e.message}`, 'error');
+        } finally {
+            if (btnText) btnText.textContent = origText;
+            input.value = '';
+        }
+    async function saveToDirectory(movie) {
+        if ('showDirectoryPicker' in window) {
+            try {
+                const dirHandle = await window.showDirectoryPicker();
+                showToast('📁 Folder selected. Fetching assets...', 'info');
+
+                const resp = await fetch(`/api/download?path=${encodeURIComponent(movie)}`);
+                if (!resp.ok) throw new Error('Could not list project files');
+                const data = await resp.json();
+                const files = data.files || [];
+
+                let count = 0;
+                for (const f of files) {
+                    const fname = f.name;
+                    if (['voiceover', 'temp', 'state.json', 'checkpoint.json'].includes(fname) || fname.endsWith('.tmp')) continue;
+                    showToast(`Saving ${fname}...`, 'info');
+                    const fileResp = await fetch(f.url);
+                    if (!fileResp.ok) continue;
+                    const blob = await fileResp.blob();
+                    const fileHandle = await dirHandle.getFileHandle(fname, { create: true });
+                    const writable = await fileHandle.createWritable();
+                    await writable.write(blob);
+                    await writable.close();
+                    count++;
+                }
+                showToast(`✅ Successfully saved ${count} files to your PC folder!`, 'success');
+                return;
+            } catch (err) {
+                if (err.name === 'AbortError') return;
+                console.warn('Native folder save failed or cancelled, falling back to ZIP:', err);
+            }
+        }
+        // Fallback for browsers without File System Access API
+        showToast('📦 Triggering 1-Click ZIP bundle download...', 'info');
+        const a = document.createElement('a');
+        a.href = `/api/download/zip?movie=${encodeURIComponent(movie)}`;
+        a.download = `${movie}_Bundle.zip`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
+
+    async function deleteItem(type, name) {
+        const label = type === 'outputs' ? 'output အားလုံး' : 'ဗီဒီယိုဖိုင်';
+        if (!confirm(`"${name}" ၏ ${label}ကို ဖျက်ရန် သေချာပါသလား?`)) return;
+        try {
+            const res = await fetch(`/api/delete/${type}/${encodeURIComponent(name)}`, { method: 'DELETE' });
+            const data = await res.json();
+            if (data.error) throw new Error(data.error);
+            if (type === 'outputs') loadOutputs();
+            else loadMovies();
+        } catch (e) { showAlert('Delete error: ' + e.message); }
+    }
+
+    async function deleteAll(type) {
+        let msg = '';
+        if (type === 'movies') msg = 'Source ဗီဒီယို အားလုံးကို အပြီးတိုင် ဖျက်ရန် သေချာပါသလား?';
+        else if (type === 'outputs') msg = 'Output အားလုံးကို အပြီးတိုင် ဖျက်ရန် သေချာပါသလား?';
+        else msg = 'Source ဗီဒီယိုများနှင့် Output အားလုံးကို အပြီးတိုင် ဖျက်ရန် သေချာပါသလား?';
+
+        if (!confirm(`🚨 သတိပေးချက်: ${msg}`)) return;
+        try {
+            const res = await fetch(`/api/delete_all/${type}?confirm=true`, { method: 'DELETE' });
+            const data = await res.json();
+            if (data.error) throw new Error(data.error);
+            showAlert(`✅ အောင်မြင်စွာ ဖျက်သိမ်းပြီးပါပြီ! (ဖျက်ခဲ့သော အရေအတွက်: ${data.deleted_items})`);
+            loadMovies();
+            loadOutputs();
+        } catch (e) { showAlert('Delete error: ' + e.message); }
+    }
+
+    // ── Clear cache ──
+    async function clearCache() {
+        if (!confirm('Clear all temp/voiceover cache? Final outputs will NOT be deleted.')) return;
+        try {
+            const res = await fetch('/api/delete/cache', { method: 'DELETE' });
+            const data = await res.json();
+            showAlert(`✅ Cleared ${data.cleared_items} temp items!`);
+        } catch (e) { showAlert('Error: ' + e.message); }
+    }
+
+    function showToast(msg, type = 'info') {
+        let container = document.getElementById('toast-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'toast-container';
+            container.className = 'toast-container';
+            document.body.appendChild(container);
+        }
+        const toast = document.createElement('div');
+        toast.className = 'toast-item';
+        const bg = (type === 'success' || msg.includes('✅')) ? 'linear-gradient(135deg, rgba(16,185,129,0.95), rgba(5,150,105,0.95))'
+                 : (type === 'error' || msg.includes('❌') || msg.includes('Error') || msg.includes('Failed')) ? 'linear-gradient(135deg, rgba(239,68,68,0.95), rgba(220,38,38,0.95))'
+                 : 'linear-gradient(135deg, rgba(124,58,237,0.95), rgba(109,40,217,0.95))';
+        toast.style.background = bg;
+        toast.textContent = msg;
+        container.appendChild(toast);
+
+        requestAnimationFrame(() => {
+            toast.classList.add('visible');
+        });
+
+        setTimeout(() => {
+            toast.classList.remove('visible');
+            setTimeout(() => {
+                if (toast.parentNode) toast.parentNode.removeChild(toast);
+            }, 300);
+        }, 4000);
+    }
+
+    function showAlert(msg) {
+        showToast(msg);
+    }
+
+    // ── Init ──
+    document.querySelectorAll('.hero-card, .section-card, .progress-card').forEach((el, idx) => {
+        applyEntranceAnimation(el, idx * 80);
+    });
+
+    loadConfig();
+    loadSystemInfo();
+    loadKeyStatus();
+    loadMovies();
+    loadOutputs();
+    checkActiveJob();
+    checkQueueStatus();
+    setInterval(() => checkQueueStatus(false), 8000);
+
+    async function loadSystemInfo() {
+        try {
+            const res = await fetch('/api/system/info');
+            const data = await res.json();
+            if (data.hardware_encoder) {
+                const encBadge = document.getElementById('encoder-badge');
+                if (encBadge) {
+                    const isGpu = data.hardware_encoder.type === 'gpu';
+                    encBadge.innerHTML = `<span>⚡ ${data.hardware_encoder.label}</span>`;
+                    encBadge.style.color = isGpu ? 'var(--success)' : 'var(--muted)';
+                    encBadge.style.background = isGpu ? 'rgba(16, 185, 129, 0.1)' : 'rgba(100, 116, 139, 0.1)';
+                    encBadge.style.borderColor = isGpu ? 'rgba(16, 185, 129, 0.25)' : 'rgba(100, 116, 139, 0.2)';
+                }
+            }
+        } catch (e) {
+            console.error('Failed to load system info:', e);
+        }
+    }
+
+    async function checkActiveJob() {
+        try {
+            const res = await fetch('/api/jobs/active');
+            const data = await res.json();
+            if (data.job_id) {
+                console.log('⚡ Active running pipeline detected:', data.job_id);
+                showProgress('Connecting to active pipeline: ' + (data.phase || 'Running...'));
+                const btn = document.getElementById('btn-start');
+                const btnText = document.getElementById('btn-start-text');
+                if (btn && btnText) {
+                    btn.disabled = true;
+                    btnText.textContent = 'Running...';
+                }
+                startStreamingLogs(data.job_id);
+            }
+        } catch(e) {
+            console.error('Failed to check active job:', e);
+        }
+    }
+
+    // ── Health Check Modal & Logic ──
+    function openHealthModal() {
+        const modal = document.getElementById('health-modal-backdrop');
+        if (modal) {
+            modal.classList.add('active');
+            modal.style.display = 'flex';
+        }
+        runHealthCheck();
+    }
+
+    function closeHealthModal() {
+        const modal = document.getElementById('health-modal-backdrop');
+        if (modal) {
+            modal.classList.remove('active');
+            modal.style.display = 'none';
+        }
+    }
+
+    async function runHealthCheck() {
+        const overallBadge = document.getElementById('health-overall-badge');
+        if (overallBadge) {
+            overallBadge.className = 'health-badge warn';
+            overallBadge.textContent = 'Testing...';
+        }
+
+        try {
+            const res = await fetch('/api/system/health-check');
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const data = await res.json();
+            const checks = data.checks || {};
+
+            // 1. FFmpeg
+            const ffBadge = document.getElementById('health-ffmpeg-badge');
+            const ffDesc = document.getElementById('health-ffmpeg-desc');
+            if (checks.ffmpeg) {
+                const ff = checks.ffmpeg;
+                if (ff.installed) {
+                    ffBadge.className = ff.is_gpu ? 'health-badge ok' : 'health-badge warn';
+                    ffBadge.textContent = ff.is_gpu ? 'GPU Accelerated ✅' : 'CPU Software ⚠️';
+                    ffDesc.textContent = `Encoder: ${ff.encoder} (${ff.details})`;
+                } else {
+                    ffBadge.className = 'health-badge err';
+                    ffBadge.textContent = 'Not Found ❌';
+                    ffDesc.textContent = ff.details;
+                }
+            }
+
+            // 2. Gemini API
+            const gemBadge = document.getElementById('health-gemini-badge');
+            const gemDesc = document.getElementById('health-gemini-desc');
+            const gemDetails = document.getElementById('health-gemini-details');
+            if (checks.gemini) {
+                const gem = checks.gemini;
+                if (gem.healthy) {
+                    gemBadge.className = 'health-badge ok';
+                    gemBadge.textContent = `${gem.valid_keys}/${gem.total_keys} Active Keys ✅`;
+                } else if (gem.valid_keys > 0) {
+                    gemBadge.className = 'health-badge warn';
+                    gemBadge.textContent = `${gem.valid_keys}/${gem.total_keys} Active Keys ⚠️`;
+                } else {
+                    gemBadge.className = 'health-badge err';
+                    gemBadge.textContent = 'No Valid Keys ❌';
+                }
+                gemDesc.textContent = `Pinging AI Studio endpoint: ${gem.valid_keys} active out of ${gem.total_keys} key(s).`;
+                if (gem.results && gem.results.length > 0) {
+                    gemDetails.style.display = 'block';
+                    gemDetails.innerHTML = gem.results.map(r => {
+                        const icon = r.status === 'active' ? '🟢' : (r.status === 'rate_limited' ? '🟡' : '🔴');
+                        return `<div style="margin-top:2px;">${icon} <code>${r.key_preview}</code>: <b>${r.status.toUpperCase()}</b> (HTTP ${r.code})</div>`;
+                    }).join('');
+                }
+            }
+
+            // 3. Edge TTS
+            const ttsBadge = document.getElementById('health-tts-badge');
+            const ttsDesc = document.getElementById('health-tts-desc');
+            if (checks.edge_tts) {
+                const tts = checks.edge_tts;
+                ttsBadge.className = tts.healthy ? 'health-badge ok' : 'health-badge err';
+                ttsBadge.textContent = tts.healthy ? 'Online ✅' : 'Offline ❌';
+                ttsDesc.textContent = tts.details;
+            }
+
+            // 4. Storage Space
+            const diskBadge = document.getElementById('health-disk-badge');
+            const diskDesc = document.getElementById('health-disk-desc');
+            if (checks.disk) {
+                const disk = checks.disk;
+                diskBadge.className = disk.healthy ? 'health-badge ok' : 'health-badge warn';
+                diskBadge.textContent = `${disk.free_gb} GB Free`;
+                diskDesc.textContent = disk.details;
+            }
+
+            // Overall
+            if (overallBadge) {
+                const isHealthy = data.status === 'healthy';
+                overallBadge.className = isHealthy ? 'health-badge ok' : 'health-badge warn';
+                overallBadge.textContent = isHealthy ? 'All Systems Healthy ✅' : 'Degraded ⚠️';
+            }
+        } catch (e) {
+            console.error('Health check error:', e);
+            if (overallBadge) {
+                overallBadge.className = 'health-badge err';
+                overallBadge.textContent = 'Error Checking ❌';
+            }
+        }
+    }
+
+    // ── Queue Modal & Logic ──
+    function openQueueModal() {
+        const modal = document.getElementById('queue-modal-backdrop');
+        if (modal) {
+            modal.classList.add('active');
+            modal.style.display = 'flex';
+        }
+        checkQueueStatus(true);
+    }
+
+    function closeQueueModal() {
+        const modal = document.getElementById('queue-modal-backdrop');
+        if (modal) {
+            modal.classList.remove('active');
+            modal.style.display = 'none';
+        }
+    }
+
+    async function checkQueueStatus(refreshModal = false) {
+        try {
+            const res = await fetch('/api/queue');
+            if (!res.ok) return;
+            const data = await res.json();
+            const queue = data.queue || [];
+            const active = data.active_job;
+
+            // Update top nav queue badge
+            const qBtn = document.getElementById('btn-queue-badge');
+            const qCount = document.getElementById('queue-badge-count');
+            if (qBtn && qCount) {
+                qCount.textContent = queue.length;
+                if (queue.length > 0 || active) {
+                    qBtn.style.display = 'inline-flex';
+                } else {
+                    qBtn.style.display = 'none';
+                }
+            }
+
+            // If modal is not active and not refresh, return
+            const modal = document.getElementById('queue-modal-backdrop');
+            if (!modal || (!modal.classList.contains('active') && !refreshModal)) return;
+
+            const modalCountBadge = document.getElementById('queue-modal-count-badge');
+            if (modalCountBadge) {
+                modalCountBadge.textContent = `${queue.length} in queue`;
+            }
+
+            // Active section
+            const actSection = document.getElementById('queue-active-section');
+            const actTitle = document.getElementById('queue-active-title');
+            const actSub = document.getElementById('queue-active-sub');
+            if (active && active.status === 'running') {
+                actSection.style.display = 'block';
+                actTitle.textContent = `🎬 ${active.source || 'Pipeline Processing'}`;
+                actSub.textContent = `Job ID: ${active.job_id.substring(0, 8)}... | Lang: ${active.language || 'burmese'} | Phase: ${active.phase || 'running'}`;
+            } else {
+                actSection.style.display = 'none';
+            }
+
+            // Queue list container
+            const container = document.getElementById('queue-list-container');
+            if (container) {
+                if (queue.length === 0) {
+                    container.innerHTML = '<div class="empty-state" style="padding:1.5rem 0;">No queued videos waiting.</div>';
+                } else {
+                    container.innerHTML = queue.map((item, idx) => {
+                        const safeSource = (item.source || 'Video Task').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                        return `
+                        <div class="queue-item-card">
+                            <div style="flex:1; overflow:hidden;">
+                                <div style="font-weight:600; font-size:0.85rem; text-overflow:ellipsis; overflow:hidden; white-space:nowrap;">
+                                    <span style="color:var(--accent); font-weight:700;">#${idx + 1}</span> ${safeSource}
+                                </div>
+                                <div style="font-size:0.75rem; color:var(--muted); margin-top:0.2rem;">
+                                    Voice: ${item.tts_engine || 'edge_tts'} | Lang: ${item.language || 'burmese'} | ID: ${item.job_id.substring(0, 8)}
+                                </div>
+                            </div>
+                            <button class="btn-delete" style="padding:0.3rem 0.65rem; font-size:0.75rem;" onclick="removeFromQueue('${item.job_id}')" title="Remove from queue">🗑️ Remove</button>
+                        </div>`;
+                    }).join('');
+                }
+            }
+        } catch (e) {
+            console.error('Queue check error:', e);
+        }
+    }
+
+    async function removeFromQueue(jobId) {
+        if (!confirm('Remove this video job from the queue?')) return;
+        try {
+            const res = await fetch(`/api/queue/${encodeURIComponent(jobId)}`, { method: 'DELETE' });
+            const data = await res.json();
+            if (res.ok) {
+                showToast('✅ Job removed from queue.', 'success');
+                checkQueueStatus(true);
+            } else {
+                showToast(`❌ Failed to remove: ${data.detail || data.error}`, 'error');
+            }
+        } catch (e) {
+            showToast(`❌ Error: ${e.message}`, 'error');
+        }
+    }
+
+    // ── Background Particles ──
+    function initializeLightCanvas() {
+        const canvas = document.getElementById('lightCanvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        let width = window.innerWidth;
+        let height = window.innerHeight;
+        const lights = [];
+        const lightCount = 28;
+
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        for (let i = 0; i < lightCount; i++) {
+            lights.push({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                vx: (Math.random() - 0.5) * 0.8,
+                vy: -0.3 - Math.random() * 0.7,
+                radius: 2.0 + Math.random() * 3.5,
+                hue: 230 + Math.random() * 60,
+                pulseSpeed: 0.02 + Math.random() * 0.03,
+                pulseAngle: Math.random() * Math.PI * 2,
+            });
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, width, height);
+            ctx.globalCompositeOperation = 'lighter';
+
+            lights.forEach((light, idx) => {
+                light.x += light.vx;
+                light.y += light.vy;
+                light.pulseAngle += light.pulseSpeed;
+
+                if (light.y < -50) {
+                    light.y = height + 50;
+                    light.x = Math.random() * width;
+                }
+                if (light.x < -50) light.x = width + 50;
+                if (light.x > width + 50) light.x = -50;
+
+                const currentRadius = light.radius + Math.sin(light.pulseAngle) * 1.2;
+                const alpha = 0.4 + Math.sin(light.pulseAngle) * 0.25;
+
+                const auraGradient = ctx.createRadialGradient(
+                    light.x, light.y, 0,
+                    light.x, light.y, currentRadius * 18
+                );
+                auraGradient.addColorStop(0, `hsla(${light.hue}, 95%, 85%, ${alpha * 0.45})`);
+                auraGradient.addColorStop(0.4, `hsla(${light.hue}, 85%, 75%, ${alpha * 0.18})`);
+                auraGradient.addColorStop(1, 'rgba(0,0,0,0)');
+
+                ctx.fillStyle = auraGradient;
+                ctx.beginPath();
+                ctx.arc(light.x, light.y, currentRadius * 18, 0, Math.PI * 2);
+                ctx.fill();
+
+                const coreGradient = ctx.createRadialGradient(
+                    light.x, light.y, 0,
+                    light.x, light.y, currentRadius * 2
+                );
+                coreGradient.addColorStop(0, `hsla(${light.hue}, 100%, 98%, ${alpha * 0.9})`);
+                coreGradient.addColorStop(0.5, `hsla(${light.hue}, 90%, 85%, ${alpha * 0.6})`);
+                coreGradient.addColorStop(1, 'rgba(0,0,0,0)');
+
+                ctx.fillStyle = coreGradient;
+                ctx.beginPath();
+                ctx.arc(light.x, light.y, currentRadius * 2, 0, Math.PI * 2);
+                ctx.fill();
+
+                if (idx % 2 === 0) {
+                    const next = lights[(idx + 3) % lightCount];
+                    const dist = Math.hypot(light.x - next.x, light.y - next.y);
+                    if (dist < 180) {
+                        const lineAlpha = (1 - dist / 180) * 0.12;
+                        ctx.strokeStyle = `hsla(${light.hue}, 85%, 75%, ${lineAlpha})`;
+                        ctx.lineWidth = 1.0;
+                        ctx.beginPath();
+                        ctx.moveTo(light.x, light.y);
+                        ctx.lineTo(next.x, next.y);
+                        ctx.stroke();
+                    }
+                }
+            });
+            requestAnimationFrame(draw);
+        }
+        draw();
+    }
+    initializeLightCanvas();
+    loadBrandingSettings();
+    loadSubStyleSettings();
+    checkCookiesStatus();
+</script>
+</body>
+</html>

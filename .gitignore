@@ -1,0 +1,34 @@
+.venv/
+movies/
+outputs/
+temp/
+__pycache__/
+voiceover/
+*.mp4
+*.wav
+*.mp3
+!assets/bgm/*.wav
+!assets/voices/*.wav
+*.pyc
+*TEMP_MPY*
+*.log
+
+# Local credentials and machine-specific settings. Keep the safe template tracked.
+config.json
+config.json.tmp
+.env
+cookies.txt
+assets/cookies.txt
+
+# Private notebooks with credentials (never commit to git)
+*_PRIVATE.ipynb
+*_private.ipynb
+*PRIVATE*
+*private*
+private/
+
+.tmp.driveupload/
+temp_test*/
+*.tmp
+SYSTEM_AUDIT*.md
+system_audit*.md
