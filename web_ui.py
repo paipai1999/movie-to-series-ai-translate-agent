@@ -488,6 +488,9 @@ def batch_worker(
     script_engine="recap",
     series_mode=False,
     series_duration=180,
+    trim_end=None,
+    no_smart_trim=False,
+    outro_card=False,
 ):
     from brain.planner import BatchProcessor
     current_job_id.set(job_id)
@@ -577,6 +580,9 @@ def batch_worker(
             detect_scenes=detect_scenes,
             series_mode=series_mode,
             series_duration=series_duration,
+            trim_end=trim_end,
+            no_smart_trim=no_smart_trim,
+            outro_card=outro_card,
         )
         print(f"[*] Batch Mode: Starting batch run for {len(inputs_list)} item(s)...")
         processor.process_all(url_list=urls, local_paths=local_paths)
@@ -676,6 +682,9 @@ class BatchStartRequest(BaseModel):
     resume: Optional[bool] = True
     series_mode: Optional[bool] = False
     series_duration: Optional[int] = 180
+    trim_end: Optional[float] = None
+    no_smart_trim: Optional[bool] = False
+    outro_card: Optional[bool] = False
 
 class SubtitleConfigRequest(BaseModel):
     preset: str = "box_black"
@@ -1172,6 +1181,9 @@ async def start_batch_pipeline(req: BatchStartRequest):
             req.script_engine or "recap",
             req.series_mode or False,
             req.series_duration or 180,
+            req.trim_end,
+            req.no_smart_trim or False,
+            req.outro_card or False,
         ),
         "name": f"Batch ({len(inputs)} items)",
         "source": f"Batch ({len(inputs)} items)",

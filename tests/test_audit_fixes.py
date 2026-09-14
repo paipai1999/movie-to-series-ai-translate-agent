@@ -99,6 +99,64 @@ class TestAuditFixes(unittest.TestCase):
                 dl.download_video("https://youtube.com/watch?v=dummy123")
             self.assertIn("Download seemed to succeed but file not found", str(ctx.exception))
 
+    def test_downloader_agent_youtube_shorts_clean_url(self):
+        """Verify _clean_url converts YouTube Shorts link to canonical watch URL."""
+        from agents.downloader_agent import DownloaderAgent
+        url = "https://www.youtube.com/shorts/dQw4w9WgXcQ?feature=share"
+        cleaned = DownloaderAgent._clean_url(url)
+        self.assertEqual(cleaned, "https://www.youtube.com/watch?v=dQw4w9WgXcQ")
+
+    def test_batch_outro_protection_wiring(self):
+        """Verify BatchStartRequest and BatchProcessor accept outro protection parameters."""
+        from web_ui import BatchStartRequest
+        from brain.planner import BatchProcessor
+
+        req = BatchStartRequest(
+            inputs=["test.mp4"],
+            trim_end=12.5,
+            no_smart_trim=True,
+            outro_card=True
+        )
+        self.assertEqual(req.trim_end, 12.5)
+        self.assertTrue(req.no_smart_trim)
+        self.assertTrue(req.outro_card)
+
+        proc = BatchProcessor(
+            movies_folder="movies",
+            trim_end=12.5,
+            no_smart_trim=True,
+            outro_card=True
+        )
+        self.assertEqual(proc.trim_end, 12.5)
+        self.assertTrue(proc.no_smart_trim)
+        self.assertTrue(proc.outro_card)
+
+    def test_voice_agent_presorts_script_blocks(self):
+        """Verify VoiceAgent sorts generated_script by start_sec before TTS generation."""
+        from agents.voice_agent import VoiceAgent
+        agent = VoiceAgent(output_dir="temp_dummy_vo")
+        state = MovieState(movie_name="SortScriptTest")
+        state.generated_script = [
+            {"scene_id": 2, "narration": "Second scene", "start_sec": 15.0},
+            {"scene_id": 1, "narration": "First scene", "start_sec": 3.0},
+            {"scene_id": 3, "narration": "Third scene", "start_sec": 22.0},
+        ]
+        # Calling generate_voiceover with an empty/mocked folder
+        with patch.object(agent, "_generate_edge_voiceover", return_value=state):
+            agent.generate_voiceover(state)
+            self.assertEqual(state.generated_script[0]["start_sec"], 3.0)
+            self.assertEqual(state.generated_script[1]["start_sec"], 15.0)
+            self.assertEqual(state.generated_script[2]["start_sec"], 22.0)
+
+    def test_config_json_outro_protection_present(self):
+        """Verify config.json contains the outro_protection section."""
+        from brain import config as cfg
+        c = cfg.load_config()
+        self.assertIn("outro_protection", c)
+        self.assertIn("auto_trim", c["outro_protection"])
+        self.assertIn("trim_end_seconds", c["outro_protection"])
+
 
 if __name__ == "__main__":
     unittest.main()
+

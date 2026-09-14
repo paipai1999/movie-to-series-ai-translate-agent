@@ -24,7 +24,7 @@ ASCII_ART = r"""
 """
 
 def setup_directories():
-    for d in ["movies", "outputs", "temp", "voiceover", "assets/voices", "assets/bgm"]:
+    for d in ["movies", "outputs", "temp", "voiceover", "assets/voices", "assets/bgm", "assets/fonts"]:
         os.makedirs(d, exist_ok=True)
 
 def run_interactive_cleanup():
@@ -118,6 +118,7 @@ def check_dependencies():
     ffmpeg_dir = os.path.dirname(ffmpeg)
     if ffmpeg_dir and ffmpeg_dir not in os.environ.get("PATH", ""):
         os.environ["PATH"] = ffmpeg_dir + os.pathsep + os.environ.get("PATH", "")
+    setup_directories()
     print(f"[*] FFmpeg ready -> {ffmpeg}")
 
 def main():
@@ -494,6 +495,9 @@ def main():
             detect_scenes=detect_scenes_flag,
             series_mode=series_mode_val,
             series_duration=args.series_duration,
+            trim_end=args.trim_end,
+            no_smart_trim=args.no_smart_trim,
+            outro_card=outro_card_val,
         ).process_all()
 
     # Batch: URL list
@@ -523,6 +527,9 @@ def main():
             detect_scenes=detect_scenes_flag,
             series_mode=series_mode_val,
             series_duration=args.series_duration,
+            trim_end=args.trim_end,
+            no_smart_trim=args.no_smart_trim,
+            outro_card=outro_card_val,
         ).process_all(url_list=args.urls, local_paths=[])
     else:
         parser.print_help()

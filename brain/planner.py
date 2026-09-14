@@ -33,6 +33,9 @@ class BatchProcessor:
         detect_scenes: bool = None,
         series_mode: bool = None,
         series_duration: int = None,
+        trim_end: float = None,
+        no_smart_trim: bool = None,
+        outro_card: bool = None,
     ):
         self.movies_folder = movies_folder
         self.output_dir = output_dir or cfg.load_config().get("paths", {}).get("output_dir", "outputs")
@@ -43,6 +46,9 @@ class BatchProcessor:
         self.detect_scenes = detect_scenes
         self.series_mode = series_mode
         self.series_duration = series_duration
+        self.trim_end = trim_end
+        self.no_smart_trim = no_smart_trim
+        self.outro_card = outro_card
         self.language = language
         self.source_language = source_language or "auto"
         self.script_engine = script_engine or "recap"
@@ -166,6 +172,9 @@ class BatchProcessor:
                     detect_scenes=self.detect_scenes,
                     series_mode=self.series_mode,
                     series_duration=self.series_duration,
+                    trim_end=self.trim_end,
+                    no_smart_trim=self.no_smart_trim,
+                    outro_card=self.outro_card,
                 )
                 master.run_pipeline()
                 pipeline_status = getattr(master.state, "pipeline_status", "COMPLETED")

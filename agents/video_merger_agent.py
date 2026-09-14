@@ -446,7 +446,8 @@ class VideoMergerAgent:
                     else:
                         print(f"[WARN] VideoMerger: Audio file {fname} is empty or unreadable.")
                 else:
-                    print(f"[WARN] VideoMerger: Missing audio file {fname} for script block.")
+                    if (b.get("narration") or "").strip():
+                        print(f"[WARN] VideoMerger: Missing audio file {fname} for script block.")
 
         # ── 3. Absolute Scene-Anchor Sync Engine ──────────────────────────────
         subtitle_timings = []

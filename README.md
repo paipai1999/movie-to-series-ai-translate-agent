@@ -23,14 +23,14 @@ An autonomous, end-to-end AI agentic pipeline designed to automatically translat
 ## ⚡ Cloud GPU One-Click Setup (100% Free Cloud Options)
 
 ### 🥇 Option A: Google Colab (Free T4 GPU + Google Drive Sync)
-👉 **[Open AI_Movie_Translate_Colab.ipynb in Google Colab](https://colab.research.google.com/github/paipai1999/ai-translate-agent/blob/main/AI_Movie_Translate_Colab.ipynb)**
+👉 **[Open AI_Movie_Translate_Colab.ipynb in Google Colab](https://colab.research.google.com/github/paipai1999/movie-to-series-ai-translate-agent/blob/main/AI_Movie_Translate_Colab.ipynb)**
 * **Highlights:** 1-Click Web UI Dashboard, Permanent Google Drive Sync for videos/cookies/db, 60s Auto Keep-Alive Heartbeat, and Fast Socket Health-Check.
 * **Public & Private Editions:** 
   - `AI_Movie_Translate_Colab.ipynb` (Public Edition on GitHub - clean template for community sharing).
   - `AI_Movie_Translate_Colab_PRIVATE.ipynb` (Personal VIP Edition - pre-loaded with your 4 Gemini keys & YouTube cookies for instant 1-click execution without typing).
 
 ### 🥈 Option B: Kaggle Notebooks (Free Dual T4 30GB VRAM / 30h Weekly Quota)
-👉 **[View AI_Movie_Translate_Kaggle.ipynb](https://github.com/paipai1999/ai-translate-agent/blob/main/AI_Movie_Translate_Kaggle.ipynb)**
+👉 **[View AI_Movie_Translate_Kaggle.ipynb](https://github.com/paipai1999/movie-to-series-ai-translate-agent/blob/main/AI_Movie_Translate_Kaggle.ipynb)**
 * **Highlights:** 2x NVIDIA T4 GPUs (30GB VRAM) or P100 GPU, 30 Hours/Week Free GPU Quota, 12-Hour Continuous Sessions, Cloudflare Tunnel Web UI, and 30GB System RAM.
 * **Public & Private Editions:**
   - `AI_Movie_Translate_Kaggle.ipynb` (Public Edition on GitHub).
@@ -274,8 +274,8 @@ ai-translate-agent/
 
 ```bash
 # 1. Clone repository
-git clone https://github.com/paipai1999/ai-translate-agent.git
-cd ai-translate-agent
+git clone https://github.com/paipai1999/movie-to-series-ai-translate-agent.git
+cd movie-to-series-ai-translate-agent
 
 # 2. Create virtual environment & install dependencies
 python -m venv .venv

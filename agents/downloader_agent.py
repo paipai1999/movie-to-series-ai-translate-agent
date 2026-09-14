@@ -22,7 +22,7 @@ class DownloaderAgent:
         """Strips tracking parameters (?si=..., &feature=...) and formats clean canonical YouTube URL."""
         url = str(url or "").strip()
         if "youtube.com" in url or "youtu.be" in url:
-            m = re.search(r'(?:v=|youtu\.be\/|\/embed\/|\/v\/)([0-9A-Za-z_-]{11})', url)
+            m = re.search(r'(?:v=|youtu\.be\/|\/embed\/|\/v\/|\/shorts\/)([0-9A-Za-z_-]{11})', url)
             if m:
                 return f"https://www.youtube.com/watch?v={m.group(1)}"
         return url

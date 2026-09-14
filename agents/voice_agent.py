@@ -216,6 +216,13 @@ class VoiceAgent:
             print("[!] VoiceAgent: No script found. Skipping TTS generation.")
             return state
 
+        # Guarantee script blocks are sorted by start_sec so generated scene_XXXX.mp3 filenames match VideoMerger order
+        if isinstance(state.generated_script, list):
+            try:
+                state.generated_script.sort(key=lambda x: float(x.get("start_sec") or 0.0) if isinstance(x, dict) else 0.0)
+            except Exception as e:
+                print(f"[WARN] VoiceAgent: Failed to sort script blocks: {e}")
+
         if self.output_dir.endswith("voiceover"):
             audio_out_dir = self.output_dir
         elif state.project_dir in self.output_dir:
