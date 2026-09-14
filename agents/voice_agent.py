@@ -186,10 +186,11 @@ class VoiceAgent:
             safe_name = f"{ascii_spkr[:16]}_{spkr_hash}" if ascii_spkr else f"spkr_{spkr_hash}"
             out_clip = os.path.join(voices_temp_dir, f"{safe_name}_ref.wav")
 
+            ref_dur = max(0.1, float(best.get("dur", 0.0)) or (float(best["end"]) - float(best["start"])))
             cmd = [
                 ffmpeg_bin, "-y",
-                "-ss", str(best["start"]),
-                "-to", str(best["end"]),
+                "-ss", f"{float(best['start']):.2f}",
+                "-t", f"{ref_dur:.2f}",
                 "-i", vocals_path,
                 "-acodec", "pcm_s16le",
                 "-ar", "24000", # 24kHz optimal for F5-TTS

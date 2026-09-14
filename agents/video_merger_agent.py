@@ -277,6 +277,21 @@ def _get_audio_duration(file_path: str) -> float:
         pass
     return 0.0
 
+def _has_audio_stream(file_path: str) -> bool:
+    """Checks whether the media file contains at least one audio stream."""
+    if not file_path or not os.path.exists(file_path):
+        return False
+    try:
+        ffmpeg_bin = _get_ffmpeg_bin()
+        res = subprocess.run(
+            [ffmpeg_bin, "-i", file_path, "-f", "null", "-"],
+            capture_output=True, text=True, timeout=10,
+            encoding="utf-8", errors="replace"
+        )
+        return "Audio:" in (res.stderr or "")
+    except Exception:
+        return False
+
 def _get_video_info(video_path: str) -> dict:
     """Fast video metadata extraction using OpenCV or FFprobe in 10ms without MoviePy."""
     info = {"duration": 0.0, "width": 1920, "height": 1080, "fps": 24.0}
@@ -1112,14 +1127,19 @@ class VideoMergerAgent:
             preset = enc_info.get("preset", "veryfast")
             quality_args = ["-b:v", "6M", "-maxrate", "9M", "-bufsize", "12M"] if enc_info.get("type") == "gpu" else ["-crf", "20"]
 
+            has_audio = _has_audio_stream(video_path)
+            filter_complex = "[0:v][0:a][1:v][1:a]concat=n=2:v=1:a=1[v][a]" if has_audio else "[0:v][1:v]concat=n=2:v=1:a=0[v]"
+            map_args = ["-map", "[v]", "-map", "[a]"] if has_audio else ["-map", "[v]"]
+            audio_args = ["-c:a", "aac", "-b:a", "192k"] if has_audio else []
+
             concat_cmd = [
                 ffmpeg_bin, "-y",
                 "-i", os.path.abspath(video_path),
                 "-i", outro_ts,
-                "-filter_complex", "[0:v][0:a][1:v][1:a]concat=n=2:v=1:a=1[v][a]",
-                "-map", "[v]", "-map", "[a]",
+                "-filter_complex", filter_complex,
+                *map_args,
                 "-c:v", codec, "-preset", preset, *quality_args,
-                "-c:a", "aac", "-b:a", "192k",
+                *audio_args,
                 "-movflags", "+faststart",
                 concat_out
             ]
@@ -2731,14 +2751,19 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
             preset = enc_info.get("preset", "veryfast")
             quality_args = ["-b:v", "6M", "-maxrate", "9M", "-bufsize", "12M"] if enc_info.get("type") == "gpu" else ["-crf", "20"]
 
+            has_audio = _has_audio_stream(video_path)
+            filter_complex = "[0:v][0:a][1:v][1:a]concat=n=2:v=1:a=1[v][a]" if has_audio else "[0:v][1:v]concat=n=2:v=1:a=0[v]"
+            map_args = ["-map", "[v]", "-map", "[a]"] if has_audio else ["-map", "[v]"]
+            audio_args = ["-c:a", "aac", "-b:a", "192k"] if has_audio else []
+
             concat_cmd = [
                 ffmpeg_bin, "-y",
                 "-i", os.path.abspath(video_path),
                 "-i", outro_ts,
-                "-filter_complex", "[0:v][0:a][1:v][1:a]concat=n=2:v=1:a=1[v][a]",
-                "-map", "[v]", "-map", "[a]",
+                "-filter_complex", filter_complex,
+                *map_args,
                 "-c:v", codec, "-preset", preset, *quality_args,
-                "-c:a", "aac", "-b:a", "192k",
+                *audio_args,
                 "-movflags", "+faststart",
                 concat_out
             ]
@@ -2841,7 +2866,7 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 
                     cmd = [
                         ffmpeg_bin, "-y",
-                        "-ss", f"{s_start:.2f}", "-to", f"{s_end:.2f}",
+                        "-ss", f"{s_start:.2f}", "-t", f"{dur:.2f}",
                         "-i", os.path.abspath(source_video_path),
                         "-i", os.path.abspath(badge_png),
                         "-filter_complex", overlay_filter,
@@ -2854,7 +2879,7 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
                 else:
                     cmd = [
                         ffmpeg_bin, "-y",
-                        "-ss", f"{s_start:.2f}", "-to", f"{s_end:.2f}",
+                        "-ss", f"{s_start:.2f}", "-t", f"{dur:.2f}",
                         "-i", os.path.abspath(source_video_path),
                         "-c:v", codec, "-preset", preset, *quality_args,
                         "-c:a", "aac", "-b:a", "192k",
@@ -2867,7 +2892,7 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
                     # Fast copy fallback
                     fallback_cmd = [
                         ffmpeg_bin, "-y",
-                        "-ss", f"{s_start:.2f}", "-to", f"{s_end:.2f}",
+                        "-ss", f"{s_start:.2f}", "-t", f"{dur:.2f}",
                         "-i", os.path.abspath(source_video_path),
                         "-c:v", "libx264", "-preset", "ultrafast",
                         "-c:a", "copy",

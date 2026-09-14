@@ -383,10 +383,36 @@ Dialogue: 0,0:00:00.00,0:00:01.00,Default,,60,60,55,,{ass_text}
             cap.release()
 
             if not ret or frame is None:
-                return None
+                # Direct FFmpeg extraction fallback (handles Windows unicode paths / broken codecs)
+                try:
+                    from agents.video_merger_agent import _get_ffmpeg_bin
+                    ffmpeg_bin = _get_ffmpeg_bin()
+                except Exception:
+                    ffmpeg_bin = shutil.which("ffmpeg") or "ffmpeg"
 
-            frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            base_img = Image.fromarray(frame_rgb)
+                temp_dir = os.path.abspath("temp")
+                os.makedirs(temp_dir, exist_ok=True)
+                temp_frame_path = os.path.join(temp_dir, f"thumb_extract_p{part_num}.jpg")
+                extract_cmd = [
+                    ffmpeg_bin, "-y",
+                    "-ss", f"{timestamp_sec:.2f}",
+                    "-i", os.path.abspath(movie_path),
+                    "-frames:v", "1",
+                    "-q:v", "2",
+                    temp_frame_path
+                ]
+                subprocess.run(extract_cmd, capture_output=True, timeout=30)
+                if os.path.exists(temp_frame_path) and os.path.getsize(temp_frame_path) > 1000:
+                    base_img = Image.open(temp_frame_path).convert("RGB")
+                    try:
+                        os.remove(temp_frame_path)
+                    except Exception:
+                        pass
+                else:
+                    return None
+            else:
+                frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                base_img = Image.fromarray(frame_rgb)
             w, h = base_img.size
 
             burmese_digits = str.maketrans('0123456789', '၀၁၂၃၄၅၆၇၈၉')

@@ -1,4 +1,4 @@
-﻿import unittest
+import unittest
 import os
 import shutil
 from brain.memory import MovieState
@@ -116,6 +116,25 @@ class TestSeriesSplitter(unittest.TestCase):
         self.assertTrue(batch_req.series_mode)
         self.assertEqual(batch_req.series_duration, 180)
 
+    def test_has_audio_stream_check(self):
+        """Verify _has_audio_stream handles nonexistent or valid files properly."""
+        from agents.video_merger_agent import _has_audio_stream
+        self.assertFalse(_has_audio_stream("non_existent_file.mp4"))
+        self.assertFalse(_has_audio_stream(""))
+
+    def test_thumbnail_agent_fallback_on_invalid_file(self):
+        """Verify generate_episode_thumbnail returns None safely when video cannot be opened."""
+        from agents.thumbnail_agent import ThumbnailAgent
+        agent = ThumbnailAgent()
+        state = MovieState(movie_name="test_thumb_movie")
+        res = agent.generate_episode_thumbnail(
+            state=state,
+            movie_path="non_existent_video.mp4",
+            part_num=1
+        )
+        self.assertIsNone(res)
+
 
 if __name__ == "__main__":
     unittest.main()
+
