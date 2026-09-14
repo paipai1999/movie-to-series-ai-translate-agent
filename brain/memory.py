@@ -63,6 +63,8 @@ class MovieState(BaseModel):
     outro_card: Optional[bool] = False  # When True, appends 3-second Pai AI Movie Studio outro card
     subtitles_burned: Optional[bool] = False  # Set to True when Myanmar ASS subtitles are burned onto video
     uploaded_video_name: Optional[str] = None  # Stores the GenAI file name (e.g. files/abc)
+    series_enabled: Optional[bool] = False  # True when episodic series splitting is enabled
+    series_episodes: List[Dict[str, Any]] = Field(default_factory=list)  # List of generated episode metadata dicts
 
     model_config = {"extra": "allow"}
     qa_results: Optional[Dict[str, Any]] = None  # Phase 7: QA Agent review results

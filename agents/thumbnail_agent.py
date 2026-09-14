@@ -356,3 +356,106 @@ Dialogue: 0,0:00:00.00,0:00:01.00,Default,,60,60,55,,{ass_text}
                 except Exception: pass
 
         return state
+
+    def generate_episode_thumbnail(
+        self,
+        state: MovieState,
+        movie_path: str,
+        part_num: int,
+        badge_style: str = "burmese",
+        timestamp_sec: float = 10.0,
+        output_path: str = None,
+    ) -> str:
+        """Generates an episode-specific thumbnail with an explicit PART badge burned on it."""
+        import sys
+        try:
+            from PIL import Image
+            import cv2
+
+            cap = cv2.VideoCapture(movie_path)
+            fps = float(cap.get(cv2.CAP_PROP_FPS) or 24.0)
+            target_frame = int(timestamp_sec * fps)
+            cap.set(cv2.CAP_PROP_POS_FRAMES, max(0, target_frame))
+            ret, frame = cap.read()
+            if not ret or frame is None:
+                cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+                ret, frame = cap.read()
+            cap.release()
+
+            if not ret or frame is None:
+                return None
+
+            frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            base_img = Image.fromarray(frame_rgb)
+            w, h = base_img.size
+
+            burmese_digits = str.maketrans('0123456789', '၀၁၂၃၄၅၆၇၈၉')
+            raw_title = (state.movie_name or "Movie").replace("_", " ").title()
+            if badge_style == "english":
+                part_title = f"{raw_title}\\NPART {part_num}"
+            else:
+                mm_part = str(part_num).translate(burmese_digits)
+                part_title = f"{raw_title}\\Nအပိုင်း {mm_part}"
+
+            if not output_path:
+                output_folder = os.path.join(self.output_dir, state.project_dir, "series")
+                os.makedirs(output_folder, exist_ok=True)
+                output_path = os.path.join(output_folder, f"part_{part_num:02d}_thumb.jpg")
+            else:
+                os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
+
+            temp_dir = os.path.abspath("temp")
+            os.makedirs(temp_dir, exist_ok=True)
+            temp_base = os.path.join(temp_dir, f"temp_base_p{part_num}.jpg")
+            base_img.save(temp_base, quality=95)
+
+            font_size = int(h * 0.08)
+            font_family = "Myanmar Text" if sys.platform == "win32" else "Padauk"
+            ass_path = os.path.join(temp_dir, f"thumb_p{part_num}.ass")
+            ass_content = f"""[Script Info]
+ScriptType: v4.00+
+WrapStyle: 1
+PlayResX: {w}
+PlayResY: {h}
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,{font_family},{font_size},&H0000F5FF,&H000000FF,&H00000000,&H90000000,-1,0,0,0,100,100,0,0,1,6,4,8,60,60,55,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:00.00,0:00:01.00,Default,,60,60,55,,{part_title}
+"""
+            with open(ass_path, "w", encoding="utf-8") as f:
+                f.write(ass_content)
+
+            ffmpeg_bin = shutil.which("ffmpeg") or os.environ.get("IMAGEIO_FFMPEG_EXE")
+            if not ffmpeg_bin:
+                try:
+                    from imageio_ffmpeg import get_ffmpeg_exe
+                    ffmpeg_bin = get_ffmpeg_exe()
+                except Exception:
+                    ffmpeg_bin = "ffmpeg"
+
+            ass_basename = os.path.basename(ass_path)
+            cmd = [
+                ffmpeg_bin, "-y",
+                "-i", temp_base,
+                "-vf", f"ass={ass_basename}",
+                "-frames:v", "1",
+                output_path
+            ]
+            res = subprocess.run(cmd, cwd=temp_dir, capture_output=True, timeout=30)
+            if res.returncode == 0 and os.path.exists(output_path):
+                return output_path
+            else:
+                base_img.save(output_path, quality=90)
+                return output_path
+        except Exception as e:
+            print(f"[WARN] ThumbnailAgent: Episode thumbnail generation error: {e}")
+            return None
+        finally:
+            for p in [temp_base if 'temp_base' in locals() else None, ass_path if 'ass_path' in locals() else None]:
+                if p and os.path.exists(p):
+                    try: os.remove(p)
+                    except Exception: pass

@@ -140,6 +140,17 @@ DEFAULT_CONFIG = {
         "level": "INFO",                   # DEBUG | INFO | WARNING
         "save_log_file": True
     },
+    "series_splitter": {
+        "enabled": False,                  # Auto-split long movie recap into episodic series (Part 1, Part 2...)
+        "target_duration_sec": 180,        # Target duration per episode (e.g. 180s = 3 minutes)
+        "min_duration_sec": 90,            # Minimum episode duration (don't create too-short ending clip)
+        "max_duration_sec": 240,           # Maximum episode duration cap
+        "add_part_badge": True,            # Burn Part badge ("Part 1" / "အပိုင်း ၁") on video
+        "badge_style": "burmese",          # "burmese" (အပိုင်း ၁) | "english" (Part 1)
+        "add_outro_cta": True,             # Append cliffhanger CTA card to intermediate episodes
+        "cta_text_burmese": "နောက်ဘာဆက်ဖြစ်မလဲဆိုတာ နောက်အပိုင်းမှာ ဆက်လက်ကြည့်ရှုပါ",
+        "export_format": "both"            # "both" | "16:9" | "9:16"
+    },
     "qa": {
         "enabled": True,
         "auto_rewrite_threshold": 6,

@@ -1460,6 +1460,31 @@
                 </div>
             </div>
 
+            <!-- Series Episodic Splitter Section -->
+            <div style="background:white; padding:0.85rem 1.1rem; border-radius:12px; border:1px solid rgba(0,0,0,0.07); box-shadow:0 4px 12px rgba(0,0,0,0.02); margin-top:0.6rem;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
+                    <label style="font-size:0.85rem; font-weight:700; color:var(--text); cursor:pointer; display:flex; align-items:center; gap:0.4rem;">
+                        <input type="checkbox" id="chk-series-mode" onchange="toggleSeriesControls(this.checked)">
+                        ✂️ Series Mode (အပိုင်းတို စီးရီးခွဲထုတ်မည် - Part 1, Part 2...)
+                    </label>
+                    <span id="series-badge" style="font-size:0.72rem; padding:2px 8px; border-radius:4px; background:rgba(100,116,139,0.12); color:var(--muted); font-weight:700;">Full Movie Only</span>
+                </div>
+                <div id="series-inputs-wrap" style="display:none; margin-top:0.5rem;">
+                    <div style="display:flex; gap:0.5rem; align-items:center;">
+                        <span style="font-size:0.82rem; font-weight:600; color:var(--text); min-width:140px;">တစ်ပိုင်းကြာချိန် (Duration):</span>
+                        <select id="select-series-duration" style="flex:1; box-sizing:border-box; padding:0.6rem 0.85rem; font-size:0.85rem; background:#f8fafc; border:1px solid rgba(0,0,0,0.12); border-radius:8px; color:var(--text); font-weight:600;">
+                            <option value="90">⚡ ၉၀ စက္ကန့် (1.5 Mins) — Reels / TikTok Series</option>
+                            <option value="180" selected>🎬 ၃ မိနစ် (3.0 Mins) — FB Video / YouTube Series (Recommended)</option>
+                            <option value="300">🍿 ၅ မိနစ် (5.0 Mins) — Long Episodic Recap</option>
+                            <option value="60">⚡ ၆၀ စက္ကန့် (1.0 Min) — Ultra Short Clips</option>
+                        </select>
+                    </div>
+                    <div style="font-size:0.75rem; color:var(--muted); margin-top:6px;">
+                        📌 ဗီဒီယိုအရှည်ကို စကားပြောမပြတ်စေဘဲ သဘာဝကျသောနေရာများတွင် အလိုအလျောက်ခွဲပြီး Part 1, Part 2 စာတန်း၊ Cliffhanger CTA ("Part 2 ဆက်လက်ကြည့်ရှုပါ") နှင့် Episode Thumbnail များ အလိုအလျောက် ထုတ်ပေးမည်။
+                    </div>
+                </div>
+            </div>
+
             <!-- Subtitle Style Presets Section -->
             <div id="sub-style-card" style="background:white; padding:0.85rem 1.1rem; border-radius:12px; border:1px solid rgba(0,0,0,0.07); box-shadow:0 4px 12px rgba(0,0,0,0.02); margin-top:0.6rem; transition:opacity 0.2s ease;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem; flex-wrap:wrap; gap:0.4rem;">
@@ -2207,6 +2232,25 @@
         }
     }
 
+    function toggleSeriesControls(enabled) {
+        const wrap = document.getElementById('series-inputs-wrap');
+        const badge = document.getElementById('series-badge');
+        if (wrap) wrap.style.display = enabled ? 'block' : 'none';
+        if (badge) {
+            if (enabled) {
+                badge.textContent = '🔥 Multi-Part Series';
+                badge.style.background = 'rgba(255, 71, 87, 0.15)';
+                badge.style.color = 'var(--accent)';
+                badge.style.border = '1px solid rgba(255, 71, 87, 0.3)';
+            } else {
+                badge.textContent = 'Full Movie Only';
+                badge.style.background = 'rgba(100, 116, 139, 0.12)';
+                badge.style.color = 'var(--muted)';
+                badge.style.border = 'none';
+            }
+        }
+    }
+
     async function loadBrandingSettings() {
         try {
             const res = await fetch('/api/config/branding');
@@ -2279,6 +2323,8 @@
         const sourceLanguage = document.getElementById('select-source-lang') ? document.getElementById('select-source-lang').value : 'auto';
         const skipDemucs = document.getElementById('chk-skip-demucs') ? document.getElementById('chk-skip-demucs').checked : false;
         const detectScenes = document.getElementById('chk-scene-detect') ? document.getElementById('chk-scene-detect').checked : false;
+        const seriesMode = document.getElementById('chk-series-mode') ? document.getElementById('chk-series-mode').checked : false;
+        const seriesDuration = document.getElementById('select-series-duration') ? parseInt(document.getElementById('select-series-duration').value) : 180;
 
         const btn = document.getElementById('btn-start');
         const btnText = document.getElementById('btn-start-text');
@@ -2309,7 +2355,9 @@
                     thumbnail_intro: thumbnailIntro,
                     source_language: sourceLanguage,
                     skip_demucs: skipDemucs,
-                    detect_scenes: detectScenes
+                    detect_scenes: detectScenes,
+                    series_mode: seriesMode,
+                    series_duration: seriesDuration
                 })
             });
             const data = await res.json();
@@ -2359,6 +2407,8 @@
         const sourceLanguage = document.getElementById('select-source-lang') ? document.getElementById('select-source-lang').value : 'auto';
         const skipDemucs = document.getElementById('chk-skip-demucs') ? document.getElementById('chk-skip-demucs').checked : false;
         const detectScenes = document.getElementById('chk-scene-detect') ? document.getElementById('chk-scene-detect').checked : false;
+        const seriesMode = document.getElementById('chk-series-mode') ? document.getElementById('chk-series-mode').checked : false;
+        const seriesDuration = document.getElementById('select-series-duration') ? parseInt(document.getElementById('select-series-duration').value) : 180;
 
         const btn = document.getElementById('btn-batch');
         btn.disabled = true;
@@ -2386,7 +2436,9 @@
                     thumbnail_intro: thumbnailIntro,
                     source_language: sourceLanguage,
                     skip_demucs: skipDemucs,
-                    detect_scenes: detectScenes
+                    detect_scenes: detectScenes,
+                    series_mode: seriesMode,
+                    series_duration: seriesDuration
                 })
             });
             const data = await res.json();

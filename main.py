@@ -334,6 +334,24 @@ def main():
         action="store_true",
         help="Interactive cleanup menu to delete old source videos or generated outputs"
     )
+    parser.add_argument(
+        "--series",
+        action="store_true",
+        default=None,
+        help="Enable Auto-Series Episodic Splitter to cut recap into multi-part series (Part 1, Part 2...)"
+    )
+    parser.add_argument(
+        "--no-series",
+        action="store_true",
+        default=None,
+        help="Disable Auto-Series Episodic Splitter"
+    )
+    parser.add_argument(
+        "--series-duration",
+        type=int,
+        default=None,
+        help="Target duration in seconds per series episode (default: 180s = 3 minutes)"
+    )
 
     args = parser.parse_args()
     setup_directories()
@@ -392,6 +410,7 @@ def main():
     thumb_intro = True if args.thumbnail_intro else (False if args.no_thumbnail_intro else None)
     outro_card_val = True if args.outro_card else (False if args.no_outro_card else None)
     should_resume = not args.fresh
+    series_mode_val = True if args.series else (False if args.no_series else None)
 
     detect_scenes_flag = True if args.detect_scenes else (False if args.skip_scenes else None)
 
@@ -438,6 +457,8 @@ def main():
                 resume=should_resume,
                 skip_demucs=args.skip_demucs,
                 detect_scenes=detect_scenes_flag,
+                series_mode=series_mode_val,
+                series_duration=args.series_duration,
             )
             master.run_pipeline()
         except Exception as e:
@@ -471,6 +492,8 @@ def main():
             resume=should_resume,
             skip_demucs=args.skip_demucs,
             detect_scenes=detect_scenes_flag,
+            series_mode=series_mode_val,
+            series_duration=args.series_duration,
         ).process_all()
 
     # Batch: URL list
@@ -498,6 +521,8 @@ def main():
             resume=should_resume,
             skip_demucs=args.skip_demucs,
             detect_scenes=detect_scenes_flag,
+            series_mode=series_mode_val,
+            series_duration=args.series_duration,
         ).process_all(url_list=args.urls, local_paths=[])
     else:
         parser.print_help()

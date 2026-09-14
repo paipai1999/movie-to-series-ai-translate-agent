@@ -2631,5 +2631,416 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
                 try: os.remove(temp_reels_out)
                 except Exception: pass
 
+    def _append_cliffhanger_card(
+        self,
+        video_path: str,
+        current_part: int,
+        next_part: int,
+        badge_style: str = "burmese",
+        cta_text: str = None,
+        outro_duration: float = 3.0,
+    ) -> bool:
+        """Appends a 3-second cliffhanger CTA card to intermediate series episodes (e.g. 'Watch Part 2 for climax')."""
+        ffmpeg_bin = _get_ffmpeg_bin()
+        if not os.path.exists(video_path):
+            return False
+
+        vinfo = _get_video_info(video_path)
+        w, h, fps = vinfo.get("width", 1920), vinfo.get("height", 1080), vinfo.get("fps", 24.0)
+
+        tmp_dir = os.path.abspath("temp")
+        os.makedirs(tmp_dir, exist_ok=True)
+        base_name, _ = os.path.splitext(os.path.basename(video_path))
+        outro_img_path = os.path.join(tmp_dir, f"{base_name}_cta_img.png")
+        outro_ts = os.path.join(tmp_dir, f"{base_name}_cta_tmp.mp4")
+        concat_out = os.path.join(tmp_dir, f"{base_name}_with_cta.mp4")
+
+        try:
+            from PIL import Image, ImageDraw, ImageFont
+            img = Image.new("RGB", (w, h), (15, 23, 42))
+            draw = ImageDraw.Draw(img)
+
+            is_portrait = h > w
+            if is_portrait:
+                badge_w = int(w * 0.84)
+                badge_h = int(badge_w * 0.22)
+                bx = (w - badge_w) // 2
+                by = (h - badge_h) // 2 - int(h * 0.08)
+                radius = 28
+                border_w = 4
+                font_title_sz = max(18, int(w * 0.052))
+                font_part_sz = max(16, int(w * 0.048))
+                font_cta_sz = max(14, int(w * 0.038))
+                sub_offset = int(h * 0.09)
+            else:
+                scale_factor = min(w / 1920.0, h / 1080.0)
+                badge_w = int(720 * scale_factor)
+                badge_h = int(140 * scale_factor)
+                bx = (w - badge_w) // 2
+                by = (h - badge_h) // 2 - int(60 * scale_factor)
+                radius = int(24 * scale_factor)
+                border_w = max(2, int(4 * scale_factor))
+                font_title_sz = max(16, int(50 * scale_factor))
+                font_part_sz = max(14, int(42 * scale_factor))
+                font_cta_sz = max(12, int(32 * scale_factor))
+                sub_offset = int(120 * scale_factor)
+
+            draw.rounded_rectangle([bx, by, bx + badge_w, by + badge_h], radius=radius, fill=(30, 41, 59), outline=(234, 179, 8), width=border_w)
+
+            font_path = os.path.join("assets", "fonts", "Padauk.ttf")
+            try:
+                font_title = ImageFont.truetype(font_path, font_title_sz)
+                font_part = ImageFont.truetype(font_path, font_part_sz)
+                font_cta = ImageFont.truetype(font_path, font_cta_sz)
+            except Exception:
+                font_title = font_part = font_cta = ImageFont.load_default()
+
+            burmese_digits = str.maketrans('0123456789', '၀၁၂၃၄၅၆၇၈၉')
+            if badge_style == "english":
+                part_done_str = f"Part {current_part} Completed"
+                default_cta = f"Watch what happens next in Part {next_part}!\nFollow for more episodes"
+            else:
+                cur_mm = str(current_part).translate(burmese_digits)
+                nxt_mm = str(next_part).translate(burmese_digits)
+                part_done_str = f"အပိုင်း ({cur_mm}) ပြီးပါပြီ"
+                default_cta = cta_text or f"နောက်ဘာဆက်ဖြစ်မလဲဆိုတာ အပိုင်း ({nxt_mm}) မှာ ဆက်လက်ကြည့်ရှုပါ"
+
+            draw.text((w // 2, by + badge_h // 2), "Pai Ai Movie Studio", fill=(255, 255, 255), font=font_title, anchor="mm")
+            draw.text((w // 2, by + badge_h + (int(h * 0.04) if is_portrait else int(50 * scale_factor))), part_done_str, fill=(234, 179, 8), font=font_part, anchor="mm")
+            draw.multiline_text((w // 2, by + badge_h + sub_offset), default_cta, fill=(203, 213, 225), font=font_cta, anchor="mm", align="center", spacing=12)
+
+            img.save(outro_img_path, "PNG")
+
+            # 3-second video with fade in and fade out
+            outro_cmd = [
+                ffmpeg_bin, "-y",
+                "-loop", "1", "-framerate", str(fps), "-t", str(outro_duration),
+                "-i", os.path.abspath(outro_img_path),
+                "-f", "lavfi", "-t", str(outro_duration), "-i", "anullsrc=r=44100:cl=stereo",
+                "-vf", f"scale={w}:{h},fade=t=in:st=0:d=0.4,fade=t=out:st={outro_duration-0.4:.2f}:d=0.4,format=yuv420p",
+                "-c:v", "libx264", "-preset", "ultrafast", "-pix_fmt", "yuv420p",
+                "-c:a", "aac", "-b:a", "192k",
+                outro_ts
+            ]
+            res1 = subprocess.run(outro_cmd, capture_output=True, timeout=60)
+            if res1.returncode != 0 or not os.path.exists(outro_ts):
+                return False
+
+            enc_info = detect_hardware_encoder()
+            codec = enc_info.get("codec", "libx264")
+            preset = enc_info.get("preset", "veryfast")
+            quality_args = ["-b:v", "6M", "-maxrate", "9M", "-bufsize", "12M"] if enc_info.get("type") == "gpu" else ["-crf", "20"]
+
+            concat_cmd = [
+                ffmpeg_bin, "-y",
+                "-i", os.path.abspath(video_path),
+                "-i", outro_ts,
+                "-filter_complex", "[0:v][0:a][1:v][1:a]concat=n=2:v=1:a=1[v][a]",
+                "-map", "[v]", "-map", "[a]",
+                "-c:v", codec, "-preset", preset, *quality_args,
+                "-c:a", "aac", "-b:a", "192k",
+                "-movflags", "+faststart",
+                concat_out
+            ]
+            res2 = subprocess.run(concat_cmd, capture_output=True, timeout=600)
+            if res2.returncode == 0 and os.path.exists(concat_out) and os.path.getsize(concat_out) > 1000:
+                shutil.move(concat_out, video_path)
+                return True
+        except Exception as e:
+            print(f"[WARN] VideoMerger: Cliffhanger card append failed: {e}")
+        finally:
+            for p in [outro_img_path, outro_ts, concat_out]:
+                if os.path.exists(p):
+                    try: os.remove(p)
+                    except Exception: pass
+        return False
+
+    def split_video_into_episodes(
+        self,
+        state,
+        source_video_path: str,
+        is_reels: bool = False,
+        target_duration: float = None,
+        custom_cut_points: list = None,
+    ) -> list:
+        """Splits full recap video into episodic series with smart speech gap cuts,
+        part badges, cliffhanger outro CTAs, and thumbnails."""
+        if not source_video_path or not os.path.exists(source_video_path):
+            print(f"[WARN] VideoMerger: Source video for series split not found: {source_video_path}")
+            return []
+
+        config_data = cfg.load_config()
+        series_cfg = config_data.get("series_splitter", {})
+        target_dur = float(target_duration or series_cfg.get("target_duration_sec", 180))
+        min_dur = float(series_cfg.get("min_duration_sec", 90))
+        max_dur = float(series_cfg.get("max_duration_sec", 240))
+        add_badge = series_cfg.get("add_part_badge", True)
+        badge_style = series_cfg.get("badge_style", "burmese")
+        add_cta = series_cfg.get("add_outro_cta", True)
+        cta_text = series_cfg.get("cta_text_burmese")
+
+        vinfo = _get_video_info(source_video_path)
+        total_dur = vinfo.get("duration", 0.0)
+        if total_dur <= 0.0:
+            total_dur = getattr(state, "duration_sec", 0.0) or 600.0
+        w, h = vinfo.get("width", 1920), vinfo.get("height", 1080)
+        is_portrait = h > w
+
+        if custom_cut_points:
+            cuts = custom_cut_points
+        else:
+            script_blocks = getattr(state, "generated_script", []) or []
+            cuts = find_smart_cut_points(
+                total_duration=total_dur,
+                script_blocks=script_blocks,
+                target_duration=target_dur,
+                min_duration=min_dur,
+                max_duration=max_dur,
+            )
+
+        print(f"[*] VideoMerger: Splitting into {len(cuts)} episodes (Target: {target_dur}s per episode)...")
+        for i, (cs, ce) in enumerate(cuts, 1):
+            print(f"    • Part {i}: {cs:.2f}s -> {ce:.2f}s ({ce - cs:.1f}s)")
+
+        series_dir = os.path.join(self.output_dir, state.project_dir, "series")
+        os.makedirs(series_dir, exist_ok=True)
+        ffmpeg_bin = _get_ffmpeg_bin()
+        enc_info = detect_hardware_encoder()
+        codec = enc_info.get("codec", "libx264")
+        preset = enc_info.get("preset", "veryfast")
+        quality_args = ["-b:v", "6M", "-maxrate", "9M", "-bufsize", "12M"] if enc_info.get("type") == "gpu" else ["-crf", "20"]
+
+        episodes = []
+        burmese_digits = str.maketrans('0123456789', '၀၁၂၃၄၅၆၇၈၉')
+        total_parts = len(cuts)
+
+        for idx, (s_start, s_end) in enumerate(cuts, 1):
+            dur = s_end - s_start
+            suffix = "_reels" if is_reels else ""
+            ep_filename = f"part_{idx:02d}{suffix}.mp4"
+            ep_path = os.path.join(series_dir, ep_filename)
+
+            if badge_style == "english":
+                part_label = f"Part {idx}"
+            else:
+                mm_idx = str(idx).translate(burmese_digits)
+                part_label = f"အပိုင်း {mm_idx}"
+
+            # 1. Create Badge PNG if enabled
+            badge_png = None
+            if add_badge:
+                badge_png = _create_part_badge_png(part_label, is_portrait=is_portrait)
+
+            temp_ep = os.path.join(series_dir, f"temp_{ep_filename}")
+            try:
+                if badge_png and os.path.exists(badge_png):
+                    if is_portrait:
+                        overlay_filter = "[0:v][1:v]overlay=(main_w-overlay_w)/2:160[v_out]"
+                    else:
+                        overlay_filter = "[0:v][1:v]overlay=main_w-overlay_w-40:40[v_out]"
+
+                    cmd = [
+                        ffmpeg_bin, "-y",
+                        "-ss", f"{s_start:.2f}", "-to", f"{s_end:.2f}",
+                        "-i", os.path.abspath(source_video_path),
+                        "-i", os.path.abspath(badge_png),
+                        "-filter_complex", overlay_filter,
+                        "-map", "[v_out]", "-map", "0:a?",
+                        "-c:v", codec, "-preset", preset, *quality_args,
+                        "-c:a", "aac", "-b:a", "192k",
+                        "-movflags", "+faststart",
+                        temp_ep
+                    ]
+                else:
+                    cmd = [
+                        ffmpeg_bin, "-y",
+                        "-ss", f"{s_start:.2f}", "-to", f"{s_end:.2f}",
+                        "-i", os.path.abspath(source_video_path),
+                        "-c:v", codec, "-preset", preset, *quality_args,
+                        "-c:a", "aac", "-b:a", "192k",
+                        "-movflags", "+faststart",
+                        temp_ep
+                    ]
+
+                res = subprocess.run(cmd, capture_output=True, timeout=600)
+                if res.returncode != 0 or not os.path.exists(temp_ep):
+                    # Fast copy fallback
+                    fallback_cmd = [
+                        ffmpeg_bin, "-y",
+                        "-ss", f"{s_start:.2f}", "-to", f"{s_end:.2f}",
+                        "-i", os.path.abspath(source_video_path),
+                        "-c:v", "libx264", "-preset", "ultrafast",
+                        "-c:a", "copy",
+                        temp_ep
+                    ]
+                    subprocess.run(fallback_cmd, capture_output=True, timeout=300)
+
+                if os.path.exists(temp_ep) and os.path.getsize(temp_ep) > 10_000:
+                    shutil.move(temp_ep, ep_path)
+                    print(f"🎉 [OK] VideoMerger: Rendered {part_label} ({dur:.1f}s) -> {ep_filename}")
+
+                    # 2. Append Cliffhanger Outro CTA to Part 1..N-1
+                    if idx < total_parts and add_cta:
+                        self._append_cliffhanger_card(
+                            video_path=ep_path,
+                            current_part=idx,
+                            next_part=idx + 1,
+                            badge_style=badge_style,
+                            cta_text=cta_text,
+                        )
+                    elif idx == total_parts and config_data.get("outro_protection", {}).get("outro_card", False):
+                        self._append_outro_card(ep_path, outro_duration=3.0)
+
+                    # 3. Generate Episode Thumbnail (for 16:9 main series)
+                    thumb_path = None
+                    if not is_reels:
+                        try:
+                            from agents.thumbnail_agent import ThumbnailAgent
+                            thumb_agent = ThumbnailAgent()
+                            thumb_fname = f"part_{idx:02d}_thumb.jpg"
+                            thumb_target = os.path.join(series_dir, thumb_fname)
+                            sample_sec = s_start + min(5.0, dur * 0.3)
+                            thumb_path = thumb_agent.generate_episode_thumbnail(
+                                state=state,
+                                movie_path=getattr(state, "movie_path", None) or source_video_path,
+                                part_num=idx,
+                                badge_style=badge_style,
+                                timestamp_sec=sample_sec,
+                                output_path=thumb_target,
+                            )
+                        except Exception as th_err:
+                            print(f"[WARN] Failed to generate episode thumbnail for {part_label}: {th_err}")
+
+                    ep_info = _get_video_info(ep_path)
+                    episodes.append({
+                        "part": idx,
+                        "part_label": part_label,
+                        "title": f"{state.movie_name} - {part_label}",
+                        "start_sec": s_start,
+                        "end_sec": s_end,
+                        "duration_sec": ep_info.get("duration", dur),
+                        "video_path": ep_path,
+                        "thumbnail_path": thumb_path if (thumb_path and os.path.exists(thumb_path)) else None,
+                        "is_reels": is_reels,
+                    })
+            except Exception as ep_err:
+                print(f"[ERROR] VideoMerger: Failed to export episode {idx}: {ep_err}")
+            finally:
+                if os.path.exists(temp_ep):
+                    try: os.remove(temp_ep)
+                    except Exception: pass
+
+        return episodes
 
 
+def find_smart_cut_points(
+    total_duration: float,
+    script_blocks: list = None,
+    target_duration: float = 180.0,
+    min_duration: float = 90.0,
+    max_duration: float = 240.0,
+) -> list:
+    """Calculates optimal episode cut points, prioritizing natural dialogue pauses (gaps)
+    between speech blocks to ensure sentences are never cut mid-speech."""
+    total_dur = max(0.0, float(total_duration or 0.0))
+    if total_dur <= max_duration:
+        return [(0.0, round(total_dur, 2))]
+
+    # 1. Extract all natural speech pause midpoints from script blocks
+    gaps = []
+    if script_blocks and isinstance(script_blocks, list):
+        valid_blocks = [
+            b for b in script_blocks
+            if isinstance(b, dict) and "start_sec" in b and "end_sec" in b
+        ]
+        valid_blocks.sort(key=lambda x: float(x.get("start_sec", 0.0)))
+        for i in range(len(valid_blocks) - 1):
+            curr_end = float(valid_blocks[i].get("end_sec", 0.0))
+            next_start = float(valid_blocks[i + 1].get("start_sec", curr_end))
+            if next_start >= curr_end:
+                mid = (curr_end + next_start) / 2.0
+            else:
+                mid = curr_end
+            if 0.0 < mid < total_dur:
+                gaps.append(round(mid, 2))
+
+    gaps = sorted(list(set(gaps)))
+
+    # 2. Iterate and select cut points within [min_duration, max_duration]
+    current_start = 0.0
+    cuts = []
+
+    while current_start < total_dur:
+        remaining = total_dur - current_start
+        if remaining <= max_duration:
+            cuts.append((round(current_start, 2), round(total_dur, 2)))
+            break
+
+        desired_cut = current_start + target_duration
+        window_min = current_start + min_duration
+        window_max = current_start + max_duration
+
+        # Candidate gaps in primary window
+        candidates = [g for g in gaps if window_min <= g <= window_max]
+        if candidates:
+            best_cut = min(candidates, key=lambda g: abs(g - desired_cut))
+        else:
+            extended = [g for g in gaps if (current_start + 45.0) <= g <= window_max]
+            if extended:
+                best_cut = max(extended)
+            else:
+                best_cut = round(desired_cut, 2)
+
+        # Check if the remaining duration after this cut is too short (< min_duration)
+        if (total_dur - best_cut) < min_duration:
+            earlier = [g for g in candidates if (total_dur - g) >= min_duration]
+            if earlier:
+                best_cut = min(earlier, key=lambda g: abs(g - desired_cut))
+            else:
+                cuts.append((round(current_start, 2), round(total_dur, 2)))
+                break
+
+        cuts.append((round(current_start, 2), round(best_cut, 2)))
+        current_start = best_cut
+
+    if not cuts:
+        cuts = [(0.0, round(total_dur, 2))]
+
+    return cuts
+
+
+def _create_part_badge_png(badge_text: str, is_portrait: bool = False, output_path: str = None) -> str:
+    """Generates a clean, transparent PNG badge (e.g. 'အပိုင်း ၁' or 'Part 1') for video overlay."""
+    from PIL import Image, ImageDraw, ImageFont
+    import hashlib
+
+    if not output_path:
+        tmp_dir = os.path.abspath("temp")
+        os.makedirs(tmp_dir, exist_ok=True)
+        h = hashlib.md5(badge_text.encode("utf-8", errors="replace")).hexdigest()[:8]
+        output_path = os.path.join(tmp_dir, f"badge_{h}_{'p' if is_portrait else 'l'}.png")
+
+    w = 260 if is_portrait else 300
+    h = 80 if is_portrait else 90
+    img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(img)
+
+    margin = 4
+    draw.rounded_rectangle(
+        [margin, margin, w - margin, h - margin],
+        radius=int(h * 0.35),
+        fill=(15, 23, 42, 225),
+        outline=(234, 179, 8, 255),
+        width=3,
+    )
+
+    font_path = os.path.join("assets", "fonts", "Padauk.ttf")
+    font_size = 32 if is_portrait else 36
+    try:
+        font = ImageFont.truetype(font_path, font_size)
+    except Exception:
+        font = ImageFont.load_default()
+
+    draw.text((w // 2, h // 2), badge_text, fill=(255, 255, 255, 255), font=font, anchor="mm")
+    img.save(output_path, "PNG")
+    return output_path

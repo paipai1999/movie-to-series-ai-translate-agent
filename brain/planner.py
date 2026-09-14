@@ -31,6 +31,8 @@ class BatchProcessor:
         output_dir: str = None,
         skip_demucs: bool = None,
         detect_scenes: bool = None,
+        series_mode: bool = None,
+        series_duration: int = None,
     ):
         self.movies_folder = movies_folder
         self.output_dir = output_dir or cfg.load_config().get("paths", {}).get("output_dir", "outputs")
@@ -39,6 +41,8 @@ class BatchProcessor:
         self.cancel_event = cancel_event
         self.skip_demucs = skip_demucs
         self.detect_scenes = detect_scenes
+        self.series_mode = series_mode
+        self.series_duration = series_duration
         self.language = language
         self.source_language = source_language or "auto"
         self.script_engine = script_engine or "recap"
@@ -160,6 +164,8 @@ class BatchProcessor:
                     cancel_event=self.cancel_event,
                     skip_demucs=self.skip_demucs,
                     detect_scenes=self.detect_scenes,
+                    series_mode=self.series_mode,
+                    series_duration=self.series_duration,
                 )
                 master.run_pipeline()
                 pipeline_status = getattr(master.state, "pipeline_status", "COMPLETED")

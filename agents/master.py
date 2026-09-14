@@ -108,6 +108,8 @@ class MasterAgent:
         trim_end: float = None,
         no_smart_trim: bool = None,
         outro_card: bool = None,
+        series_mode: bool = None,
+        series_duration: int = None,
     ):
         self.movie_path = movie_path
         self.resume = bool(resume)
@@ -164,6 +166,21 @@ class MasterAgent:
                 "text": watermark_text,
                 "opacity": watermark_opacity,
             }
+
+        # Series / Episodic Splitter settings
+        series_cfg = cfg.get("series_splitter", {})
+        if series_mode is not None:
+            self.series_mode = bool(series_mode)
+        else:
+            self.series_mode = bool(os.getenv("SERIES_MODE") == "true" or series_cfg.get("enabled", False))
+
+        if series_duration is not None:
+            self.series_duration = int(series_duration)
+        else:
+            env_dur = os.getenv("SERIES_DURATION")
+            self.series_duration = int(env_dur) if (env_dur and env_dur.isdigit()) else int(series_cfg.get("target_duration_sec", 180))
+
+        self.state.series_enabled = self.series_mode
 
         # Read config values for agents
         whisper_model  = cfg["pipeline"]["whisper_model"]
@@ -741,6 +758,41 @@ class MasterAgent:
                 else:
                     print(f"[*] Phase 6b (9:16 Reels): Skipped (Video format is '{self.video_format}')")
 
+                # Phase 6c: Automated Series/Episodic Splitting (Multi-Part Video Split)
+                if self.series_mode:
+                    p6c_t0 = time.time()
+                    self._phase("Phase 6c: Auto-Splitting Video into Episodic Series (Multi-Part)", progress=97)
+                    all_episodes = []
+
+                    # 1. Split 16:9 Landscape Video (if available)
+                    final_16_9 = os.path.join(self.output_dir, self.state.project_dir, "final_recap.mp4")
+                    if os.path.exists(final_16_9) and self.video_format in ["16:9", "both"]:
+                        eps_16_9 = self.video_merger.split_video_into_episodes(
+                            state=self.state,
+                            source_video_path=final_16_9,
+                            is_reels=False,
+                            target_duration=self.series_duration,
+                        )
+                        all_episodes.extend(eps_16_9)
+
+                    # 2. Split 9:16 Reels Video (if available)
+                    final_9_16 = getattr(self.state, "reels_video_path", None) or os.path.join(self.output_dir, self.state.project_dir, "final_reels.mp4")
+                    if os.path.exists(final_9_16) and self.video_format in ["9:16", "both"]:
+                        reels_dur = min(90.0, float(self.series_duration)) if self.series_duration > 120 else float(self.series_duration)
+                        eps_9_16 = self.video_merger.split_video_into_episodes(
+                            state=self.state,
+                            source_video_path=final_9_16,
+                            is_reels=True,
+                            target_duration=reels_dur,
+                        )
+                        all_episodes.extend(eps_9_16)
+
+                    self.state.series_episodes = all_episodes
+                    self.state.phase_durations["Phase 6c: Series Splitter"] = round(time.time() - p6c_t0, 2)
+                    print(f"🎉 [OK] MasterAgent: Produced {len(all_episodes)} series episode video(s) in {self.state.phase_durations['Phase 6c: Series Splitter']}s!")
+                else:
+                    print("[*] Phase 6c: Series Episodic Splitter skipped (disabled in config/CLI).")
+
                 self.save_checkpoint(PHASE_6_MERGE, "Phase 6: Video Merge & Subtitle Pass")
             else:
                 print("[*] Phase 6: Video Merge skipped (reusing completed final recap video).")
@@ -812,6 +864,8 @@ class MasterAgent:
                 print("   ├─ final_recap.mp4         (16:9 YouTube Video)")
             if getattr(self.state, "reels_video_path", None) and os.path.exists(self.state.reels_video_path):
                 print("   ├─ final_reels.mp4         (9:16 Facebook Reels Canvas Video)")
+            if getattr(self.state, "series_episodes", None):
+                print(f"   ├─ series/                 ({len(self.state.series_episodes)} Episodic Video Parts + Thumbnails)")
             print("   ├─ thumbnail.jpg           (High-CTR Thumbnail)")
             print("   ├─ final_recap_script.txt  (Narration Script + SEO)")
             print("   ├─ seo_metadata.json       (Title/Tags/Hashtags)")

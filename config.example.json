@@ -121,5 +121,16 @@
     "outro_card": false,
     "trim_end_seconds": 0.0
   },
+  "series_splitter": {
+    "enabled": false,
+    "target_duration_sec": 180,
+    "min_duration_sec": 90,
+    "max_duration_sec": 240,
+    "add_part_badge": true,
+    "badge_style": "burmese",
+    "add_outro_cta": true,
+    "cta_text_burmese": "နောက်ဘာဆက်ဖြစ်မလဲဆိုတာ နောက်အပိုင်းမှာ ဆက်လက်ကြည့်ရှုပါ",
+    "export_format": "both"
+  },
   "logging": {"level": "INFO", "save_log_file": true}
 }

@@ -311,6 +311,8 @@ def pipeline_worker(
     trim_end=None,
     no_smart_trim=False,
     outro_card=False,
+    series_mode=False,
+    series_duration=180,
 ):
     current_job_id.set(job_id)
     cancel_events[job_id] = threading.Event()
@@ -409,6 +411,8 @@ def pipeline_worker(
             trim_end=trim_end,
             no_smart_trim=no_smart_trim,
             outro_card=outro_card,
+            series_mode=series_mode,
+            series_duration=series_duration,
             cancel_event=cancel_events.get(job_id),
             skip_demucs=skip_demucs,
             detect_scenes=detect_scenes,
@@ -482,6 +486,8 @@ def batch_worker(
     resume=True,
     tts_voice=None,
     script_engine="recap",
+    series_mode=False,
+    series_duration=180,
 ):
     from brain.planner import BatchProcessor
     current_job_id.set(job_id)
@@ -569,6 +575,8 @@ def batch_worker(
             cancel_event=cancel_events.get(job_id),
             skip_demucs=skip_demucs,
             detect_scenes=detect_scenes,
+            series_mode=series_mode,
+            series_duration=series_duration,
         )
         print(f"[*] Batch Mode: Starting batch run for {len(inputs_list)} item(s)...")
         processor.process_all(url_list=urls, local_paths=local_paths)
@@ -643,6 +651,8 @@ class StartRequest(BaseModel):
     trim_end: Optional[float] = None
     no_smart_trim: Optional[bool] = False
     outro_card: Optional[bool] = False
+    series_mode: Optional[bool] = False
+    series_duration: Optional[int] = 180
 
 class BatchStartRequest(BaseModel):
     inputs: List[str]
@@ -664,6 +674,8 @@ class BatchStartRequest(BaseModel):
     detect_scenes: Optional[bool] = False
     script_engine: Optional[str] = "recap"
     resume: Optional[bool] = True
+    series_mode: Optional[bool] = False
+    series_duration: Optional[int] = 180
 
 class SubtitleConfigRequest(BaseModel):
     preset: str = "box_black"
@@ -1074,6 +1086,8 @@ async def start_pipeline(req: StartRequest):
             req.trim_end,
             req.no_smart_trim or False,
             req.outro_card or False,
+            req.series_mode or False,
+            req.series_duration or 180,
         ),
         "name": str(input_source),
         "source": str(input_source),
@@ -1156,6 +1170,8 @@ async def start_batch_pipeline(req: BatchStartRequest):
             req.resume if req.resume is not None else True,
             req.tts_voice,
             req.script_engine or "recap",
+            req.series_mode or False,
+            req.series_duration or 180,
         ),
         "name": f"Batch ({len(inputs)} items)",
         "source": f"Batch ({len(inputs)} items)",
@@ -1561,6 +1577,13 @@ def list_outputs():
                     pass
                 continue
             entry["files"].append(posixpath.join(rel_dir, f) if rel_dir else f)
+
+        # Include series episodes and thumbnails
+        series_dir = os.path.join(root, "series")
+        if os.path.exists(series_dir) and os.path.isdir(series_dir):
+            for sf in sorted(os.listdir(series_dir)):
+                if sf.lower().endswith(('.mp4', '.jpg', '.png', '.json', '.txt')):
+                    entry["files"].append(posixpath.join(rel_dir, "series", sf) if rel_dir else posixpath.join("series", sf))
 
         result[rel_dir or os.path.basename(root)] = entry
         dirs[:] = []
