@@ -2569,12 +2569,6 @@
         const detectScenes = document.getElementById('chk-scene-detect') ? document.getElementById('chk-scene-detect').checked : false;
         const seriesMode = document.getElementById('chk-series-mode') ? document.getElementById('chk-series-mode').checked : false;
         const seriesDuration = document.getElementById('select-series-duration') ? parseInt(document.getElementById('select-series-duration').value) : 180;
-        const batchSplitType = document.getElementById('select-series-split-type') ? document.getElementById('select-series-split-type').value : 'parts';
-        let batchSeriesParts = null;
-        if (batchSplitType === 'parts') {
-            const partsVal = document.getElementById('select-series-parts') ? parseInt(document.getElementById('select-series-parts').value) : 0;
-            if (partsVal > 0) batchSeriesParts = partsVal;
-        }
         const splitType = document.getElementById('select-series-split-type') ? document.getElementById('select-series-split-type').value : 'parts';
         let seriesParts = null;
         if (splitType === 'parts') {
@@ -2619,7 +2613,6 @@
                     detect_scenes: detectScenes,
                     series_mode: seriesMode,
                     series_duration: seriesDuration,
-                    series_parts: batchSeriesParts,
                     series_parts: seriesParts,
                     trim_end: trimEnd,
                     no_smart_trim: noSmartTrim,
@@ -2675,6 +2668,12 @@
         const detectScenes = document.getElementById('chk-scene-detect') ? document.getElementById('chk-scene-detect').checked : false;
         const seriesMode = document.getElementById('chk-series-mode') ? document.getElementById('chk-series-mode').checked : false;
         const seriesDuration = document.getElementById('select-series-duration') ? parseInt(document.getElementById('select-series-duration').value) : 180;
+        const splitType = document.getElementById('select-series-split-type') ? document.getElementById('select-series-split-type').value : 'parts';
+        let seriesParts = null;
+        if (splitType === 'parts') {
+            const partsVal = document.getElementById('select-series-parts') ? parseInt(document.getElementById('select-series-parts').value) : 0;
+            if (partsVal > 0) seriesParts = partsVal;
+        }
         const smartTrim = document.getElementById('chk-smart-trim') ? document.getElementById('chk-smart-trim').checked : true;
         const noSmartTrim = !smartTrim;
         const outroCard = document.getElementById('chk-outro-card') ? document.getElementById('chk-outro-card').checked : false;
@@ -2710,6 +2709,7 @@
                     detect_scenes: detectScenes,
                     series_mode: seriesMode,
                     series_duration: seriesDuration,
+                    series_parts: seriesParts,
                     trim_end: trimEnd,
                     no_smart_trim: noSmartTrim,
                     outro_card: outroCard
@@ -3580,6 +3580,8 @@
             if (btnText) btnText.textContent = origText;
             input.value = '';
         }
+    }
+
     async function saveToDirectory(movie) {
         if ('showDirectoryPicker' in window) {
             try {
