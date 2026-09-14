@@ -343,6 +343,7 @@ class MasterAgent:
             voice=self.tts_voice,
             output_dir=output_dir,
             tts_engine=self.tts_engine,
+            language=self.language,
         )
         self.video_merger    = VideoMergerAgent(
             output_dir=output_dir,
@@ -605,6 +606,8 @@ class MasterAgent:
                             self.state.speaker_transcript = audio_state.speaker_transcript
                         if hasattr(audio_state, "characters") and audio_state.characters:
                             self.state.characters = audio_state.characters
+                        if hasattr(audio_state, "audio_path") and audio_state.audio_path:
+                            self.state.audio_path = audio_state.audio_path
                         self.state.timeline = getattr(scene_state, "timeline", self.state.timeline)
                     except Exception as e:
                         print(f"[CRITICAL ERROR] MasterAgent: Audio/Scene pipeline failed: {e}")

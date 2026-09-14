@@ -232,10 +232,11 @@ class QAAgent:
         encoder_args = ["-c:v", "libx264", "-crf", "32", "-preset", "ultrafast"]
         try:
             from agents.video_merger_agent import detect_hardware_encoder
-            hw_enc = detect_hardware_encoder()
-            if hw_enc == "h264_nvenc":
+            hw_info = detect_hardware_encoder()
+            codec = hw_info.get("codec") if isinstance(hw_info, dict) else str(hw_info)
+            if codec == "h264_nvenc":
                 encoder_args = ["-c:v", "h264_nvenc", "-preset", "p1", "-cq", "32"]
-            elif hw_enc == "h264_qsv":
+            elif codec == "h264_qsv":
                 encoder_args = ["-c:v", "h264_qsv", "-global_quality", "32", "-preset", "veryfast"]
         except Exception:
             pass

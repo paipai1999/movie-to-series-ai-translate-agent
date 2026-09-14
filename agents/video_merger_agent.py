@@ -1961,7 +1961,7 @@ class VideoMergerAgent:
         try:
             config_data = cfg.load_config()
             gemini_cfg = config_data.get("gemini", {})
-            api_keys = gemini_cfg.get("api_keys", [])
+            api_keys = gemini_cfg.get("api_keys") or os.getenv("GEMINI_API_KEYS") or os.getenv("GEMINI_API_KEY") or []
             model = gemini_cfg.get("model", "gemini-3.5-flash-lite")
 
             prompt = (
@@ -2545,7 +2545,7 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
         enc_info = detect_hardware_encoder()
         abs_src = os.path.abspath(source_video_path)
         ass_basename = os.path.basename(ass_path)
-        temp_reels_out = os.path.join(temp_dir, "temp_reels_render.mp4")
+        temp_reels_out = os.path.join(temp_dir, f"temp_reels_render_{safe_reels_id}_{uuid.uuid4().hex[:6]}.mp4")
 
         # 16x faster silky bokeh background: downscale to 270x480, blur lightly, then upscale
         bg_w = w_target // 4

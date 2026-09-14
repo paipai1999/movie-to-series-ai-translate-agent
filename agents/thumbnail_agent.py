@@ -91,7 +91,7 @@ class ThumbnailAgent:
             import json
             
             gemini_cfg = cfg.load_config().get('gemini', {})
-            api_keys = gemini_cfg.get('api_keys', [])
+            api_keys = gemini_cfg.get('api_keys') or os.getenv("GEMINI_API_KEYS") or os.getenv("GEMINI_API_KEY") or []
             
             prompt = (
                 "Analyze this video thumbnail carefully. "

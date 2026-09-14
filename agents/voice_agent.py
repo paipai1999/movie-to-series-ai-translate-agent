@@ -20,7 +20,7 @@ _KNOWN_EDGE_VOICES = {
 }
 
 class VoiceAgent:
-    def __init__(self, voice: str = None, output_dir: str = "outputs", engine: str = None, tts_engine: str = None):
+    def __init__(self, voice: str = None, output_dir: str = "outputs", engine: str = None, tts_engine: str = None, language: str = None):
         """
         VoiceAgent supports:
           1. Microsoft Edge TTS (100% free cloud TTS - Thiha / Nilar / Guy)
@@ -29,10 +29,28 @@ class VoiceAgent:
         import brain.config as cfg
         config_data = cfg.load_config()
         voice_cfg = config_data.get("voice", {})
-        
         self.engine = engine or tts_engine or os.getenv("TTS_ENGINE") or voice_cfg.get("engine", "edge_tts")
         self.tts_engine = self.engine
         self.voice = self._resolve_voice(voice, voice_cfg)
+
+        if language:
+            raw_lang = language
+        elif str(self.voice).startswith("my-"):
+            raw_lang = "burmese"
+        elif str(self.voice).startswith("en-"):
+            raw_lang = "english"
+        elif str(self.voice).startswith("zh-"):
+            raw_lang = "chinese"
+        else:
+            raw_lang = pipeline_cfg.get("language", "burmese")
+
+        if str(raw_lang).lower() in ("mm", "myanmar", "burmese"):
+            self.language = "burmese"
+        elif str(raw_lang).lower() in ("en", "english"):
+            self.language = "english"
+        else:
+            self.language = str(raw_lang).lower()
+
         self.rate_mm = os.getenv("EDGE_TTS_RATE_MM") or voice_cfg.get("tts_rate_mm", "+8%")
         self.rate_en = os.getenv("EDGE_TTS_RATE_EN") or voice_cfg.get("tts_rate_en", "+15%")
         self.output_dir = output_dir

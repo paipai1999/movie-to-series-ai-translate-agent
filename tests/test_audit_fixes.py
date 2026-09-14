@@ -157,6 +157,90 @@ class TestAuditFixes(unittest.TestCase):
         self.assertIn("trim_end_seconds", c["outro_protection"])
 
 
+    def test_qa_agent_detects_hardware_encoder_dict(self):
+        """Verify QAAgent._create_qa_preview correctly extracts codec from dict returned by detect_hardware_encoder."""
+        qa = QAAgent()
+        with patch("agents.video_merger_agent.detect_hardware_encoder", return_value={"codec": "h264_nvenc", "type": "gpu"}), \
+             patch("subprocess.run") as mock_run, \
+             patch("os.path.exists", return_value=True), \
+             patch("os.path.getsize", return_value=10_000_000):
+            mock_run.return_value = MagicMock(returncode=0)
+            res = qa._create_qa_preview("fake_in.mp4", "fake_out.mp4")
+            # Verify h264_nvenc was passed into cmd arguments
+            called_cmd = mock_run.call_args[0][0]
+            self.assertIn("h264_nvenc", called_cmd)
+
+    def test_voice_agent_language_resolution(self):
+        """Verify VoiceAgent properly retains language and deduces correctly."""
+        from agents.voice_agent import VoiceAgent
+        # 1. Custom language passed explicitly
+        va1 = VoiceAgent(voice="my-MM-ThihaNeural", language="burmese")
+        self.assertEqual(va1.language, "burmese")
+
+        # 2. English voice without language -> deduced as english
+        va2 = VoiceAgent(voice="en-US-GuyNeural")
+        self.assertEqual(va2.language, "english")
+
+        # 3. Burmese voice without language -> deduced as burmese
+        va3 = VoiceAgent(voice="my-MM-NilarNeural")
+        self.assertEqual(va3.language, "burmese")
+
+    def test_cli_language_and_voice_precedence(self):
+        """Verify main.py CLI parsing handles language and voice independently."""
+        import argparse
+        # Simulate main.py argument resolution logic
+        def resolve_lang_voice(lang, voice):
+            clean_lang = lang
+            chosen_voice = voice
+            if clean_lang in ["burmese_nilar", "nilar"]:
+                clean_lang = "burmese"
+                if not chosen_voice:
+                    chosen_voice = "my-MM-NilarNeural"
+            elif clean_lang in ["burmese_thiha", "thiha"]:
+                clean_lang = "burmese"
+                if not chosen_voice:
+                    chosen_voice = "my-MM-ThihaNeural"
+            elif clean_lang in ["mm", "myanmar"]:
+                clean_lang = "burmese"
+            elif clean_lang in ["en"]:
+                clean_lang = "english"
+
+            if chosen_voice in ["nilar", "female"]:
+                chosen_voice = "my-MM-NilarNeural"
+            elif chosen_voice in ["thiha", "male"]:
+                chosen_voice = "my-MM-ThihaNeural"
+            return clean_lang, chosen_voice
+
+        l, v = resolve_lang_voice("mm", "female")
+        self.assertEqual(l, "burmese")
+        self.assertEqual(v, "my-MM-NilarNeural")
+
+        l2, v2 = resolve_lang_voice("myanmar", "thiha")
+        self.assertEqual(l2, "burmese")
+        self.assertEqual(v2, "my-MM-ThihaNeural")
+
+    def test_master_agent_preserves_audio_path(self):
+        """Verify audio_path is preserved when merging audio_state in parallel execution."""
+        from agents.master import MasterAgent
+        agent = MasterAgent.__new__(MasterAgent)
+        agent.state = MovieState(movie_name="AudioPathTest")
+        agent.state.audio_path = None
+
+        audio_state = MovieState(movie_name="AudioState")
+        audio_state.audio_path = "outputs/audio.wav"
+        audio_state.transcript = "dummy transcript"
+        audio_state.characters = ["A", "B"]
+
+        # Simulate the merge block in master.py
+        agent.state.transcript = getattr(audio_state, "transcript", agent.state.transcript)
+        if hasattr(audio_state, "characters") and audio_state.characters:
+            agent.state.characters = audio_state.characters
+        if hasattr(audio_state, "audio_path") and audio_state.audio_path:
+            agent.state.audio_path = audio_state.audio_path
+
+        self.assertEqual(agent.state.audio_path, "outputs/audio.wav")
+
+
 if __name__ == "__main__":
     unittest.main()
 

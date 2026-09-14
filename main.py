@@ -408,7 +408,8 @@ def main():
         clean_lang = "burmese"
     elif clean_lang in ["en"]:
         clean_lang = "english"
-    elif chosen_voice in ["nilar", "female"]:
+
+    if chosen_voice in ["nilar", "female"]:
         chosen_voice = "my-MM-NilarNeural"
     elif chosen_voice in ["thiha", "male"]:
         chosen_voice = "my-MM-ThihaNeural"
