@@ -1464,7 +1464,7 @@
             <div style="background:white; padding:0.85rem 1.1rem; border-radius:12px; border:1px solid rgba(0,0,0,0.07); box-shadow:0 4px 12px rgba(0,0,0,0.02); margin-top:0.6rem;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
                     <label style="font-size:0.85rem; font-weight:700; color:var(--text); cursor:pointer; display:flex; align-items:center; gap:0.4rem;">
-                        <input type="checkbox" id="chk-series-mode" onchange="toggleSeriesControls(this.checked)">
+                        <input type="checkbox" id="chk-series-mode" onchange="toggleSeriesControls(this.checked)" onclick="toggleSeriesControls(this.checked)">
                         ✂️ Series Mode (အပိုင်းတို စီးရီးခွဲထုတ်မည် - Part 1, Part 2...)
                     </label>
                     <span id="series-badge" style="font-size:0.72rem; padding:2px 8px; border-radius:4px; background:rgba(100,116,139,0.12); color:var(--muted); font-weight:700;">Full Movie Only</span>
@@ -3822,6 +3822,8 @@
     loadBrandingSettings();
     loadSubStyleSettings();
     checkCookiesStatus();
+    const chkSeriesInit = document.getElementById('chk-series-mode');
+    if (chkSeriesInit) toggleSeriesControls(chkSeriesInit.checked);
 </script>
 </body>
 </html>
