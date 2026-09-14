@@ -333,20 +333,6 @@ def _get_video_info(video_path: str) -> dict:
         pass
     return info
 
-def _has_audio_stream(video_path: str) -> bool:
-    """Checks if a video file contains an audio stream using FFmpeg."""
-    if not video_path or not os.path.exists(video_path):
-        return False
-    try:
-        ffmpeg_bin = _get_ffmpeg_bin()
-        res = subprocess.run(
-            [ffmpeg_bin, "-i", video_path],
-            capture_output=True, text=True, timeout=5,
-            encoding="utf-8", errors="replace"
-        )
-        return "Audio:" in (res.stderr or "")
-    except Exception:
-        return False
 
 def _assemble_voiceover_track(clips_with_timing: list, total_duration: float, output_path: str, target_sr: int = 44100) -> str:
     """Stitches discrete speech clips into a contiguous PCM WAV buffer at C-speed in ~2 seconds."""
@@ -1156,6 +1142,9 @@ class VideoMergerAgent:
                     try: os.remove(p)
                     except Exception: pass
         return False
+
+    # Backward compatibility alias
+    _append_outro_card = _append_outro_card_ffmpeg
 
     def _legacy_moviepy_merge(
         self,
@@ -2914,7 +2903,7 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
                             cta_text=cta_text,
                         )
                     elif idx == total_parts and config_data.get("outro_protection", {}).get("outro_card", False):
-                        self._append_outro_card(ep_path, outro_duration=3.0)
+                        self._append_outro_card_ffmpeg(ep_path, outro_duration=3.0)
 
                     # 3. Generate Episode Thumbnail (for 16:9 main series)
                     thumb_path = None

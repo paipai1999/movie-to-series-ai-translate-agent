@@ -2,7 +2,6 @@ import unittest
 import os
 import shutil
 from brain.memory import MovieState
-from brain import config as cfg
 from agents.video_merger_agent import find_smart_cut_points, _create_part_badge_png
 from web_ui import StartRequest, BatchStartRequest
 

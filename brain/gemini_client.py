@@ -482,6 +482,7 @@ def upload_video_file(video_path: str, api_key) -> tuple:
                     state = info.get("state")
                     if state == "ACTIVE":
                         print(f"[OK] Gemini API: Video '{file_name}' is ACTIVE and ready!")
+                        _record_api_usage(key, "gemini-files-upload", "success")
                         return file_name, key
                     elif state == "FAILED":
                         # BUG-L5 Fix: break here instead of raising — the raise was caught by
@@ -521,9 +522,11 @@ def ask_gemini_with_video(file_name: str, system_prompt: str, user_text: str, ke
             try:
                 with urllib.request.urlopen(req, timeout=600.0) as response:
                     res_data = json.loads(response.read().decode("utf-8"))
+                    _record_api_usage(key, m, "success")
                     return _extract_text_from_gemini_response(res_data)
             except urllib.error.HTTPError as e:
                 last_err = e
+                _record_api_usage(key, m, f"error_{e.code}")
                 if e.code in [503, 500, 429]:
                     if attempt < max_retries - 1:
                         wait_sec = (attempt + 1) * 10
@@ -538,6 +541,7 @@ def ask_gemini_with_video(file_name: str, system_prompt: str, user_text: str, ke
                     break
             except Exception as e:
                 last_err = e
+                _record_api_usage(key, m, "error")
                 print(f"[WARN] {m} failed: {e}. Falling back to next model...")
                 break
                 

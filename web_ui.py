@@ -1245,13 +1245,18 @@ def delete_from_queue(job_id: str):
 async def stop_pipeline(job_id: Optional[str] = None):
     """Force-stop any currently running single or batch pipeline job."""
     stopped_count = 0
-    os.environ["CURRENT_JOB_CANCELLED"] = "1"
+    is_cancelling_running = False
     
     with jobs_lock:
         if job_id:
             target_jids = [job_id]
+            is_cancelling_running = (jobs.get(job_id, {}).get("status") == "running")
         else:
             target_jids = [jid for jid, j in jobs.items() if j.get("status") in ("running", "queued")]
+            is_cancelling_running = any(jobs.get(jid, {}).get("status") == "running" for jid in target_jids)
+            
+        if is_cancelling_running:
+            os.environ["CURRENT_JOB_CANCELLED"] = "1"
             
         for jid in target_jids:
             if jid in jobs:
@@ -1278,20 +1283,21 @@ async def stop_pipeline(job_id: Optional[str] = None):
                         jobs[q_jid]["phase"] = "Stopped by user"
             job_queue.clear()
 
-    # Safely terminate child processes (ffmpeg, ffprobe, yt-dlp, demucs) spawned by THIS process tree only
-    try:
-        import psutil
-        current_process = psutil.Process()
-        children = current_process.children(recursive=True)
-        for child in children:
-            try:
-                cname = child.name().lower()
-                if any(x in cname for x in ["ffmpeg", "ffprobe", "yt-dlp", "demucs"]):
-                    child.kill()
-            except (psutil.NoSuchProcess, psutil.AccessDenied):
-                pass
-    except Exception:
-        pass
+    # Safely terminate child processes (ffmpeg, ffprobe, yt-dlp, demucs) only if an active running job was stopped
+    if is_cancelling_running:
+        try:
+            import psutil
+            current_process = psutil.Process()
+            children = current_process.children(recursive=True)
+            for child in children:
+                try:
+                    cname = child.name().lower()
+                    if any(x in cname for x in ["ffmpeg", "ffprobe", "yt-dlp", "demucs"]):
+                        child.kill()
+                except (psutil.NoSuchProcess, psutil.AccessDenied):
+                    pass
+        except Exception:
+            pass
 
     return {"success": True, "stopped_count": stopped_count, "message": "Pipeline force-stopped successfully."}
 

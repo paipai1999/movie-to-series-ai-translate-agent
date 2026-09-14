@@ -13,9 +13,20 @@ def regenerate_thumbnail(target_input: str, custom_title: str = None, output_dir
     """
     # 1. Resolve movie name and paths
     clean_target = target_input.strip().strip('"').strip("'")
-    if clean_target.endswith((".mp4", ".mkv", ".webm", ".avi", ".mov", ".flv", ".m4v")):
+    if os.path.isdir(clean_target) and os.path.exists(os.path.join(clean_target, "state.json")):
+        project_dir = clean_target
+        state_path = os.path.join(project_dir, "state.json")
+        loaded_state = MovieState.load_from_json(state_path)
+        movie_name = loaded_state.movie_name if loaded_state else os.path.basename(clean_target)
+        video_path = None
+    elif clean_target.endswith((".mp4", ".mkv", ".webm", ".avi", ".mov", ".flv", ".m4v")):
         movie_name = os.path.splitext(os.path.basename(clean_target))[0]
         video_path = clean_target if os.path.exists(clean_target) else os.path.join("movies", os.path.basename(clean_target))
+        temp_state = MovieState(movie_name=movie_name)
+        nested_dir = os.path.join(output_dir, temp_state.project_dir)
+        flat_dir = os.path.join(output_dir, movie_name)
+        project_dir = nested_dir if os.path.exists(nested_dir) or not os.path.exists(flat_dir) else flat_dir
+        state_path = os.path.join(project_dir, "state.json")
     else:
         movie_name = os.path.basename(clean_target.rstrip("/\\"))
         video_path = None
@@ -25,9 +36,11 @@ def regenerate_thumbnail(target_input: str, custom_title: str = None, output_dir
             if os.path.exists(cand):
                 video_path = cand
                 break
-
-    project_dir = os.path.join(output_dir, movie_name)
-    state_path = os.path.join(project_dir, "state.json")
+        temp_state = MovieState(movie_name=movie_name)
+        nested_dir = os.path.join(output_dir, temp_state.project_dir)
+        flat_dir = os.path.join(output_dir, movie_name)
+        project_dir = nested_dir if os.path.exists(nested_dir) or not os.path.exists(flat_dir) else flat_dir
+        state_path = os.path.join(project_dir, "state.json")
 
     print(f"[*] Regenerating thumbnail for project: {movie_name}")
 

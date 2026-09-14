@@ -263,7 +263,7 @@ class MasterAgent:
                     self.state.reels_video_path = None
 
                 if title_changed:
-                    print(f"[*] MasterAgent: Custom thumbnail title changed. Invalidating Phase 4, 6, 7.")
+                    print("[*] MasterAgent: Custom thumbnail title changed. Invalidating Phase 4, 6, 7.")
                     invalidated_phases.update([PHASE_4_SCRIPT, PHASE_6_MERGE, PHASE_7_QA])
                     self.state.thumbnail_path = None
                 elif getattr(prev_state, "thumbnail_path", None) and os.path.exists(prev_state.thumbnail_path):
