@@ -110,6 +110,7 @@ class MasterAgent:
         outro_card: bool = None,
         series_mode: bool = None,
         series_duration: int = None,
+        series_parts: int = None,
     ):
         self.movie_path = movie_path
         self.resume = bool(resume)
@@ -174,6 +175,14 @@ class MasterAgent:
         else:
             self.series_mode = bool(os.getenv("SERIES_MODE") == "true" or series_cfg.get("enabled", False))
 
+        if series_parts is not None and int(series_parts) > 0:
+            self.series_parts = int(series_parts)
+        else:
+            env_parts = os.getenv("SERIES_PARTS")
+            self.series_parts = int(env_parts) if (env_parts and env_parts.isdigit() and int(env_parts) > 0) else series_cfg.get("target_parts", None)
+            if self.series_parts is not None and int(self.series_parts) <= 0:
+                self.series_parts = None
+
         if series_duration is not None:
             self.series_duration = int(series_duration)
         else:
@@ -181,6 +190,7 @@ class MasterAgent:
             self.series_duration = int(env_dur) if (env_dur and env_dur.isdigit()) else int(series_cfg.get("target_duration_sec", 180))
 
         self.state.series_enabled = self.series_mode
+        self.state.series_parts = self.series_parts
 
         # Read config values for agents
         whisper_model  = cfg["pipeline"]["whisper_model"]
@@ -772,6 +782,7 @@ class MasterAgent:
                             source_video_path=final_16_9,
                             is_reels=False,
                             target_duration=self.series_duration,
+                            num_parts=self.series_parts,
                         )
                         all_episodes.extend(eps_16_9)
 
@@ -784,6 +795,7 @@ class MasterAgent:
                             source_video_path=final_9_16,
                             is_reels=True,
                             target_duration=reels_dur,
+                            num_parts=self.series_parts,
                         )
                         all_episodes.extend(eps_9_16)
 

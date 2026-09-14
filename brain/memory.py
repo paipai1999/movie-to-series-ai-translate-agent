@@ -64,6 +64,7 @@ class MovieState(BaseModel):
     subtitles_burned: Optional[bool] = False  # Set to True when Myanmar ASS subtitles are burned onto video
     uploaded_video_name: Optional[str] = None  # Stores the GenAI file name (e.g. files/abc)
     series_enabled: Optional[bool] = False  # True when episodic series splitting is enabled
+    series_parts: Optional[int] = None  # Explicit target episode count (e.g. 2, 3, 5) or None for auto
     series_episodes: List[Dict[str, Any]] = Field(default_factory=list)  # List of generated episode metadata dicts
 
     model_config = {"extra": "allow"}

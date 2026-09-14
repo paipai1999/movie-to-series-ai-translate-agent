@@ -33,6 +33,7 @@ class BatchProcessor:
         detect_scenes: bool = None,
         series_mode: bool = None,
         series_duration: int = None,
+        series_parts: int = None,
         trim_end: float = None,
         no_smart_trim: bool = None,
         outro_card: bool = None,
@@ -46,6 +47,7 @@ class BatchProcessor:
         self.detect_scenes = detect_scenes
         self.series_mode = series_mode
         self.series_duration = series_duration
+        self.series_parts = series_parts
         self.trim_end = trim_end
         self.no_smart_trim = no_smart_trim
         self.outro_card = outro_card
@@ -172,6 +174,7 @@ class BatchProcessor:
                     detect_scenes=self.detect_scenes,
                     series_mode=self.series_mode,
                     series_duration=self.series_duration,
+                    series_parts=self.series_parts,
                     trim_end=self.trim_end,
                     no_smart_trim=self.no_smart_trim,
                     outro_card=self.outro_card,

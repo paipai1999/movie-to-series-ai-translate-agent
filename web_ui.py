@@ -313,6 +313,7 @@ def pipeline_worker(
     outro_card=False,
     series_mode=False,
     series_duration=180,
+    series_parts=None,
 ):
     current_job_id.set(job_id)
     cancel_events[job_id] = threading.Event()
@@ -413,6 +414,7 @@ def pipeline_worker(
             outro_card=outro_card,
             series_mode=series_mode,
             series_duration=series_duration,
+            series_parts=series_parts,
             cancel_event=cancel_events.get(job_id),
             skip_demucs=skip_demucs,
             detect_scenes=detect_scenes,
@@ -488,6 +490,7 @@ def batch_worker(
     script_engine="recap",
     series_mode=False,
     series_duration=180,
+    series_parts=None,
     trim_end=None,
     no_smart_trim=False,
     outro_card=False,
@@ -580,6 +583,7 @@ def batch_worker(
             detect_scenes=detect_scenes,
             series_mode=series_mode,
             series_duration=series_duration,
+            series_parts=series_parts,
             trim_end=trim_end,
             no_smart_trim=no_smart_trim,
             outro_card=outro_card,
@@ -659,6 +663,7 @@ class StartRequest(BaseModel):
     outro_card: Optional[bool] = False
     series_mode: Optional[bool] = False
     series_duration: Optional[int] = 180
+    series_parts: Optional[int] = None
 
 class BatchStartRequest(BaseModel):
     inputs: List[str]
@@ -682,6 +687,7 @@ class BatchStartRequest(BaseModel):
     resume: Optional[bool] = True
     series_mode: Optional[bool] = False
     series_duration: Optional[int] = 180
+    series_parts: Optional[int] = None
     trim_end: Optional[float] = None
     no_smart_trim: Optional[bool] = False
     outro_card: Optional[bool] = False
@@ -1097,6 +1103,7 @@ async def start_pipeline(req: StartRequest):
             req.outro_card or False,
             req.series_mode or False,
             req.series_duration or 180,
+            req.series_parts,
         ),
         "name": str(input_source),
         "source": str(input_source),
@@ -1181,6 +1188,7 @@ async def start_batch_pipeline(req: BatchStartRequest):
             req.script_engine or "recap",
             req.series_mode or False,
             req.series_duration or 180,
+            req.series_parts,
             req.trim_end,
             req.no_smart_trim or False,
             req.outro_card or False,

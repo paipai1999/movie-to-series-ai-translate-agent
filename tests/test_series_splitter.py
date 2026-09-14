@@ -110,10 +110,67 @@ class TestSeriesSplitter(unittest.TestCase):
         batch_req = BatchStartRequest(
             inputs=["movies/dummy1.mp4", "movies/dummy2.mp4"],
             series_mode=True,
-            series_duration=180
+            series_duration=180,
+            series_parts=3,
         )
         self.assertTrue(batch_req.series_mode)
         self.assertEqual(batch_req.series_duration, 180)
+        self.assertEqual(batch_req.series_parts, 3)
+
+    def test_explicit_num_parts_splitting(self):
+        """Verify explicit episode count partitioning snaps to speech gaps near target boundaries."""
+        script_blocks = [
+            {"start_sec": 0.0, "end_sec": 50.0},
+            {"start_sec": 55.0, "end_sec": 175.0},
+            {"start_sec": 185.0, "end_sec": 350.0},
+            {"start_sec": 362.0, "end_sec": 540.0},
+        ]
+        # Request exactly 3 parts for 540s video
+        cuts_3 = find_smart_cut_points(
+            total_duration=540.0,
+            script_blocks=script_blocks,
+            num_parts=3
+        )
+        self.assertEqual(len(cuts_3), 3)
+        self.assertEqual(cuts_3[0][0], 0.0)
+        self.assertAlmostEqual(cuts_3[0][1], 180.0, places=1)
+        self.assertAlmostEqual(cuts_3[1][0], 180.0, places=1)
+        self.assertAlmostEqual(cuts_3[1][1], 356.0, places=1)
+        self.assertAlmostEqual(cuts_3[2][0], 356.0, places=1)
+        self.assertEqual(cuts_3[2][1], 540.0)
+
+        # Request exactly 2 parts for 540s video (target midpoint 270s)
+        cuts_2 = find_smart_cut_points(
+            total_duration=540.0,
+            script_blocks=script_blocks,
+            num_parts=2
+        )
+        self.assertEqual(len(cuts_2), 2)
+        self.assertEqual(cuts_2[0][0], 0.0)
+        self.assertEqual(cuts_2[1][1], 540.0)
+        self.assertEqual(cuts_2[0][1], cuts_2[1][0])
+
+    def test_explicit_num_parts_edge_cases(self):
+        """Verify edge cases for num_parts: 1 part, or video too short for requested parts."""
+        # 1 part requested
+        cuts_1 = find_smart_cut_points(total_duration=300.0, num_parts=1)
+        self.assertEqual(len(cuts_1), 1)
+        self.assertEqual(cuts_1[0], (0.0, 300.0))
+
+        # 10 parts requested on a 20s short clip
+        cuts_short = find_smart_cut_points(total_duration=20.0, num_parts=10)
+        self.assertEqual(len(cuts_short), 1)
+        self.assertEqual(cuts_short[0], (0.0, 20.0))
+
+    def test_state_series_parts_serialization(self):
+        """Verify MovieState stores and serializes series_parts correctly."""
+        state = MovieState(movie_name="test_parts")
+        state.series_enabled = True
+        state.series_parts = 5
+        data = state.model_dump_json()
+        loaded = MovieState.model_validate_json(data)
+        self.assertTrue(loaded.series_enabled)
+        self.assertEqual(loaded.series_parts, 5)
 
     def test_has_audio_stream_check(self):
         """Verify _has_audio_stream handles nonexistent or valid files properly."""

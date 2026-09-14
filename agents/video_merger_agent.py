@@ -2777,6 +2777,7 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
         is_reels: bool = False,
         target_duration: float = None,
         custom_cut_points: list = None,
+        num_parts: int = None,
     ) -> list:
         """Splits full recap video into episodic series with smart speech gap cuts,
         part badges, cliffhanger outro CTAs, and thumbnails."""
@@ -2811,9 +2812,11 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
                 target_duration=target_dur,
                 min_duration=min_dur,
                 max_duration=max_dur,
+                num_parts=num_parts,
             )
 
-        print(f"[*] VideoMerger: Splitting into {len(cuts)} episodes (Target: {target_dur}s per episode)...")
+        split_label = f"{num_parts} parts" if (num_parts and num_parts > 1) else f"Target: {target_dur}s per episode"
+        print(f"[*] VideoMerger: Splitting into {len(cuts)} episodes ({split_label})...")
         for i, (cs, ce) in enumerate(cuts, 1):
             print(f"    • Part {i}: {cs:.2f}s -> {ce:.2f}s ({ce - cs:.1f}s)")
 
@@ -2954,12 +2957,11 @@ def find_smart_cut_points(
     target_duration: float = 180.0,
     min_duration: float = 90.0,
     max_duration: float = 240.0,
+    num_parts: int = None,
 ) -> list:
     """Calculates optimal episode cut points, prioritizing natural dialogue pauses (gaps)
     between speech blocks to ensure sentences are never cut mid-speech."""
     total_dur = max(0.0, float(total_duration or 0.0))
-    if total_dur <= max_duration:
-        return [(0.0, round(total_dur, 2))]
 
     # 1. Extract all natural speech pause midpoints from script blocks
     gaps = []
@@ -2980,6 +2982,48 @@ def find_smart_cut_points(
                 gaps.append(round(mid, 2))
 
     gaps = sorted(list(set(gaps)))
+
+    # A. Explicit Episode Count Mode (if num_parts is specified and > 1)
+    if num_parts is not None and int(num_parts) > 1:
+        k_parts = int(num_parts)
+        if total_dur <= 0.0:
+            return [(0.0, 0.0)]
+        if total_dur < (k_parts * 10.0):  # Video too short to split into k parts safely
+            return [(0.0, round(total_dur, 2))]
+
+        # Ideal partition boundaries: T_k = total_dur * (k / k_parts)
+        cut_points = [0.0]
+        interval_len = total_dur / k_parts
+        delta = max(20.0, interval_len * 0.35)
+
+        for k in range(1, k_parts):
+            desired_boundary = total_dur * (k / k_parts)
+            w_min = max(cut_points[-1] + 10.0, desired_boundary - delta)
+            w_max = min(total_dur - 10.0 * (k_parts - k), desired_boundary + delta)
+
+            candidates = [g for g in gaps if w_min <= g <= w_max]
+            if candidates:
+                best_cut = min(candidates, key=lambda g: abs(g - desired_boundary))
+            else:
+                best_cut = round(desired_boundary, 2)
+            cut_points.append(round(best_cut, 2))
+        cut_points.append(round(total_dur, 2))
+
+        cuts = []
+        for i in range(len(cut_points) - 1):
+            s_start = cut_points[i]
+            s_end = cut_points[i + 1]
+            if s_end > s_start:
+                cuts.append((s_start, s_end))
+        if cuts:
+            return cuts
+
+    if num_parts is not None and int(num_parts) == 1:
+        return [(0.0, round(total_dur, 2))]
+
+    # B. Target Duration Mode (Default)
+    if total_dur <= max_duration:
+        return [(0.0, round(total_dur, 2))]
 
     # 2. Iterate and select cut points within [min_duration, max_duration]
     current_start = 0.0

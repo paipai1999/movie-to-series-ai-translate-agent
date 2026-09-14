@@ -142,6 +142,7 @@ DEFAULT_CONFIG = {
     },
     "series_splitter": {
         "enabled": False,                  # Auto-split long movie recap into episodic series (Part 1, Part 2...)
+        "target_parts": 0,                 # Explicit episode count (e.g. 2, 3, 5) or 0 for auto duration-based
         "target_duration_sec": 180,        # Target duration per episode (e.g. 180s = 3 minutes)
         "min_duration_sec": 90,            # Minimum episode duration (don't create too-short ending clip)
         "max_duration_sec": 240,           # Maximum episode duration cap

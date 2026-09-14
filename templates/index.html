@@ -1549,17 +1549,40 @@
 
                 <!-- Series Mode Inputs -->
                 <div id="series-inputs-wrap" style="display:none;">
-                    <div class="control-row">
-                        <label class="control-label" for="select-series-duration" style="min-width:130px;">⏱️ တစ်ပိုင်းကြာချိန်:</label>
-                        <select id="select-series-duration" class="control-select" style="flex:1; font-weight:600;">
-                            <option value="90">⚡ ၉၀ စက္ကန့် (1.5 Mins) — Reels / TikTok Series</option>
-                            <option value="180" selected>🎬 ၃ မိနစ် (3.0 Mins) — FB Video / YouTube Series (Recommended)</option>
-                            <option value="300">🍿 ၅ မိနစ် (5.0 Mins) — Long Episodic Recap</option>
-                            <option value="60">⚡ ၆၀ စက္ကန့် (1.0 Min) — Ultra Short Clips</option>
-                        </select>
+                    <!-- Split Mode Selector (By Parts vs By Duration) -->
+                    <div class="control-row" style="margin-bottom:0.45rem;">
+                        <div class="control-col" style="flex:1 1 180px;">
+                            <label class="control-label" for="select-series-split-type">⚙️ Split Type (ခွဲထုတ်မည့်စတိုင်):</label>
+                            <select id="select-series-split-type" class="control-select" onchange="toggleSeriesSplitType(this.value)" style="font-weight:700; color:var(--accent);">
+                                <option value="parts" selected>🔢 By Episode Count (အပိုင်း အရေအတွက် အတိအကျ)</option>
+                                <option value="duration">⏱️ By Duration (တစ်ပိုင်း ကြာချိန်အလိုက်)</option>
+                            </select>
+                        </div>
+                        <div class="control-col" id="wrap-series-parts" style="flex:1 1 180px;">
+                            <label class="control-label" for="select-series-parts">🎬 Episode Count (အပိုင်း အရေအတွက်):</label>
+                            <select id="select-series-parts" class="control-select" style="font-weight:600;">
+                                <option value="0">🤖 Auto (အလိုအလျောက် အချိုးကျခွဲမည်)</option>
+                                <option value="2">🎬 အပိုင်း ၂ ပိုင်း (Part 1, Part 2)</option>
+                                <option value="3" selected>🎬 အပိုင်း ၃ ပိုင်း (Part 1 to 3 — Recommended)</option>
+                                <option value="4">🎬 အပိုင်း ၄ ပိုင်း (Part 1 to 4)</option>
+                                <option value="5">🎬 အပိုင်း ၅ ပိုင်း (Part 1 to 5)</option>
+                                <option value="6">🎬 အပိုင်း ၆ ပိုင်း (Part 1 to 6)</option>
+                                <option value="8">🎬 အပိုင်း ၈ ပိုင်း (Part 1 to 8)</option>
+                                <option value="10">⚡ အပိုင်း ၁၀ ပိုင်း (Part 1 to 10 — Shorts/Reels Series)</option>
+                            </select>
+                        </div>
+                        <div class="control-col" id="wrap-series-duration" style="display:none; flex:1 1 180px;">
+                            <label class="control-label" for="select-series-duration">⏱️ တစ်ပိုင်းကြာချိန် (Duration):</label>
+                            <select id="select-series-duration" class="control-select" style="font-weight:600;">
+                                <option value="90">⚡ ၉၀ စက္ကန့် (1.5 Mins) — Reels / TikTok Series</option>
+                                <option value="180" selected>🎬 ၃ မိနစ် (3.0 Mins) — FB Video / YouTube Series (Recommended)</option>
+                                <option value="300">🍿 ၅ မိနစ် (5.0 Mins) — Long Episodic Recap</option>
+                                <option value="60">⚡ ၆၀ စက္ကန့် (1.0 Min) — Ultra Short Clips</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="control-hint" style="margin-top:6px;">
-                        📌 ဗီဒီယိုအရှည်ကို စကားပြောမပြတ်စေဘဲ သဘာဝကျသောနေရာများတွင် အလိုအလျောက်ခွဲပြီး Part 1, Part 2 စာတန်း၊ Cliffhanger CTA ("Part 2 ဆက်လက်ကြည့်ရှုပါ") နှင့် Episode Thumbnail များ အလိုအလျောက် ထုတ်ပေးမည်။
+                    <div id="series-split-desc" class="control-hint" style="margin-top:6px;">
+                        📌 ရွေးချယ်ထားသော အပိုင်းအရေအတွက်အတိုင်း ဗီဒီယိုကို ညီမျှစွာ အချိုးချပြီး စကားမပြတ်စေမည့် သဘာဝ Pause နေရာများမှ Part 1, Part 2... အလိုအလျောက် ခွဲထုတ်ပေးမည်။
                     </div>
                 </div>
 
@@ -2420,6 +2443,21 @@
         }
     }
 
+    function toggleSeriesSplitType(type) {
+        const wrapParts = document.getElementById('wrap-series-parts');
+        const wrapDur = document.getElementById('wrap-series-duration');
+        const desc = document.getElementById('series-split-desc');
+        if (type === 'duration') {
+            if (wrapParts) wrapParts.style.display = 'none';
+            if (wrapDur) wrapDur.style.display = 'flex';
+            if (desc) desc.textContent = '📌 တစ်ပိုင်းစီ၏ မိနစ်/စက္ကန့်အလိုက် စကားမပြတ်စေမည့် သဘာဝ Pause နေရာများမှ အလိုအလျောက် အပိုင်းခွဲထုတ်ပေးမည်။';
+        } else {
+            if (wrapParts) wrapParts.style.display = 'flex';
+            if (wrapDur) wrapDur.style.display = 'none';
+            if (desc) desc.textContent = '📌 ရွေးချယ်ထားသော အပိုင်းအရေအတွက်အတိုင်း ဗီဒီယိုကို ညီမျှစွာ အချိုးချပြီး စကားမပြတ်စေမည့် သဘာဝ Pause နေရာများမှ Part 1, Part 2... အလိုအလျောက် ခွဲထုတ်ပေးမည်။';
+        }
+    }
+
     function toggleSeriesControls(enabled) {
         const wrap = document.getElementById('series-inputs-wrap');
         const badge = document.getElementById('series-badge');
@@ -2531,6 +2569,18 @@
         const detectScenes = document.getElementById('chk-scene-detect') ? document.getElementById('chk-scene-detect').checked : false;
         const seriesMode = document.getElementById('chk-series-mode') ? document.getElementById('chk-series-mode').checked : false;
         const seriesDuration = document.getElementById('select-series-duration') ? parseInt(document.getElementById('select-series-duration').value) : 180;
+        const batchSplitType = document.getElementById('select-series-split-type') ? document.getElementById('select-series-split-type').value : 'parts';
+        let batchSeriesParts = null;
+        if (batchSplitType === 'parts') {
+            const partsVal = document.getElementById('select-series-parts') ? parseInt(document.getElementById('select-series-parts').value) : 0;
+            if (partsVal > 0) batchSeriesParts = partsVal;
+        }
+        const splitType = document.getElementById('select-series-split-type') ? document.getElementById('select-series-split-type').value : 'parts';
+        let seriesParts = null;
+        if (splitType === 'parts') {
+            const partsVal = document.getElementById('select-series-parts') ? parseInt(document.getElementById('select-series-parts').value) : 0;
+            if (partsVal > 0) seriesParts = partsVal;
+        }
         const smartTrim = document.getElementById('chk-smart-trim') ? document.getElementById('chk-smart-trim').checked : true;
         const noSmartTrim = !smartTrim;
         const outroCard = document.getElementById('chk-outro-card') ? document.getElementById('chk-outro-card').checked : false;
@@ -2569,6 +2619,8 @@
                     detect_scenes: detectScenes,
                     series_mode: seriesMode,
                     series_duration: seriesDuration,
+                    series_parts: batchSeriesParts,
+                    series_parts: seriesParts,
                     trim_end: trimEnd,
                     no_smart_trim: noSmartTrim,
                     outro_card: outroCard

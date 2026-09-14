@@ -353,6 +353,12 @@ def main():
         default=None,
         help="Target duration in seconds per series episode (default: 180s = 3 minutes)"
     )
+    parser.add_argument(
+        "--series-parts",
+        type=int,
+        default=None,
+        help="Explicit number of episodes to split into (e.g. 2, 3, 5)"
+    )
 
     args = parser.parse_args()
     setup_directories()
@@ -460,6 +466,7 @@ def main():
                 detect_scenes=detect_scenes_flag,
                 series_mode=series_mode_val,
                 series_duration=args.series_duration,
+                series_parts=args.series_parts,
             )
             master.run_pipeline()
         except Exception as e:
@@ -495,6 +502,7 @@ def main():
             detect_scenes=detect_scenes_flag,
             series_mode=series_mode_val,
             series_duration=args.series_duration,
+            series_parts=args.series_parts,
             trim_end=args.trim_end,
             no_smart_trim=args.no_smart_trim,
             outro_card=outro_card_val,
@@ -527,6 +535,7 @@ def main():
             detect_scenes=detect_scenes_flag,
             series_mode=series_mode_val,
             series_duration=args.series_duration,
+            series_parts=args.series_parts,
             trim_end=args.trim_end,
             no_smart_trim=args.no_smart_trim,
             outro_card=outro_card_val,
