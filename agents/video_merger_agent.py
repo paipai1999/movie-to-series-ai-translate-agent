@@ -2031,7 +2031,9 @@ class VideoMergerAgent:
                             model=model,
                             temperature=0.05
                         )
-                        clean_json = res_text.strip().strip("`").replace("json", "").strip()
+                        clean_json = re.sub(r"^```(?:json)?\s*|\s*```$", "", res_text.strip(), flags=re.IGNORECASE | re.MULTILINE).strip()
+                        if not clean_json.startswith("{") and "{" in clean_json and "}" in clean_json:
+                            clean_json = clean_json[clean_json.find("{"):clean_json.rfind("}") + 1]
                         parsed = json.loads(clean_json)
                         if isinstance(parsed, list) and len(parsed) > 0:
                             parsed = parsed[0]

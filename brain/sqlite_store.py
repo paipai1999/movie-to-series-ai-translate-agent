@@ -18,7 +18,13 @@ def ensure_db(output_dir: str = "outputs") -> str:
     db_path = get_db_path(output_dir)
     conn = sqlite3.connect(db_path, timeout=30, check_same_thread=False)
     try:
-        conn.execute("PRAGMA journal_mode=WAL;")
+        try:
+            conn.execute("PRAGMA journal_mode=WAL;")
+        except Exception:
+            try:
+                conn.execute("PRAGMA journal_mode=DELETE;")
+            except Exception:
+                pass
         conn.execute("PRAGMA synchronous=NORMAL;")
         
         # 1. Movie State Table

@@ -29,6 +29,7 @@ class VoiceAgent:
         import brain.config as cfg
         config_data = cfg.load_config()
         voice_cfg = config_data.get("voice", {})
+        pipeline_cfg = config_data.get("pipeline", {})
         self.engine = engine or tts_engine or os.getenv("TTS_ENGINE") or voice_cfg.get("engine", "edge_tts")
         self.tts_engine = self.engine
         self.voice = self._resolve_voice(voice, voice_cfg)

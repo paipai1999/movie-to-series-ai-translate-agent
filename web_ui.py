@@ -1911,8 +1911,24 @@ def get_key_status():
             "error": str(e)
         }
 
+PROTECTED_OUTPUT_FILES = {
+    'api_usage_db.json',
+    'movie_metadata.db',
+    'movie_metadata.db-wal',
+    'movie_metadata.db-shm',
+    'state.json'
+}
+
+def _is_protected_file(folder_type: str, item_name: str) -> bool:
+    if folder_type != "outputs":
+        return False
+    base = os.path.basename(item_name).strip()
+    return base in PROTECTED_OUTPUT_FILES or base.startswith("movie_metadata.db")
+
 @app.delete("/api/delete/{folder_type}/{item_name:path}")
 async def delete_item(folder_type: str, item_name: str):
+    if _is_protected_file(folder_type, item_name):
+        raise HTTPException(status_code=400, detail="Cannot delete protected system file.")
     target_path = _safe_child_path(folder_type, item_name)
     if not target_path:
         raise HTTPException(status_code=400, detail="Invalid target")
@@ -1958,7 +1974,7 @@ async def delete_all(folder_type: str, confirm: bool = False):
             if not os.path.isdir(root):
                 continue
             for item_name in os.listdir(root):
-                if target_folder == 'outputs' and item_name in ['api_usage_db.json', 'movie_metadata.db']:
+                if _is_protected_file(target_folder, item_name):
                     continue
                     
                 target = _safe_child_path(target_folder, item_name)
