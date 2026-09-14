@@ -153,18 +153,26 @@
         }
 
 
+        html {
+            scroll-padding-top: 85px;
+            scroll-behavior: smooth;
+        }
+
         /* ── Top Nav ── */
         nav {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 1rem 2.5rem;
-            border-bottom: 1px solid rgba(0,0,0,0.04);
-            backdrop-filter: blur(18px);
-            background: rgba(255, 255, 255, 0.76);
+            padding: 0.85rem 2.2rem;
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.88);
             position: sticky;
             top: 0;
             z-index: 100;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+            transition: padding 0.2s ease, background 0.2s ease;
         }
         .nav-brand {
             display: flex; align-items: center; gap: 0.75rem;
@@ -216,7 +224,7 @@
         }
 
         /* ── Main layout ── */
-        .page { max-width: 1100px; margin: 0 auto; padding: 2.5rem 2rem 4rem; position: relative; z-index: 2; }
+        .page { max-width: 1160px; margin: 0 auto; padding: 2rem 1.5rem 4rem; position: relative; z-index: 2; }
 
         /* ── Hero Input Card ── */
         .hero-card {
@@ -663,14 +671,140 @@
         .log-box::-webkit-scrollbar, .phase-steps::-webkit-scrollbar { height: 6px; width: 6px; }
         .log-box::-webkit-scrollbar-thumb, .phase-steps::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 3px; }
 
-        /* ── Branding Strip ── */
+        /* ── Settings Dashboard & Modern Panels ── */
+        .settings-dashboard,
         .branding-strip {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
-            gap: 1rem;
-            margin-top: 1.25rem;
-            padding-top: 1rem;
-            border-top: 1px dashed rgba(0,0,0,0.08);
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 1.25rem;
+            margin-top: 1.5rem;
+            padding-top: 0;
+            border-top: none;
+        }
+        @media (max-width: 960px) {
+            .settings-dashboard,
+            .branding-strip {
+                grid-template-columns: 1fr;
+            }
+        }
+        .setting-panel {
+            background: #ffffff;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: 16px;
+            padding: 1.2rem 1.35rem;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.025);
+            display: flex;
+            flex-direction: column;
+            gap: 0.85rem;
+            transition: border-color 0.25s, box-shadow 0.25s, background-color 0.25s;
+        }
+        .setting-panel:hover {
+            border-color: rgba(0, 0, 0, 0.14);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+        }
+        .setting-panel.series-card-active {
+            border-color: rgba(255, 71, 87, 0.35);
+            background: linear-gradient(180deg, #ffffff 0%, rgba(255, 71, 87, 0.025) 100%);
+            box-shadow: 0 6px 20px rgba(255, 71, 87, 0.08);
+        }
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            padding-bottom: 0.6rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+        }
+        .panel-title {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+        }
+        .panel-badge {
+            font-size: 0.72rem;
+            padding: 3px 9px;
+            border-radius: 6px;
+            font-weight: 700;
+            letter-spacing: 0.2px;
+            transition: all 0.25s ease;
+        }
+        .panel-divider {
+            height: 1px;
+            background: rgba(0, 0, 0, 0.06);
+            margin: 0.25rem 0;
+        }
+        .control-row {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .control-col {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+            flex: 1 1 180px;
+        }
+        .control-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+        .control-select, .control-input {
+            width: 100%;
+            padding: 0.55rem 0.85rem;
+            font-size: 0.84rem;
+            background: #f8fafc;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 9px;
+            color: var(--text);
+            font-family: inherit;
+            transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
+            box-sizing: border-box;
+        }
+        .control-select:focus, .control-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+            background: #ffffff;
+        }
+        .control-hint {
+            font-size: 0.74rem;
+            color: var(--muted);
+            line-height: 1.4;
+        }
+        .toggle-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0.8rem;
+            background: #f8fafc;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: 9px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text);
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.2s ease;
+        }
+        .toggle-chip:hover {
+            background: #f1f5f9;
+            border-color: rgba(0, 0, 0, 0.15);
+        }
+        .toggle-chip input[type=checkbox] {
+            accent-color: var(--accent);
+            width: 15px;
+            height: 15px;
+            cursor: pointer;
+            margin: 0;
         }
 
         /* ── Modal Dialog Styles ── */
@@ -1305,240 +1439,269 @@
             </div>
         </div>
 
-        <!-- Anti-copyright, Subtitle & Voice strip -->
-        <div class="options-strip" style="margin-top:1.25rem; flex-wrap:wrap; gap:1.25rem; align-items:center;">
-            <div style="display:inline-flex; align-items:center; gap:0.5rem;">
-                <span class="strip-title" style="color:var(--muted); font-weight:700;">🎙️ Voice Engine:</span>
-                <select class="lang-select" id="select-tts-engine-strip" onchange="updateEngineSetting(this.value)" style="padding:0.35rem 0.75rem; font-size:0.82rem; border-radius:8px;">
-                    <option value="edge_tts" selected>⚡ Edge TTS (Neural Myanmar & English - Recommended)</option>
-                    <option value="f5_tts">🧬 F5-TTS (English/Chinese Voice Cloning)</option>
-                </select>
-            </div>
-            <div style="display:inline-flex; align-items:center; gap:0.5rem;">
-                <span class="strip-title" style="color:var(--muted); font-weight:700;">🎙️ Script Engine:</span>
-                <select class="lang-select" id="select-script-engine" onchange="updateScriptEngineSetting(this.value)" style="padding:0.35rem 0.75rem; font-size:0.82rem; border-radius:8px; font-weight:600; color:#00ffcc; border-color:rgba(0,255,204,0.3);">
-                    <option value="recap" selected>🎬 Recap Engine (ဇာတ်လမ်းပြောပြသူ စတိုင်)</option>
-                    <option value="translate">🗣️ Translate Engine (၁:၁ တိုက်ရိုက် စကားပြန်စတိုင်)</option>
-                </select>
-            </div>
-            <div style="display:inline-flex; align-items:center; gap:0.5rem;">
-                <span class="strip-title" style="color:var(--muted); font-weight:700;">📝 Subtitle Mode:</span>
-                <select class="lang-select" id="select-hardsub-mode" onchange="toggleSubStyleVisibility(this.value)" style="padding:0.35rem 0.75rem; font-size:0.82rem; border-radius:8px;">
-                    <option value="burn" selected>🔥 Burn Subtitles (Hardsub - စာတန်းထိုး ထည့်မည်)</option>
-                    <option value="none">🎙️ Voiceover Only (No Subtitles - စာတန်းထိုး မထည့်ပါ)</option>
-                </select>
-            </div>
-            <div id="sub-style-strip-wrap" style="display:inline-flex; align-items:center; gap:0.5rem; transition:opacity 0.2s ease;">
-                <span class="strip-title" style="color:var(--muted); font-weight:700;">🎨 Subtitle Style:</span>
-                <select class="lang-select" id="select-subtitle-style" onchange="selectSubPreset(this.value)" style="padding:0.35rem 0.75rem; font-size:0.82rem; border-radius:8px; font-weight:600;">
-                    <option value="box_black" selected>⬛ Cinema Box (Netflix Style)</option>
-                    <option value="yellow_pop">🟡 TikTok / Reels Pop (Yellow & Black)</option>
-                    <option value="white_stroke">⚪ Classic Movie White (Drop Shadow)</option>
-                    <option value="cyan_cyber">🔷 Cyber Cyan (Sci-Fi / Modern Blue)</option>
-                    <option value="crimson_box">🟥 Thriller Crimson (Dark Red Box)</option>
-                </select>
-            </div>
-            <div style="display:inline-flex; align-items:center; gap:0.5rem;">
-                <span class="strip-title" style="color:var(--muted); font-weight:700;">🌐 Source Audio:</span>
-                <select class="lang-select" id="select-source-lang" style="padding:0.35rem 0.75rem; font-size:0.82rem; border-radius:8px; font-weight:600;">
-                    <option value="auto" selected>🤖 Auto Detect (အလိုအလျောက်)</option>
-                    <option value="zh">🇨🇳 Chinese (中文 / တရုတ်)</option>
-                    <option value="en">🇺🇸 English (အင်္ဂလိပ်)</option>
-                    <option value="th">🇹🇭 Thai (ภาษาไทย / ထိုင်း)</option>
-                    <option value="ko">🇰🇷 Korean (한국어 / ကိုရီးယား)</option>
-                    <option value="ja">🇯🇵 Japanese (日本語 / ဂျပန်)</option>
-                </select>
-            </div>
-            <div style="display:inline-flex; align-items:center; gap:0.5rem;">
-                <span class="strip-title" style="color:var(--muted); font-weight:700;">⚙️ Resolution:</span>
-                <select class="lang-select" id="select-resolution" style="padding:0.35rem 0.75rem; font-size:0.82rem; border-radius:8px;">
-                    <option value="1080p" selected>🌟 1080p Full HD (Crisp / အကြည်လင်ဆုံး)</option>
-                    <option value="720p">⚡ 720p HD (Faster Render / အမြန်ဆုံး)</option>
-                </select>
-            </div>
-            <div style="display:inline-flex; align-items:center; gap:0.5rem;">
-                <span class="strip-title" style="color:var(--muted); font-weight:700;">🔍 Subtitle Blur:</span>
-                <select class="lang-select" id="select-subtitle-mode" style="padding:0.35rem 0.75rem; font-size:0.82rem; border-radius:8px;">
-                    <option value="auto" selected>🤖 Auto-Detect (Native/Vision AI)</option>
-                    <option value="yes">📝 Force Blur</option>
-                    <option value="no">🚫 Disable Blur</option>
-                </select>
-            </div>
-            <div style="display:inline-flex; align-items:center; gap:0.5rem;">
-                <span class="strip-title">🛡️ Anti-Copyright:</span>
-                <label style="font-size:0.82rem; cursor:pointer;">
-                    <input type="checkbox" id="chk-mirror" onchange="updateMirrorSetting(this.checked)">
-                    🪞 Mirror Video (ဘယ်ညာလှည့် — Maximum Protection)
-                </label>
-            </div>
-            <div style="display:inline-flex; align-items:center; gap:0.5rem;">
-                <span class="strip-title" style="color:var(--muted); font-weight:700;">🎵 Audio Demucs:</span>
-                <label style="font-size:0.82rem; cursor:pointer;" title="Skip Demucs vocal separation to speed up processing significantly on CPU">
-                    <input type="checkbox" id="chk-skip-demucs" onchange="updateDemucsSetting(this.checked)">
-                    ⚡ Skip Demucs (အသံခွဲထုတ်မှုကျော်ရန် — CPU ပိုမြန်မည်)
-                </label>
-            </div>
-            <div style="display:inline-flex; align-items:center; gap:0.5rem;">
-                <span class="strip-title" style="color:var(--muted); font-weight:700;">🔊 Audio Ducking:</span>
-                <label style="font-size:0.82rem; cursor:pointer;" title="Automatically lower original video/BGM audio when voiceover is speaking">
-                    <input type="checkbox" id="chk-audio-ducking" checked onchange="updateAudioDuckingSetting(this.checked)">
-                    📉 Dynamic Ducking (ဇာတ်ကြောင်းပြောချိန် နောက်ခံအသံတိုးမည်)
-                </label>
-            </div>
-            <div style="display:inline-flex; align-items:center; gap:0.5rem;">
-                <span class="strip-title" style="color:var(--muted); font-weight:700;">🎬 Scene Detection:</span>
-                <label style="font-size:0.82rem; cursor:pointer;" title="Enable PySceneDetect frame analysis (slower, scans all frames)">
-                    <input type="checkbox" id="chk-scene-detect" onchange="updateSceneDetectSetting(this.checked)">
-                    🔍 Detect Scenes (PySceneDetect ဖွင့်မည်)
-                </label>
-            </div>
-        </div>
+        <!-- ── Advanced Studio Settings & AI Controls Dashboard ── -->
+        <div class="settings-dashboard branding-strip options-strip" id="settings-dashboard">
 
-        <!-- ── Thumbnail Title & Watermark Branding Strip ── -->
-        <div class="branding-strip">
-            <!-- Thumbnail Title Section -->
-            <div style="background:white; padding:0.85rem 1.1rem; border-radius:12px; border:1px solid rgba(0,0,0,0.07); box-shadow:0 4px 12px rgba(0,0,0,0.02);">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
-                    <span style="font-size:0.85rem; font-weight:700; color:var(--text);">🖼️ Thumbnail မြန်မာ Title:</span>
-                    <span id="thumb-mode-badge" style="font-size:0.72rem; padding:2px 8px; border-radius:4px; background:rgba(46,213,115,0.14); color:var(--success); font-weight:700; border:1px solid rgba(46,213,115,0.3);">🤖 Auto (AI Generated)</span>
+            <!-- ── PANEL 1: Video Canvas & Subtitles ── -->
+            <div class="setting-panel" id="panel-video-subtitles">
+                <div class="panel-header">
+                    <span class="panel-title">🎬 Video Canvas & Subtitles (ဗီဒီယိုနှင့် စာတန်းထိုး)</span>
+                    <span id="video-format-badge" class="panel-badge" style="background:rgba(46,213,115,0.14); color:var(--success); border:1px solid rgba(46,213,115,0.3);">✨ Dual Export (16:9 + 9:16)</span>
                 </div>
-                <input type="text" id="input-thumb-title" placeholder="အလွတ်ထားပါက AI က Auto ရေးပေးမည် (သို့) မိမိစိတ်ကြိုက် Title ရိုက်ထည့်ပါ..." 
-                       oninput="updateThumbBadge(this.value)"
-                       style="width:100%; box-sizing:border-box; padding:0.6rem 0.85rem; font-size:0.85rem; background:#f8fafc; border:1px solid rgba(0,0,0,0.12); border-radius:8px; color:var(--text); transition:border-color 0.2s;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px; padding-top:6px; border-top:1px solid rgba(0,0,0,0.06);">
-                    <label style="font-size:0.82rem; font-weight:600; color:var(--text); cursor:pointer; display:flex; align-items:center; gap:0.4rem;">
-                        <input type="checkbox" id="chk-thumb-intro" onchange="updateThumbnailIntroSetting(this.checked)">
-                        ⏱️ 3s Thumbnail Intro ထည့်မည် (ဗီဒီယိုအစတွင် ၃ စက္ကန့်ပြသရန်)
-                    </label>
-                </div>
-                <div style="font-size:0.75rem; color:var(--muted); margin-top:4px;">
-                    💡 အလွတ်ထားပါက AI က SEO High-CTR မြန်မာခေါင်းစဉ်ကို Auto ထုတ်ယူပေးမည်။ Intro ကို အမှန်ခြစ်ထားမှသာ ဗီဒီယိုအစ၌ Thumbnail ပုံ ၃ စက္ကန့် ပါဝင်မည်။
-                </div>
-            </div>
 
-            <!-- Watermark Branding Section -->
-            <div style="background:white; padding:0.85rem 1.1rem; border-radius:12px; border:1px solid rgba(0,0,0,0.07); box-shadow:0 4px 12px rgba(0,0,0,0.02);">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
-                    <label style="font-size:0.85rem; font-weight:700; color:var(--text); cursor:pointer; display:flex; align-items:center; gap:0.4rem;">
-                        <input type="checkbox" id="chk-watermark" checked onchange="toggleWatermarkControls(this.checked)">
-                        🛡️ Watermark (ရေစာထိုးမည်)
-                    </label>
-                    <button type="button" onclick="saveWatermarkDefault()" style="background:transparent; border:none; color:var(--accent); font-size:0.75rem; font-weight:600; cursor:pointer; padding:0; text-decoration:underline;">💾 Save Default</button>
+                <!-- Aspect Ratio & Resolution -->
+                <div class="control-row">
+                    <div class="control-col">
+                        <label class="control-label" for="select-video-format">📐 Aspect Ratio (ဗီဒီယို အရွယ်အစား):</label>
+                        <select id="select-video-format" class="control-select" onchange="updateVideoFormatBadge(this.value)">
+                            <option value="both" selected>🎬 Both (16:9 Landscape + 9:16 Vertical Reels) — နှစ်မျိုးစလုံး (Recommended)</option>
+                            <option value="16:9">📺 16:9 Only (Standard Landscape — YouTube / FB)</option>
+                            <option value="9:16">📱 9:16 Only (Vertical Canvas — Reels / TikTok / Shorts)</option>
+                        </select>
+                    </div>
+                    <div class="control-col" style="flex:0 0 170px;">
+                        <label class="control-label" for="select-resolution">⚙️ Resolution (အရည်အသွေး):</label>
+                        <select id="select-resolution" class="control-select">
+                            <option value="1080p" selected>🌟 1080p Full HD (Crisp)</option>
+                            <option value="720p">⚡ 720p HD (Faster Render)</option>
+                        </select>
+                    </div>
                 </div>
-                <div id="watermark-inputs-wrap" style="display:flex; gap:0.5rem; align-items:center;">
-                    <input type="text" id="input-watermark-text" value="Pai Ai Movie Studio" placeholder="Channel Name or Branding..."
-                           style="flex:1; box-sizing:border-box; padding:0.6rem 0.85rem; font-size:0.85rem; background:#f8fafc; border:1px solid rgba(0,0,0,0.12); border-radius:8px; color:var(--text);">
-                    <select id="select-watermark-opacity" style="padding:0.6rem 0.6rem; font-size:0.82rem; background:#f8fafc; border:1px solid rgba(0,0,0,0.12); border-radius:8px; color:var(--text);">
-                        <option value="0.2">20% အလွန်ပါး</option>
-                        <option value="0.4" selected>40% သင့်တင့် (Recommended)</option>
-                        <option value="0.6">60% ထင်ရှား</option>
-                        <option value="0.8">80% အလွန်ထင်ရှား</option>
-                        <option value="1.0">100% Solid</option>
-                    </select>
-                </div>
-                <div style="font-size:0.75rem; color:var(--muted); margin-top:4px;">
-                    📌 ဗီဒီယို၏ ညာဘက်အပေါ်ထောင့် (Top-Right) တွင် Transparent ရေစာအဖြစ် ထိုးပေးမည်။
-                </div>
-            </div>
-
-            <!-- Video Size & Aspect Ratio Selector Section -->
-            <div style="background:white; padding:0.85rem 1.1rem; border-radius:12px; border:1px solid rgba(0,0,0,0.07); box-shadow:0 4px 12px rgba(0,0,0,0.02); margin-top:0.6rem;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
-                    <span style="font-size:0.85rem; font-weight:700; color:var(--text); display:flex; align-items:center; gap:0.4rem;">
-                        📐 Video Size / Aspect Ratio (ဗီဒီယို အရွယ်အစား):
-                    </span>
-                    <span id="video-format-badge" style="font-size:0.72rem; padding:2px 8px; border-radius:4px; background:rgba(46,213,115,0.14); color:var(--success); font-weight:700; border:1px solid rgba(46,213,115,0.3);">✨ Dual Export (16:9 + 9:16)</span>
-                </div>
-                <select id="select-video-format" onchange="updateVideoFormatBadge(this.value)"
-                        style="width:100%; box-sizing:border-box; padding:0.6rem 0.85rem; font-size:0.85rem; background:#f8fafc; border:1px solid rgba(0,0,0,0.12); border-radius:8px; color:var(--text); font-weight:600;">
-                    <option value="both" selected>🎬 Both (16:9 Landscape + 9:16 Vertical Reels) — နှစ်မျိုးစလုံး (Recommended)</option>
-                    <option value="16:9">📺 16:9 Only (Standard Landscape — YouTube / Facebook Video)</option>
-                    <option value="9:16">📱 9:16 Only (Vertical Canvas — Facebook Reels / TikTok / Shorts)</option>
-                </select>
-                <div id="video-format-desc" style="font-size:0.75rem; color:var(--muted); margin-top:4px;">
+                <div id="video-format-desc" class="control-hint">
                     📌 16:9 YouTube မူရင်းဗီဒီယိုနှင့် Facebook Reels / Shorts အတွက် 9:16 ဒေါင်လိုက် Canvas ဗီဒီယို (၂) မျိုးစလုံးကို တစ်ပြိုင်နက် ထုတ်ပေးမည်။
                 </div>
+
+                <div class="panel-divider"></div>
+
+                <!-- Subtitle Hardsub & Blur -->
+                <div class="control-row">
+                    <div class="control-col">
+                        <label class="control-label" for="select-hardsub-mode">📝 Subtitle Mode (စာတန်းထိုး):</label>
+                        <select id="select-hardsub-mode" class="control-select" onchange="toggleSubStyleVisibility(this.value)">
+                            <option value="burn" selected>🔥 Burn Subtitles (Hardsub - စာတန်းထိုး ထည့်မည်)</option>
+                            <option value="none">🎙️ Voiceover Only (No Subtitles - မထည့်ပါ)</option>
+                        </select>
+                    </div>
+                    <div class="control-col">
+                        <label class="control-label" for="select-subtitle-mode">🔍 Subtitle Blur (မူရင်းစာတန်းဖျက်):</label>
+                        <select id="select-subtitle-mode" class="control-select">
+                            <option value="auto" selected>🤖 Auto-Detect (Native/Vision AI)</option>
+                            <option value="yes">📝 Force Blur</option>
+                            <option value="no">🚫 Disable Blur</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Subtitle Style Presets Box -->
+                <div id="sub-style-card" style="background:#f8fafc; border:1px solid rgba(0,0,0,0.07); border-radius:12px; padding:0.85rem 1rem; margin-top:0.25rem; transition:opacity 0.2s ease;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem; flex-wrap:wrap; gap:0.4rem;">
+                        <span style="font-size:0.82rem; font-weight:700; color:var(--text); display:flex; align-items:center; gap:0.35rem;">
+                            🎨 Subtitle Style Presets:
+                        </span>
+                        <div style="display:flex; align-items:center; gap:0.4rem;">
+                            <span id="sub-style-badge" style="font-size:0.72rem; padding:2px 8px; border-radius:4px; background:rgba(0,0,0,0.7); color:#ffffff; font-weight:600; border:1px solid rgba(255,255,255,0.2);">⬛ Cinema Box (Netflix Style)</span>
+                            <button type="button" onclick="saveSubStyleDefault()" style="background:white; border:1px solid rgba(0,0,0,0.12); color:var(--text); font-size:0.72rem; padding:2px 8px; border-radius:4px; cursor:pointer; font-weight:600;" title="Save as default in config.json">💾 Save Default</button>
+                        </div>
+                    </div>
+
+                    <!-- Hidden sync dropdown inside wrapper to satisfy toggleSubStyleVisibility -->
+                    <div id="sub-style-strip-wrap" style="display:none;">
+                        <select id="select-subtitle-style" onchange="selectSubPreset(this.value)">
+                            <option value="box_black" selected>⬛ Cinema Box</option>
+                            <option value="yellow_pop">🟡 TikTok / Reels Pop</option>
+                            <option value="white_stroke">⚪ Classic Movie White</option>
+                            <option value="cyan_cyber">🔷 Cyber Cyan</option>
+                            <option value="crimson_box">🟥 Thriller Crimson</option>
+                        </select>
+                    </div>
+
+                    <!-- Interactive Preset Buttons -->
+                    <div style="display:flex; gap:0.4rem; flex-wrap:wrap; margin-bottom:0.55rem;">
+                        <button type="button" class="sub-preset-btn" onclick="selectSubPreset('box_black')" id="btn-preset-box_black" style="padding:0.35rem 0.7rem; font-size:0.76rem; font-weight:700; border-radius:6px; cursor:pointer; background:#18181f; color:#fff; border:1.5px solid #00ff88;">⬛ Cinema Box</button>
+                        <button type="button" class="sub-preset-btn" onclick="selectSubPreset('yellow_pop')" id="btn-preset-yellow_pop" style="padding:0.35rem 0.7rem; font-size:0.76rem; font-weight:700; border-radius:6px; cursor:pointer; background:rgba(255,215,0,0.1); color:#b45309; border:1px solid rgba(255,215,0,0.4);">🟡 TikTok Yellow</button>
+                        <button type="button" class="sub-preset-btn" onclick="selectSubPreset('white_stroke')" id="btn-preset-white_stroke" style="padding:0.35rem 0.7rem; font-size:0.76rem; font-weight:700; border-radius:6px; cursor:pointer; background:white; color:#334155; border:1px solid rgba(0,0,0,0.15);">⚪ Classic White</button>
+                        <button type="button" class="sub-preset-btn" onclick="selectSubPreset('cyan_cyber')" id="btn-preset-cyan_cyber" style="padding:0.35rem 0.7rem; font-size:0.76rem; font-weight:700; border-radius:6px; cursor:pointer; background:rgba(6,182,212,0.1); color:#0891b2; border:1px solid rgba(6,182,212,0.3);">🔷 Cyber Cyan</button>
+                        <button type="button" class="sub-preset-btn" onclick="selectSubPreset('crimson_box')" id="btn-preset-crimson_box" style="padding:0.35rem 0.7rem; font-size:0.76rem; font-weight:700; border-radius:6px; cursor:pointer; background:rgba(239,68,68,0.1); color:#dc2626; border:1px solid rgba(239,68,68,0.3);">🟥 Thriller Red</button>
+                    </div>
+
+                    <!-- Live Preview Display Canvas -->
+                    <div style="background:#141419; padding:0.7rem 1rem; border-radius:8px; border:1px solid rgba(255,255,255,0.1); text-align:center; min-height:44px; display:flex; align-items:center; justify-content:center;">
+                        <span id="sub-live-preview" style="font-family:'Padauk', 'Pyidaungsu', 'Inter', sans-serif; font-size:0.96rem; font-weight:700; display:inline-block; padding:4px 12px; border-radius:4px; background:rgba(0,0,0,0.75); color:#ffffff; letter-spacing:0.3px;">
+                            ဒီဇာတ်ကားကတော့ အကောင်းဆုံး သည်းထိတ်ရင်ဖို ရုပ်ရှင်ဖြစ်ပါတယ် (Sample Subtitle)
+                        </span>
+                    </div>
+                    <div id="sub-style-desc" class="control-hint" style="margin-top:5px;">
+                        📌 အမည်းရောင် Background Box ပါသော ရုပ်ရှင်ရုံသုံး စာတန်း (Contrast အကောင်းဆုံး ဖြစ်၍ မည်သည့်ဗီဒီယိုနောက်ခံတွင်မဆို စာလုံးဖတ်ရ အကြည်လင်ဆုံးဖြစ်သည်)။
+                    </div>
+                </div>
             </div>
 
-            <!-- Series Episodic Splitter Section -->
-            <div style="background:white; padding:0.85rem 1.1rem; border-radius:12px; border:1px solid rgba(0,0,0,0.07); box-shadow:0 4px 12px rgba(0,0,0,0.02); margin-top:0.6rem;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
-                    <label style="font-size:0.85rem; font-weight:700; color:var(--text); cursor:pointer; display:flex; align-items:center; gap:0.4rem;">
-                        <input type="checkbox" id="chk-series-mode" onchange="toggleSeriesControls(this.checked)" onclick="toggleSeriesControls(this.checked)">
-                        ✂️ Series Mode (အပိုင်းတို စီးရီးခွဲထုတ်မည် - Part 1, Part 2...)
+            <!-- ── PANEL 2: Series Splitter & Video Protection ── -->
+            <div class="setting-panel" id="panel-series-protection">
+                <!-- Series Splitter Header -->
+                <div class="panel-header">
+                    <label style="font-size:0.88rem; font-weight:700; color:var(--text); cursor:pointer; display:flex; align-items:center; gap:0.45rem;">
+                        <input type="checkbox" id="chk-series-mode" onchange="toggleSeriesControls(this.checked)" onclick="toggleSeriesControls(this.checked)" style="width:16px; height:16px; accent-color:var(--accent); cursor:pointer;">
+                        ✂️ Series Mode (အပိုင်းတို စီးရီးခွဲထုတ်မည်)
                     </label>
-                    <span id="series-badge" style="font-size:0.72rem; padding:2px 8px; border-radius:4px; background:rgba(100,116,139,0.12); color:var(--muted); font-weight:700;">Full Movie Only</span>
+                    <span id="series-badge" class="panel-badge" style="background:rgba(100,116,139,0.12); color:var(--muted);">Full Movie Only</span>
                 </div>
-                <div id="series-inputs-wrap" style="display:none; margin-top:0.5rem;">
-                    <div style="display:flex; gap:0.5rem; align-items:center;">
-                        <span style="font-size:0.82rem; font-weight:600; color:var(--text); min-width:140px;">တစ်ပိုင်းကြာချိန် (Duration):</span>
-                        <select id="select-series-duration" style="flex:1; box-sizing:border-box; padding:0.6rem 0.85rem; font-size:0.85rem; background:#f8fafc; border:1px solid rgba(0,0,0,0.12); border-radius:8px; color:var(--text); font-weight:600;">
+
+                <!-- Series Mode Inputs -->
+                <div id="series-inputs-wrap" style="display:none;">
+                    <div class="control-row">
+                        <label class="control-label" for="select-series-duration" style="min-width:130px;">⏱️ တစ်ပိုင်းကြာချိန်:</label>
+                        <select id="select-series-duration" class="control-select" style="flex:1; font-weight:600;">
                             <option value="90">⚡ ၉၀ စက္ကန့် (1.5 Mins) — Reels / TikTok Series</option>
                             <option value="180" selected>🎬 ၃ မိနစ် (3.0 Mins) — FB Video / YouTube Series (Recommended)</option>
                             <option value="300">🍿 ၅ မိနစ် (5.0 Mins) — Long Episodic Recap</option>
                             <option value="60">⚡ ၆၀ စက္ကန့် (1.0 Min) — Ultra Short Clips</option>
                         </select>
                     </div>
-                    <div style="font-size:0.75rem; color:var(--muted); margin-top:6px;">
+                    <div class="control-hint" style="margin-top:6px;">
                         📌 ဗီဒီယိုအရှည်ကို စကားပြောမပြတ်စေဘဲ သဘာဝကျသောနေရာများတွင် အလိုအလျောက်ခွဲပြီး Part 1, Part 2 စာတန်း၊ Cliffhanger CTA ("Part 2 ဆက်လက်ကြည့်ရှုပါ") နှင့် Episode Thumbnail များ အလိုအလျောက် ထုတ်ပေးမည်။
                     </div>
                 </div>
-            </div>
 
-            <!-- Outro & Subscribe Protection Section -->
-            <div style="background:white; padding:0.85rem 1.1rem; border-radius:12px; border:1px solid rgba(0,0,0,0.07); box-shadow:0 4px 12px rgba(0,0,0,0.02); margin-top:0.6rem;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem; flex-wrap:wrap; gap:0.4rem;">
-                    <span style="font-size:0.85rem; font-weight:700; color:var(--text); display:flex; align-items:center; gap:0.4rem;">
-                        🛡️ Outro & Subscribe Protection (ဗီဒီယိုအဆုံး အလိုအလျောက် ညှပ်ထုတ်ခြင်း):
-                    </span>
-                    <span id="outro-badge" style="font-size:0.72rem; padding:2px 8px; border-radius:4px; background:rgba(46,213,115,0.14); color:var(--success); font-weight:700;">Auto Smart Trim Active</span>
+                <div class="panel-divider"></div>
+
+                <!-- Outro & Subscribe Protection -->
+                <div class="panel-header" style="border-bottom:none; padding-bottom:0.15rem;">
+                    <span class="panel-title">🛡️ Outro & Subscribe Protection:</span>
+                    <span id="outro-badge" class="panel-badge" style="background:rgba(46,213,115,0.14); color:var(--success); border:1px solid rgba(46,213,115,0.3);">✅ Auto Smart Trim Active</span>
                 </div>
-                <div style="display:flex; gap:1.2rem; flex-wrap:wrap; align-items:center; margin-top:0.4rem;">
-                    <label style="font-size:0.82rem; font-weight:600; color:var(--text); cursor:pointer; display:flex; align-items:center; gap:0.4rem;" title="Automatically cut out end-card Subscribe & Like animations from source video">
-                        <input type="checkbox" id="chk-smart-trim" checked onchange="document.getElementById('outro-badge').textContent = this.checked ? 'Auto Smart Trim Active' : 'Smart Trim Off';">
-                        ✂️ Smart Outro Trim (ဗီဒီယိုအဆုံး Like/Subscribe အပိုင်းများကို Auto ညှပ်ထုတ်မည်)
-                    </label>
-                    <label style="font-size:0.82rem; font-weight:600; color:var(--text); cursor:pointer; display:flex; align-items:center; gap:0.4rem;" title="Append 3-second Pai AI Movie Studio outro card at the end of recap video">
-                        <input type="checkbox" id="chk-outro-card">
-                        🏷️ 3s Outro Card (ဗီဒီယိုအဆုံး၌ Branded Outro Card ကပ်မည်)
-                    </label>
-                    <div style="display:flex; align-items:center; gap:0.4rem;">
-                        <span style="font-size:0.82rem; font-weight:600; color:var(--text);">Manual Trim:</span>
-                        <input type="number" id="input-trim-end" min="0" max="120" step="0.5" placeholder="0s" style="width:70px; padding:0.35rem 0.5rem; font-size:0.82rem; background:#f8fafc; border:1px solid rgba(0,0,0,0.15); border-radius:6px; color:var(--text);">
-                        <span style="font-size:0.75rem; color:var(--muted);">စက္ကန့်</span>
+
+                <div style="display:flex; flex-direction:column; gap:0.6rem;">
+                    <div style="display:flex; gap:0.6rem; flex-wrap:wrap; align-items:center;">
+                        <label class="toggle-chip" title="Automatically cut out end-card Subscribe & Like animations from source video">
+                            <input type="checkbox" id="chk-smart-trim" checked onchange="updateSmartTrimBadge(this.checked)">
+                            ✂️ Smart Outro Trim (Auto ညှပ်ထုတ်မည်)
+                        </label>
+                        <label class="toggle-chip" title="Append 3-second Pai AI Movie Studio outro card at the end of recap video">
+                            <input type="checkbox" id="chk-outro-card">
+                            🏷️ 3s Outro Card (Branded End Card)
+                        </label>
+                    </div>
+                    <div class="control-row">
+                        <label class="control-label" for="input-trim-end">✂️ Manual End Trim:</label>
+                        <div style="display:flex; align-items:center; gap:0.35rem;">
+                            <input type="number" id="input-trim-end" class="control-input" min="0" max="120" step="0.5" placeholder="0" style="width:70px; text-align:center;">
+                            <span class="control-hint" style="font-weight:600;">စက္ကန့်</span>
+                        </div>
+                        <span class="control-hint" style="margin-left:auto;">(အဆုံးပိုင်း သတ်မှတ်စက္ကန့်အတိုင်း လက်ဖြင့်ဖြတ်ရန်)</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Subtitle Style Presets Section -->
-            <div id="sub-style-card" style="background:white; padding:0.85rem 1.1rem; border-radius:12px; border:1px solid rgba(0,0,0,0.07); box-shadow:0 4px 12px rgba(0,0,0,0.02); margin-top:0.6rem; transition:opacity 0.2s ease;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem; flex-wrap:wrap; gap:0.4rem;">
-                    <span style="font-size:0.85rem; font-weight:700; color:var(--text); display:flex; align-items:center; gap:0.4rem;">
-                        🎨 Subtitle Style Presets (စာတန်းထိုး ဒီဇိုင်းပုံစံများ):
-                    </span>
-                    <div style="display:flex; align-items:center; gap:0.4rem;">
-                        <span id="sub-style-badge" style="font-size:0.72rem; padding:2px 8px; border-radius:4px; background:rgba(0,0,0,0.7); color:#ffffff; font-weight:600; border:1px solid rgba(255,255,255,0.2);">⬛ Cinema Box (Netflix Style)</span>
-                        <button type="button" onclick="saveSubStyleDefault()" style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); color:var(--text); font-size:0.72rem; padding:2px 8px; border-radius:4px; cursor:pointer; font-weight:600;" title="Save as default in config.json">💾 Save Default</button>
+            <!-- ── PANEL 3: Thumbnail & Branding ── -->
+            <div class="setting-panel" id="panel-branding">
+                <div class="panel-header">
+                    <span class="panel-title">🖼️ Thumbnail & Watermark (ခေါင်းစဉ်နှင့် ရေစာ)</span>
+                    <span id="thumb-mode-badge" class="panel-badge" style="background:rgba(46,213,115,0.14); color:var(--success); border:1px solid rgba(46,213,115,0.3);">🤖 Auto (AI Generated)</span>
+                </div>
+
+                <!-- Thumbnail Myanmar Title -->
+                <div>
+                    <label class="control-label" for="input-thumb-title" style="margin-bottom:0.35rem;">🖼️ Thumbnail မြန်မာ Title ခေါင်းစဉ်:</label>
+                    <input type="text" id="input-thumb-title" class="control-input" placeholder="အလွတ်ထားပါက AI က Auto ရေးပေးမည် (သို့) မိမိစိတ်ကြိုက် Title ရိုက်ထည့်ပါ..." oninput="updateThumbBadge(this.value)">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px; padding-top:6px; border-top:1px solid rgba(0,0,0,0.06);">
+                        <label class="toggle-chip" style="width:100%;">
+                            <input type="checkbox" id="chk-thumb-intro" onchange="updateThumbnailIntroSetting(this.checked)">
+                            ⏱️ 3s Thumbnail Intro ထည့်မည် (ဗီဒီယိုအစတွင် ၃ စက္ကန့်ပြသရန်)
+                        </label>
+                    </div>
+                    <div class="control-hint" style="margin-top:4px;">
+                        💡 အလွတ်ထားပါက AI က SEO High-CTR မြန်မာခေါင်းစဉ်ကို Auto ထုတ်ယူပေးမည်။ Intro ကို အမှန်ခြစ်ထားမှသာ ဗီဒီယိုအစ၌ Thumbnail ပုံ ၃ စက္ကန့် ပါဝင်မည်။
                     </div>
                 </div>
-                <!-- Interactive Preset Buttons -->
-                <div style="display:flex; gap:0.45rem; flex-wrap:wrap; margin-bottom:0.6rem;">
-                    <button type="button" class="sub-preset-btn" onclick="selectSubPreset('box_black')" id="btn-preset-box_black" style="padding:0.35rem 0.75rem; font-size:0.78rem; font-weight:700; border-radius:6px; cursor:pointer; background:#18181f; color:#fff; border:1.5px solid #00ff88;">⬛ Cinema Box</button>
-                    <button type="button" class="sub-preset-btn" onclick="selectSubPreset('yellow_pop')" id="btn-preset-yellow_pop" style="padding:0.35rem 0.75rem; font-size:0.78rem; font-weight:700; border-radius:6px; cursor:pointer; background:rgba(255,215,0,0.1); color:#ffd700; border:1px solid rgba(255,215,0,0.3);">🟡 TikTok Yellow</button>
-                    <button type="button" class="sub-preset-btn" onclick="selectSubPreset('white_stroke')" id="btn-preset-white_stroke" style="padding:0.35rem 0.75rem; font-size:0.78rem; font-weight:700; border-radius:6px; cursor:pointer; background:rgba(255,255,255,0.08); color:#ffffff; border:1px solid rgba(255,255,255,0.2);">⚪ Classic White</button>
-                    <button type="button" class="sub-preset-btn" onclick="selectSubPreset('cyan_cyber')" id="btn-preset-cyan_cyber" style="padding:0.35rem 0.75rem; font-size:0.78rem; font-weight:700; border-radius:6px; cursor:pointer; background:rgba(0,255,255,0.1); color:#00ffff; border:1px solid rgba(0,255,255,0.3);">🔷 Cyber Cyan</button>
-                    <button type="button" class="sub-preset-btn" onclick="selectSubPreset('crimson_box')" id="btn-preset-crimson_box" style="padding:0.35rem 0.75rem; font-size:0.78rem; font-weight:700; border-radius:6px; cursor:pointer; background:rgba(255,77,77,0.15); color:#ff6b6b; border:1px solid rgba(255,77,77,0.3);">🟥 Thriller Red</button>
-                </div>
-                <!-- Live Preview Display Canvas -->
-                <div style="background:#141419; padding:0.75rem 1rem; border-radius:8px; border:1px solid rgba(255,255,255,0.1); text-align:center; min-height:48px; display:flex; align-items:center; justify-content:center;">
-                    <span id="sub-live-preview" style="font-family:'Padauk', 'Pyidaungsu', 'Inter', sans-serif; font-size:1.02rem; font-weight:700; display:inline-block; padding:4px 12px; border-radius:4px; background:rgba(0,0,0,0.75); color:#ffffff; letter-spacing:0.3px;">
-                        ဒီဇာတ်ကားကတော့ အကောင်းဆုံး သည်းထိတ်ရင်ဖို ရုပ်ရှင်ဖြစ်ပါတယ် (Sample Subtitle)
-                    </span>
-                </div>
-                <div id="sub-style-desc" style="font-size:0.73rem; color:var(--muted); margin-top:5px;">
-                    📌 အမည်းရောင် Background Box ပါသော ရုပ်ရှင်ရုံသုံး စာတန်း (Contrast အကောင်းဆုံး ဖြစ်၍ မည်သည့်ဗီဒီယိုနောက်ခံတွင်မဆို စာလုံးဖတ်ရ အကြည်လင်ဆုံးဖြစ်သည်)။
+
+                <div class="panel-divider"></div>
+
+                <!-- Watermark Section -->
+                <div>
+                    <div class="panel-header" style="border-bottom:none; padding-bottom:0.3rem;">
+                        <label style="font-size:0.85rem; font-weight:700; color:var(--text); cursor:pointer; display:flex; align-items:center; gap:0.4rem;">
+                            <input type="checkbox" id="chk-watermark" checked onchange="toggleWatermarkControls(this.checked)" style="width:15px; height:15px; accent-color:var(--accent);">
+                            🛡️ Watermark (ရေစာထိုးမည်)
+                        </label>
+                        <button type="button" onclick="saveWatermarkDefault()" style="background:transparent; border:none; color:var(--accent); font-size:0.75rem; font-weight:700; cursor:pointer; padding:0; text-decoration:underline;">💾 Save Default</button>
+                    </div>
+                    <div id="watermark-inputs-wrap" class="control-row" style="transition:opacity 0.2s;">
+                        <input type="text" id="input-watermark-text" class="control-input" value="Pai Ai Movie Studio" placeholder="Channel Name or Branding..." style="flex:1;">
+                        <select id="select-watermark-opacity" class="control-select" style="width:auto; min-width:130px;">
+                            <option value="0.2">20% အလွန်ပါး</option>
+                            <option value="0.4" selected>40% သင့်တင့် (Recommended)</option>
+                            <option value="0.6">60% ထင်ရှား</option>
+                            <option value="0.8">80% အလွန်ထင်ရှား</option>
+                            <option value="1.0">100% Solid</option>
+                        </select>
+                    </div>
+                    <div class="control-hint" style="margin-top:4px;">
+                        📌 ဗီဒီယို၏ ညာဘက်အပေါ်ထောင့် (Top-Right) တွင် Transparent ရေစာအဖြစ် ထိုးပေးမည်။
+                    </div>
                 </div>
             </div>
+
+            <!-- ── PANEL 4: AI Engines & Audio Settings ── -->
+            <div class="setting-panel" id="panel-ai-audio">
+                <div class="panel-header">
+                    <span class="panel-title">🎙️ AI Engines & Audio Settings (အသံနှင့် AI ထိန်းချုပ်မှု)</span>
+                </div>
+
+                <div class="control-row">
+                    <div class="control-col">
+                        <label class="control-label" for="select-script-engine">🎬 Script Engine:</label>
+                        <select id="select-script-engine" class="control-select" onchange="updateScriptEngineSetting(this.value)" style="font-weight:600; color:#059669;">
+                            <option value="recap" selected>🎬 Recap Engine (ဇာတ်လမ်းပြောပြသူ စတိုင်)</option>
+                            <option value="translate">🗣️ Translate Engine (၁:၁ တိုက်ရိုက် စကားပြန်စတိုင်)</option>
+                        </select>
+                    </div>
+                    <div class="control-col">
+                        <label class="control-label" for="select-tts-engine-strip">🎙️ Voice Engine:</label>
+                        <select id="select-tts-engine-strip" class="control-select" onchange="updateEngineSetting(this.value)" style="font-weight:600;">
+                            <option value="edge_tts" selected>⚡ Edge TTS (Neural Myanmar & English - Recommended)</option>
+                            <option value="f5_tts">🧬 F5-TTS (English/Chinese Voice Cloning)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="control-row">
+                    <div class="control-col">
+                        <label class="control-label" for="select-source-lang">🌐 Source Audio Language (မူရင်းဗီဒီယိုဘာသာစကား):</label>
+                        <select id="select-source-lang" class="control-select" style="font-weight:600;">
+                            <option value="auto" selected>🤖 Auto Detect (အလိုအလျောက်)</option>
+                            <option value="zh">🇨🇳 Chinese (中文 / တရုတ်)</option>
+                            <option value="en">🇺🇸 English (အင်္ဂလိပ်)</option>
+                            <option value="th">🇹🇭 Thai (ภาษาไทย / ထိုင်း)</option>
+                            <option value="ko">🇰🇷 Korean (한국어 / ကိုရီးယား)</option>
+                            <option value="ja">🇯🇵 Japanese (日本語 / ဂျပန်)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="panel-divider"></div>
+
+                <!-- Audio & Anti-Copyright Protections -->
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); gap:0.55rem;">
+                    <label class="toggle-chip" title="Automatically lower original video/BGM audio when voiceover is speaking">
+                        <input type="checkbox" id="chk-audio-ducking" checked onchange="updateAudioDuckingSetting(this.checked)">
+                        🔊 Dynamic Ducking (BGM အသံတိုးမည်)
+                    </label>
+                    <label class="toggle-chip" title="Skip Demucs vocal separation to speed up processing significantly on CPU">
+                        <input type="checkbox" id="chk-skip-demucs" onchange="updateDemucsSetting(this.checked)">
+                        ⚡ Skip Demucs (အသံခွဲကျော် — CPU ပိုမြန်)
+                    </label>
+                    <label class="toggle-chip" title="Flip video horizontally for maximum anti-copyright protection">
+                        <input type="checkbox" id="chk-mirror" onchange="updateMirrorSetting(this.checked)">
+                        🪞 Mirror Video (မူပိုင်ခွင့် ကာကွယ်ရန်)
+                    </label>
+                    <label class="toggle-chip" title="Enable PySceneDetect frame analysis (slower, scans all frames)">
+                        <input type="checkbox" id="chk-scene-detect" onchange="updateSceneDetectSetting(this.checked)">
+                        🔍 Detect Scenes (PySceneDetect ဖွင့်မည်)
+                    </label>
+                </div>
+            </div>
+
         </div>
     </div>
 
@@ -2260,7 +2423,9 @@
     function toggleSeriesControls(enabled) {
         const wrap = document.getElementById('series-inputs-wrap');
         const badge = document.getElementById('series-badge');
+        const panel = document.getElementById('panel-series-protection');
         if (wrap) wrap.style.display = enabled ? 'block' : 'none';
+        if (panel) panel.classList.toggle('series-card-active', enabled);
         if (badge) {
             if (enabled) {
                 badge.textContent = '🔥 Multi-Part Series';
@@ -2271,8 +2436,24 @@
                 badge.textContent = 'Full Movie Only';
                 badge.style.background = 'rgba(100, 116, 139, 0.12)';
                 badge.style.color = 'var(--muted)';
-                badge.style.border = 'none';
+                badge.style.border = '1px solid rgba(0, 0, 0, 0.06)';
             }
+        }
+    }
+
+    function updateSmartTrimBadge(checked) {
+        const badge = document.getElementById('outro-badge');
+        if (!badge) return;
+        if (checked) {
+            badge.textContent = '✅ Auto Smart Trim Active';
+            badge.style.background = 'rgba(46, 213, 115, 0.14)';
+            badge.style.color = 'var(--success)';
+            badge.style.border = '1px solid rgba(46, 213, 115, 0.3)';
+        } else {
+            badge.textContent = 'Smart Trim Off';
+            badge.style.background = 'rgba(100, 116, 139, 0.12)';
+            badge.style.color = 'var(--muted)';
+            badge.style.border = '1px solid rgba(0, 0, 0, 0.06)';
         }
     }
 
