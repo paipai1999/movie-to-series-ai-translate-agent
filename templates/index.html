@@ -1485,6 +1485,31 @@
                 </div>
             </div>
 
+            <!-- Outro & Subscribe Protection Section -->
+            <div style="background:white; padding:0.85rem 1.1rem; border-radius:12px; border:1px solid rgba(0,0,0,0.07); box-shadow:0 4px 12px rgba(0,0,0,0.02); margin-top:0.6rem;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem; flex-wrap:wrap; gap:0.4rem;">
+                    <span style="font-size:0.85rem; font-weight:700; color:var(--text); display:flex; align-items:center; gap:0.4rem;">
+                        🛡️ Outro & Subscribe Protection (ဗီဒီယိုအဆုံး အလိုအလျောက် ညှပ်ထုတ်ခြင်း):
+                    </span>
+                    <span id="outro-badge" style="font-size:0.72rem; padding:2px 8px; border-radius:4px; background:rgba(46,213,115,0.14); color:var(--success); font-weight:700;">Auto Smart Trim Active</span>
+                </div>
+                <div style="display:flex; gap:1.2rem; flex-wrap:wrap; align-items:center; margin-top:0.4rem;">
+                    <label style="font-size:0.82rem; font-weight:600; color:var(--text); cursor:pointer; display:flex; align-items:center; gap:0.4rem;" title="Automatically cut out end-card Subscribe & Like animations from source video">
+                        <input type="checkbox" id="chk-smart-trim" checked onchange="document.getElementById('outro-badge').textContent = this.checked ? 'Auto Smart Trim Active' : 'Smart Trim Off';">
+                        ✂️ Smart Outro Trim (ဗီဒီယိုအဆုံး Like/Subscribe အပိုင်းများကို Auto ညှပ်ထုတ်မည်)
+                    </label>
+                    <label style="font-size:0.82rem; font-weight:600; color:var(--text); cursor:pointer; display:flex; align-items:center; gap:0.4rem;" title="Append 3-second Pai AI Movie Studio outro card at the end of recap video">
+                        <input type="checkbox" id="chk-outro-card">
+                        🏷️ 3s Outro Card (ဗီဒီယိုအဆုံး၌ Branded Outro Card ကပ်မည်)
+                    </label>
+                    <div style="display:flex; align-items:center; gap:0.4rem;">
+                        <span style="font-size:0.82rem; font-weight:600; color:var(--text);">Manual Trim:</span>
+                        <input type="number" id="input-trim-end" min="0" max="120" step="0.5" placeholder="0s" style="width:70px; padding:0.35rem 0.5rem; font-size:0.82rem; background:#f8fafc; border:1px solid rgba(0,0,0,0.15); border-radius:6px; color:var(--text);">
+                        <span style="font-size:0.75rem; color:var(--muted);">စက္ကန့်</span>
+                    </div>
+                </div>
+            </div>
+
             <!-- Subtitle Style Presets Section -->
             <div id="sub-style-card" style="background:white; padding:0.85rem 1.1rem; border-radius:12px; border:1px solid rgba(0,0,0,0.07); box-shadow:0 4px 12px rgba(0,0,0,0.02); margin-top:0.6rem; transition:opacity 0.2s ease;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem; flex-wrap:wrap; gap:0.4rem;">
@@ -2325,6 +2350,11 @@
         const detectScenes = document.getElementById('chk-scene-detect') ? document.getElementById('chk-scene-detect').checked : false;
         const seriesMode = document.getElementById('chk-series-mode') ? document.getElementById('chk-series-mode').checked : false;
         const seriesDuration = document.getElementById('select-series-duration') ? parseInt(document.getElementById('select-series-duration').value) : 180;
+        const smartTrim = document.getElementById('chk-smart-trim') ? document.getElementById('chk-smart-trim').checked : true;
+        const noSmartTrim = !smartTrim;
+        const outroCard = document.getElementById('chk-outro-card') ? document.getElementById('chk-outro-card').checked : false;
+        const trimEndInput = document.getElementById('input-trim-end') ? parseFloat(document.getElementById('input-trim-end').value) : null;
+        const trimEnd = (!isNaN(trimEndInput) && trimEndInput > 0) ? trimEndInput : null;
 
         const btn = document.getElementById('btn-start');
         const btnText = document.getElementById('btn-start-text');
@@ -2357,7 +2387,10 @@
                     skip_demucs: skipDemucs,
                     detect_scenes: detectScenes,
                     series_mode: seriesMode,
-                    series_duration: seriesDuration
+                    series_duration: seriesDuration,
+                    trim_end: trimEnd,
+                    no_smart_trim: noSmartTrim,
+                    outro_card: outroCard
                 })
             });
             const data = await res.json();
@@ -2409,6 +2442,11 @@
         const detectScenes = document.getElementById('chk-scene-detect') ? document.getElementById('chk-scene-detect').checked : false;
         const seriesMode = document.getElementById('chk-series-mode') ? document.getElementById('chk-series-mode').checked : false;
         const seriesDuration = document.getElementById('select-series-duration') ? parseInt(document.getElementById('select-series-duration').value) : 180;
+        const smartTrim = document.getElementById('chk-smart-trim') ? document.getElementById('chk-smart-trim').checked : true;
+        const noSmartTrim = !smartTrim;
+        const outroCard = document.getElementById('chk-outro-card') ? document.getElementById('chk-outro-card').checked : false;
+        const trimEndInput = document.getElementById('input-trim-end') ? parseFloat(document.getElementById('input-trim-end').value) : null;
+        const trimEnd = (!isNaN(trimEndInput) && trimEndInput > 0) ? trimEndInput : null;
 
         const btn = document.getElementById('btn-batch');
         btn.disabled = true;
@@ -2438,7 +2476,10 @@
                     skip_demucs: skipDemucs,
                     detect_scenes: detectScenes,
                     series_mode: seriesMode,
-                    series_duration: seriesDuration
+                    series_duration: seriesDuration,
+                    trim_end: trimEnd,
+                    no_smart_trim: noSmartTrim,
+                    outro_card: outroCard
                 })
             });
             const data = await res.json();
